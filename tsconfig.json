@@ -107,5 +107,19 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+  },
+  "include": [
+    "typings/**/*.d.ts",
+    "schemas/**/*.ts",
+    "api/v1/register/**/*.ts", 
+    "server.ts",
+    "providers/rateLimiter/**/*.ts", 
+    "providers/authentication/**/*.ts", 
+    "providers/mailProvider/**/*.ts", 
+    "api/v1/verifyEmail/**/*.ts",
+    "api/v1/updateEmail/**/*.ts",
+    "api/v1/resetPassword/**/*.ts",
+    "testing/**/*.ts",
+    "pages/**/*.d.ts",
+  ]
 }
