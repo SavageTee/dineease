@@ -7,6 +7,9 @@ const options: PoolOptions = {
 	user: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
 	database: process.env.DB_DATABASE,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
   // ssl  : {
      // ca : fs.readFileSync(__dirname + '/mysqlCerts/ca.pem'),
      // key : fs.readFileSync(__dirname + '/mysqlCerts/client-key.pem'),

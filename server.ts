@@ -9,13 +9,11 @@ import * as expressSession from "express-session";
 import expressMySqlSession from 'express-mysql-session'; 
 import session from 'express-session';
 
-
-
-
 import i18next from './providers/i18n/i18n';
 import newLog from "./providers/logger/logger"
 import {locales} from "./providers/i18n/i18n"
 import {pool} from "./providers/mysqlProvider/mysqlProvider";
+import {notFound} from "./helpers/herlpers"
 
 const app = express();
 app.use(i18nextMiddleware.handle(i18next as any));
@@ -33,7 +31,7 @@ app.use(session({
 	saveUninitialized: false,
    name: 'sid',
    cookie: {
-      maxAge: 1000 * 60 * 60 * 2, 
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
       sameSite: true
    }
 }));
@@ -60,11 +58,7 @@ import reservation from "./pages/reservation/reservation"
 app.use('/:lng/reservation', reservation);
 
 
-app.use(async (req:Request,res:Response):Promise<any> => res.render('404/index',{
-        title: i18next.t('title',{ns: '404', lng: req.language }),
-        errorHeader: i18next.t('errorHeader',{ns: '404', lng: req.language }),
-        errorBody: i18next.t('errorBody',{ns: '404', lng: req.language }),
-      }));
+app.use(async (req:Request,res:Response):Promise<any> => notFound(req, res));
 
 
 const server = app.listen(process.env.SERVER_PORT || 4999, async () =>{

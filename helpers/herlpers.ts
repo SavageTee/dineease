@@ -9,9 +9,23 @@ export const logErrorAndRespond = async (message: string, metadata: any, req: Re
         message: message,
         metadata: metadata
     });
-    res.status(500).jsonp({
+    return notFound(req,res);
+    /*res.status(500).jsonp({
         status: 'error',
         origin: 'server',
         errorText: i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
-    });
+    });*/
 };
+
+
+export const notFound = async (req:Request, res:Response) => res.render('404/index',{
+        title: i18next.t('title',{ns: '404', lng: req.language }),
+        errorHeader: i18next.t('errorHeader',{ns: '404', lng: req.language }),
+        errorBody: i18next.t('errorBody',{ns: '404', lng: req.language }),
+})
+
+export const errorPage = async (req:Request, res:Response, title:string, errorHeader:string, errorBody:string ) => res.render('error/index',{
+    title: title,
+    errorHeader: errorHeader,
+    errorBody: errorBody,
+})

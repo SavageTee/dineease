@@ -3,32 +3,41 @@ import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../providers/i18n/i18n"
 import {pool} from "../../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond } from "../../helpers/herlpers"
+import { logErrorAndRespond, notFound, errorPage } from "../../helpers/herlpers"
 
 const reservation = express.Router()
-reservation.use(sessionCheck)
 
-reservation.get('/', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+reservation.get('/', sessionCheck , async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
-      const { id } = req.query;
-      const [rows] = await pool.promise().query('CALL get_company(?)',[id]);
-      let companyInfo:companyInfo = {
-        companyID: (rows as any)[0][0]['company_id'],
-        companyName: (rows as any)[0][0]['company_name'],
-        companyLogo: (rows as any)[0][0]['logo'],
-      };
-      res.render('language/index',{
+      const [rows] = await pool.promise().query('CALL get_hotels(?)',[req.session.data!.companyID]);  
+      console.log((rows as any )[0])
+      if( (rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'reservation', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'reservation', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'reservation', lng: req.language }));
+      const hotels:hotels[] = (rows as any)[0].map((row: any) => ({
+        hotelID: row['hotel_id'].toString(),
+        name: row['name'],
+        logo: row['logo'] ? `data:image/jpeg;base64,${Buffer.from(row['logo'],'utf-8').toString('base64')}` : null,
+        verfificationType: row['verfification_type'],
+      }));
+
+     /* let hotels:[]hotels = {
+        hotelID: (rows as any)[0][0]['hotel_id'].toString(),
+        name: (rows as any)[0][0]['name'],
+        logo: (rows as any)[0][0]['logo'],
+        verfificationType: (rows as any)[0][0]['verfification_type'],
+      };*/
+      res.render('reservation/index',{
           title: i18next.t('welcome',{ns: 'reservation', lng: req.language }),
-          companyID: companyInfo.companyID,
-          companyName: companyInfo.companyName,
-          companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo,'utf-8').toString('base64')}`,
+          hotels: hotels
       });
-    }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+
+    }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res ); return notFound(req,res)}
 })
 
 function sessionCheck(req:Request,res:Response,next:NextFunction){
-    if(req.session.hasOwnProperty('uname')){next()}else{
-         res.redirect('/');
+    if( req.session.data && req.session.data !== null && req.session.data.companyUUID && req.session.data.companyID ){
+      next()
+    }else{
+      res.redirect('/');
     }
 }
 

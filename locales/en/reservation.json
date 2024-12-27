@@ -1,4 +1,5 @@
 {
-   "welcome" : "Hiii"
-
+   "titleNoHotel": "nothing found",
+   "errorHeaderNoHotel":"an error occured",
+   "errorBodyNoHotel":"no hotels has been found at this momment"
 }

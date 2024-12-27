@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logErrorAndRespond = void 0;
+exports.errorPage = exports.notFound = exports.logErrorAndRespond = void 0;
 const logger_1 = __importDefault(require("../providers/logger/logger"));
 const i18n_1 = __importDefault(require("../providers/i18n/i18n"));
 const logErrorAndRespond = (message, metadata, req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -21,10 +21,27 @@ const logErrorAndRespond = (message, metadata, req, res) => __awaiter(void 0, vo
         message: message,
         metadata: metadata
     });
-    res.status(500).jsonp({
+    return (0, exports.notFound)(req, res);
+    /*res.status(500).jsonp({
         status: 'error',
         origin: 'server',
-        errorText: i18n_1.default.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
-    });
+        errorText: i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
+    });*/
 });
 exports.logErrorAndRespond = logErrorAndRespond;
+const notFound = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    return res.render('404/index', {
+        title: i18n_1.default.t('title', { ns: '404', lng: req.language }),
+        errorHeader: i18n_1.default.t('errorHeader', { ns: '404', lng: req.language }),
+        errorBody: i18n_1.default.t('errorBody', { ns: '404', lng: req.language }),
+    });
+});
+exports.notFound = notFound;
+const errorPage = (req, res, title, errorHeader, errorBody) => __awaiter(void 0, void 0, void 0, function* () {
+    return res.render('error/index', {
+        title: title,
+        errorHeader: errorHeader,
+        errorBody: errorBody,
+    });
+});
+exports.errorPage = errorPage;

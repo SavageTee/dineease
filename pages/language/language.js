@@ -49,6 +49,7 @@ const express = __importStar(require("express"));
 const i18n_1 = __importDefault(require("../../providers/i18n/i18n"));
 const mysqlProvider_1 = require("../../providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("../../helpers/herlpers");
+const herlpers_2 = require("../../helpers/herlpers");
 const language = express.Router();
 const checkIdParam = (req, res, next) => {
     const { id } = req.query;
@@ -64,12 +65,17 @@ const checkIdParam = (req, res, next) => {
 language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.query;
+        if (id === undefined || id === null)
+            return (0, herlpers_2.notFound)(req, res);
         const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_company(?)', [id]);
+        if (rows[0][0] === undefined || rows[0][0] === null)
+            return (0, herlpers_2.notFound)(req, res);
         let companyInfo = {
-            companyID: rows[0][0]['company_id'],
+            companyID: rows[0][0]['company_id'].toString(),
             companyName: rows[0][0]['company_name'],
             companyLogo: rows[0][0]['logo'],
         };
+        req.session.data = { companyUUID: id.toString(), companyID: companyInfo.companyID };
         res.render('language/index', {
             title: i18n_1.default.t('welcome', { ns: 'reservation', lng: req.language }),
             companyID: companyInfo.companyID,
@@ -78,7 +84,8 @@ language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, vo
         });
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        return (0, herlpers_2.notFound)(req, res);
     }
 }));
 exports.default = language;

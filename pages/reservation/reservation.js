@@ -50,29 +50,36 @@ const i18n_1 = __importDefault(require("../../providers/i18n/i18n"));
 const mysqlProvider_1 = require("../../providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("../../helpers/herlpers");
 const reservation = express.Router();
-reservation.use(sessionCheck);
-reservation.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+reservation.get('/', sessionCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { id } = req.query;
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_company(?)', [id]);
-        let companyInfo = {
-            companyID: rows[0][0]['company_id'],
-            companyName: rows[0][0]['company_name'],
-            companyLogo: rows[0][0]['logo'],
-        };
-        res.render('language/index', {
+        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_hotels(?)', [req.session.data.companyID]);
+        console.log(rows[0]);
+        if (rows[0][0] === undefined || rows[0][0] === null)
+            return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'reservation', lng: req.language }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'reservation', lng: req.language }), i18n_1.default.t('errorBodyNoHotel', { ns: 'reservation', lng: req.language }));
+        const hotels = rows[0].map((row) => ({
+            hotelID: row['hotel_id'].toString(),
+            name: row['name'],
+            logo: row['logo'] ? `data:image/jpeg;base64,${Buffer.from(row['logo'], 'utf-8').toString('base64')}` : null,
+            verfificationType: row['verfification_type'],
+        }));
+        /* let hotels:[]hotels = {
+           hotelID: (rows as any)[0][0]['hotel_id'].toString(),
+           name: (rows as any)[0][0]['name'],
+           logo: (rows as any)[0][0]['logo'],
+           verfificationType: (rows as any)[0][0]['verfification_type'],
+         };*/
+        res.render('reservation/index', {
             title: i18n_1.default.t('welcome', { ns: 'reservation', lng: req.language }),
-            companyID: companyInfo.companyID,
-            companyName: companyInfo.companyName,
-            companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo, 'utf-8').toString('base64')}`,
+            hotels: hotels
         });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        return (0, herlpers_1.notFound)(req, res);
     }
 }));
 function sessionCheck(req, res, next) {
-    if (req.session.hasOwnProperty('uname')) {
+    if (req.session.data && req.session.data !== null && req.session.data.companyUUID && req.session.data.companyID) {
         next();
     }
     else {

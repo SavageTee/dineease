@@ -7,21 +7,17 @@
     <link href="/css/styles.css" rel="stylesheet">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/flags/css/flag-icons.min.css">
-
-
 </head>
-<body>
 
+<body>
   <nav class="tw-bg-black tw-dark:tw-bg-gray-900 tw-w-full tw-z-20 tw-top-0 tw-start-0 tw-border-b-4 tw-border-red-900 dark:tw-border-red-900 container-fluid">
      <div class="row tw-items-center">
       <div class="col-lg-4 col-md-4 col-12 d-flex justify-content-center justify-content-md-start justify-content-lg-start py-2">
         <img src="<%= companyLogo %>" alt="Company Logo" class="h-8">
       </div>
-
       <div class="col-lg-4 col-md-4 col-12 d-flex justify-content-center justify-content-md-center justify-content-lg-center pt-2">
         <div><h6 class="tw-text-white tw-font-extrabold tw-text-2xl"><%= companyName %></h6></div>
       </div>
-
       <div class="col-lg-4 col-md-4 col-12 d-flex justify-content-center justify-content-md-end justify-content-lg-end py-2">
         <button type="button" class="btn btn-success">Success</button>
       </div>
@@ -29,47 +25,41 @@
   </nav>
 
   <div class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-6 tw-p-4 tw-place-content-center tw-place-items-center">
-    
-    <div class="card text-white bg-dark mb-3 tw-w-44">
+    <div id="en" class="card text-white bg-dark mb-3 tw-w-44">
       <div class="card-header text-center tw-text-1xl tw-font-extrabold">English</div>
       <div class="card-body m-1 p-0">
         <img src="/images/gb.svg" alt="UK Flag" class="tw-object-cover tw-rounded-t-lg" />
       </div>
     </div>
-
-    <div class="card text-white bg-dark mb-3 tw-w-44">
+    <div id="ar" class="card text-white bg-dark mb-3 tw-w-44">
       <div class="card-header text-center tw-text-1xl tw-font-extrabold">العربيه</div>
       <div class="card-body m-1 p-0">
-        <img src="/images/sa.svg" alt="UK Flag" class="tw-object-cover tw-rounded-t-lg" />
+        <img src="/images/sa.svg" alt="SA Flag" class="tw-object-cover tw-rounded-t-lg" />
       </div>
     </div>
-
-    <div class="card text-white bg-dark mb-3 tw-w-44">
+    <div id="de" class="card text-white bg-dark mb-3 tw-w-44">
       <div class="card-header text-center tw-text-1xl tw-font-extrabold">Deutsche</div>
       <div class="card-body m-1 p-0">
-        <img src="/images/de.svg" alt="UK Flag" class="tw-object-cover tw-rounded-t-lg" />
+        <img src="/images/de.svg" alt="DE Flag" class="tw-object-cover tw-rounded-t-lg" />
       </div>
     </div>
-
-    <div class="card text-white bg-dark mb-3 tw-w-44">
+    <div id="fr" class="card text-white bg-dark mb-3 tw-w-44">
       <div class="card-header text-center tw-text-1xl tw-font-extrabold">Français</div>
       <div class="card-body m-1 p-0">
-        <img src="/images/fr.svg" alt="UK Flag" class="tw-object-cover tw-rounded-t-lg" />
+        <img src="/images/fr.svg" alt="FR Flag" class="tw-object-cover tw-rounded-t-lg" />
       </div>
     </div>
-
-    <div class="card text-white bg-dark mb-3 tw-w-44">
+    <div id="es" class="card text-white bg-dark mb-3 tw-w-44">
       <div class="card-header text-center tw-text-1xl tw-font-extrabold">Español</div>
       <div class="card-body m-1 p-0">
-        <img src="/images/es.svg" alt="UK Flag" class="tw-object-cover tw-rounded-t-lg" />
+        <img src="/images/es.svg" alt="ES Flag" class="tw-object-cover tw-rounded-t-lg" />
       </div>
     </div>
-
   </div>
 
-<script src="/js/jquery-3.7.1.min.js"></script>
-<script src="/js/popper.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-<script src="/js/reservation.js"></script>
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/language.js"></script>
 </body>
 </html>

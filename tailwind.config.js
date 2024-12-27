@@ -8,6 +8,7 @@ module.exports = {
     './pages/reservation/**/*.{html,js,ejs}',    
     './pages/404/**/*.{html,js,ejs}',   
     './pages/language/**/*.{html,js,ejs}',  
+    './pages/error/**/*.{html,js,ejs}',  
   ],
   theme: {
     extend: {

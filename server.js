@@ -58,6 +58,7 @@ const i18n_1 = __importDefault(require("./providers/i18n/i18n"));
 const logger_1 = __importDefault(require("./providers/logger/logger"));
 const i18n_2 = require("./providers/i18n/i18n");
 const mysqlProvider_1 = require("./providers/mysqlProvider/mysqlProvider");
+const herlpers_1 = require("./helpers/herlpers");
 const app = (0, express_1.default)();
 app.use(i18nextMiddleware.handle(i18n_1.default));
 //app.use((req, res, next) => {rateLimiter.consume(req.ip as any ).then(() => {next();}).catch(() => {res.status(429).json({ error: 'Too Many Requests' });});});
@@ -71,7 +72,7 @@ app.use((0, express_session_1.default)({
     saveUninitialized: false,
     name: 'sid',
     cookie: {
-        maxAge: 1000 * 60 * 60 * 2,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: true
     }
 }));
@@ -90,13 +91,7 @@ const language_1 = __importDefault(require("./pages/language/language"));
 app.use('/:lng/language', language_1.default);
 const reservation_1 = __importDefault(require("./pages/reservation/reservation"));
 app.use('/:lng/reservation', reservation_1.default);
-app.use((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    return res.render('404/index', {
-        title: i18n_1.default.t('title', { ns: '404', lng: req.language }),
-        errorHeader: i18n_1.default.t('errorHeader', { ns: '404', lng: req.language }),
-        errorBody: i18n_1.default.t('errorBody', { ns: '404', lng: req.language }),
-    });
-}));
+app.use((req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, herlpers_1.notFound)(req, res); }));
 const server = app.listen(process.env.SERVER_PORT || 4999, () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, logger_1.default)({ level: 'info', message: `server started successfully`, metadata: { script: "server.js", port: process.env.SERVER_PORT || 4999 } });
     console.log('Started lestining');

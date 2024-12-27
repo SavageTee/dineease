@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="/css/styles.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <script type="module" src="/ionicons/ionicons.esm.js"> </script>
+    <script nomodule src="/ionicons/ionicons.js"> </script>
+</head>
+<body>
+    <section>
+     
+        <div class="tw-py-8 tw-px-4 tw-mx-auto tw-max-w-screen-xl lg:tw-py-16 lg:px-6">
+            <div class="alert alert-danger tw-w-max tw-flex-nowrap tw-mx-auto tw-block tw-text-center" role="alert">
+                <ion-icon class="tw-text-red-700 tw-text-6xl" name="alert-circle-sharp"></ion-icon>
+                <div class="col tw-font-extrabold tw-py-2" ><%= errorHeader %></div>
+                <div class="col tw-font-medium tw-py-1"><%= errorBody %></div>
+            </div>
+        </div>
+
+       
+    </section>
+    <script  src="/js/bootstrap.min.js"> </script>
+</body>
+</html>
