@@ -17,18 +17,13 @@ reservation.get('/', sessionCheck , async (req:Request, res:Response, next:NextF
         logo: row['logo'] ? `data:image/jpeg;base64,${Buffer.from(row['logo'],'utf-8').toString('base64')}` : null,
         verfificationType: row['verfification_type'],
       }));
-
-     /* let hotels:[]hotels = {
-        hotelID: (rows as any)[0][0]['hotel_id'].toString(),
-        name: (rows as any)[0][0]['name'],
-        logo: (rows as any)[0][0]['logo'],
-        verfificationType: (rows as any)[0][0]['verfification_type'],
-      };*/
       res.render('reservation/index',{
-          title: i18next.t('welcome',{ns: 'reservation', lng: req.language }),
-          hotels: hotels
+          title: i18next.t('title',{ns: 'reservation', lng: req.language }),
+          alertText: i18next.t('alertText',{ns: 'reservation', lng: req.language }),
+          buttonText: i18next.t('buttonText',{ns: 'reservation', lng: req.language }),
+          hotels: hotels,
+          type: 'hotel',
       });
-
     }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res ); return notFound(req,res)}
 })
 

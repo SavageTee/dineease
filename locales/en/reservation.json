@@ -1,5 +1,8 @@
 {
    "titleNoHotel": "nothing found",
    "errorHeaderNoHotel":"an error occured",
-   "errorBodyNoHotel":"no hotels has been found at this momment"
+   "errorBodyNoHotel":"no hotels has been found at this momment",
+   "title": "Reservation",
+   "alertText": "Please select the hotel you are staying in, then press 'Continue' to proceed.",
+   "buttonText": "Continue"
 }
