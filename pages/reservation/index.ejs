@@ -10,6 +10,7 @@
 </head>
 
 <body>
+
   <nav class="tw-w-full tw-z-20">
     <ul style="height: 30px; text-align: center;" class="progress tw-w-full tw-flex tw-flex-nowrap">
       <li class="active"><span>HOTEL</span></li>
@@ -23,11 +24,11 @@
     <div class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-6 tw-p-4 tw-place-content-center tw-place-items-center">
       <% hotels.forEach(hotel => { %>
         <div class="tw-max-w-sm tw-bg-gray-400 tw-border tw-border-gray-200 tw-rounded-lg tw-shadow tw-dark:bg-gray-800 tw-dark:border-gray-700">
-          <a class="tw-flex tw-m-0.5 tw-justify-center tw-items-center tw-relative" href="#">  
+          <a class="tw-flex tw-m-0.5 tw-justify-center tw-items-center" href="#">  
             <% if (!hotel.logo) { %>
-              <img class="tw-rounded-t-lg tw-w-full tw-h-full object-cover" src="/images/noimage.jpg" alt="no image">
+              <img class="tw-rounded-t-lg tw-w-full tw-h-full tw-object-cover" src="/images/noimage.jpg" alt="no image">
             <% } else { %>
-              <img class="tw-rounded-t-lg tw-w-full tw-h-full object-cover" src="<%= hotel.logo %>" alt="hotel image">
+              <img class="tw-rounded-t-lg tw-w-full tw-h-full tw-object-cover" src="<%= hotel.logo %>" alt="hotel image">
             <% } %>
           </a> 
           <div class="tw-p-2 tw-rounded-b-lg tw-bg-gray-800 tw-text-center">

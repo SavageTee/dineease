@@ -10,7 +10,6 @@ const reservation = express.Router()
 reservation.get('/', sessionCheck , async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
       const [rows] = await pool.promise().query('CALL get_hotels(?)',[req.session.data!.companyID]);  
-      console.log((rows as any )[0])
       if( (rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'reservation', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'reservation', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'reservation', lng: req.language }));
       const hotels:hotels[] = (rows as any)[0].map((row: any) => ({
         hotelID: row['hotel_id'].toString(),

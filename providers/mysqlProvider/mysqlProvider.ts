@@ -10,14 +10,10 @@ const options: PoolOptions = {
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
-  // ssl  : {
-     // ca : fs.readFileSync(__dirname + '/mysqlCerts/ca.pem'),
-     // key : fs.readFileSync(__dirname + '/mysqlCerts/client-key.pem'),
-     // cert : fs.readFileSync(__dirname + '/mysqlCerts/client-cert.pem')/
-   // }
 };
 
-const pool = mysql.createPool(options);
+let pool = mysql.createPool(options);
+pool.on('error', function (err) {pool = mysql.createPool(options);});
 
 export {
     pool,

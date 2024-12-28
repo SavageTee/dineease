@@ -53,7 +53,6 @@ const reservation = express.Router();
 reservation.get('/', sessionCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_hotels(?)', [req.session.data.companyID]);
-        console.log(rows[0]);
         if (rows[0][0] === undefined || rows[0][0] === null)
             return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'reservation', lng: req.language }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'reservation', lng: req.language }), i18n_1.default.t('errorBodyNoHotel', { ns: 'reservation', lng: req.language }));
         const hotels = rows[0].map((row) => ({
