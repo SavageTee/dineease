@@ -23,7 +23,6 @@ app.use(i18nextMiddleware.handle(i18next as any));
 
 const MySQLStore   = expressMySqlSession(expressSession);
 const sessionStore = new MySQLStore({}, pool.promise().pool as any);
-console.log(process.env.SESSION_SECRET)
 app.use(session({
 	secret: process.env.SESSION_SECRET! || "1235asdsaffg",
 	store: sessionStore,
