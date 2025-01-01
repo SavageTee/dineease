@@ -1,7 +1,7 @@
 function redirect(chosenLanguage){
     const currentUrl = window.location.href;
     const url = new URL(currentUrl);
-    const newUrl = `${window.location.origin}/${chosenLanguage}/reservation`;
+    const newUrl = `${window.location.origin}/${chosenLanguage}/reservation/hotel`;
     console.log(newUrl)
     window.location.href = newUrl;
 }

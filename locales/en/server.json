@@ -1,0 +1,4 @@
+{
+    "error": "an error occured",
+    "errorText": "We're sorry, something went wrong on our end. Please try again later. If the problem persists, please contact support with the following error ID: {{UUID}}." 
+}

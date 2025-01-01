@@ -79,6 +79,8 @@ app.set('view engine', 'ejs');
 app.set('views', path_1.default.join(__dirname, 'pages'));
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.use((req, res, next) => {
+    if (req.method === 'POST')
+        return next();
     const urlParts = req.url.split('/');
     const language = urlParts[1];
     if (!language || !i18n_2.locales.includes(language)) {
@@ -90,6 +92,8 @@ const language_1 = __importDefault(require("./pages/language/language"));
 app.use('/:lng/language', language_1.default);
 const reservation_1 = __importDefault(require("./pages/reservation/reservation"));
 app.use('/:lng/reservation', reservation_1.default);
+const api_1 = __importDefault(require("./api/v1/api"));
+app.use('/api/v1', api_1.default);
 app.use((req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, herlpers_1.notFound)(req, res); }));
 const server = app.listen(process.env.SERVER_PORT || 4999, () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, logger_1.default)({ level: 'info', message: `server started successfully`, metadata: { script: "server.js", port: process.env.SERVER_PORT || 4999 } });

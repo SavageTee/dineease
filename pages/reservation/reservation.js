@@ -50,28 +50,46 @@ const i18n_1 = __importDefault(require("../../providers/i18n/i18n"));
 const mysqlProvider_1 = require("../../providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("../../helpers/herlpers");
 const reservation = express.Router();
-reservation.get('/', sessionCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+reservation.get('/hotel', sessionCheck, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_hotels(?)', [req.session.data.companyID]);
         if (rows[0][0] === undefined || rows[0][0] === null)
             return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'reservation', lng: req.language }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'reservation', lng: req.language }), i18n_1.default.t('errorBodyNoHotel', { ns: 'reservation', lng: req.language }));
-        const hotels = rows[0].map((row) => ({
-            hotelID: row['hotel_id'].toString(),
-            name: row['name'],
-            logo: row['logo'] ? `data:image/jpeg;base64,${Buffer.from(row['logo'], 'utf-8').toString('base64')}` : null,
-            verfificationType: row['verfification_type'],
-        }));
-        res.render('reservation/index', {
+        const hotels = rows[0].map((row) => {
+            var _a;
+            return ({
+                hotelID: row['hotel_id'].toString(),
+                name: row['name'],
+                logo: row['logo'] ? `data:image/jpeg;base64,${Buffer.from(row['logo'], 'utf-8').toString('base64')}` : null,
+                verificationType: row['verification_type'],
+                isSelected: row['hotel_id'].toString() === ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID)
+            });
+        });
+        res.render('reservation/routes/hotel', {
             title: i18n_1.default.t('title', { ns: 'reservation', lng: req.language }),
             alertText: i18n_1.default.t('alertText', { ns: 'reservation', lng: req.language }),
             buttonText: i18n_1.default.t('buttonText', { ns: 'reservation', lng: req.language }),
             hotels: hotels,
             type: 'hotel',
+            error: i18n_1.default.t('noHotelSelectedError', { ns: 'reservation', lng: req.language }),
         });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
-        return (0, herlpers_1.notFound)(req, res);
+    }
+}));
+reservation.get('/room', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        res.render('reservation/routes/room', {
+            title: i18n_1.default.t('title', { ns: 'room', lng: req.language }),
+            alertText: i18n_1.default.t('alertText', { ns: 'room', lng: req.language }),
+            buttonText: i18n_1.default.t('buttonText', { ns: 'room', lng: req.language }),
+            error: i18n_1.default.t('noHotelSelectedError', { ns: 'room', lng: req.language }),
+            confirmButton: i18n_1.default.t('confirmButton', { ns: 'room', lng: req.language }),
+        });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 function sessionCheck(req, res, next) {

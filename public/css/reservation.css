@@ -1,18 +1,15 @@
 ul.progress li.active {
     background-color: green;
 }
-
 ul.progress li {
     background-color: #2d2d2d;
 }
-
 ul.progress {
     list-style: none;
     margin: 0;
     padding: 0;
     border-radius: 0;
 }
-
 ul.progress li {
     float: left;
     position: relative;
@@ -21,13 +18,12 @@ ul.progress li {
     height: 100%;
     padding-left: 1%;
     padding-right: 1%;
-    font-size: 1rem;
+    font-size: 0.9rem;
     flex: auto;
     color: white;
     font-family: sans-serif;
     font-weight: 600;
 }
-
 ul.progress li:after {
     content: '';
     position: absolute;
@@ -39,7 +35,6 @@ ul.progress li:after {
     border-color: transparent transparent transparent #2d2d2d;
     
 }
-
 ul.progress li:before {
     content: '';
     position: absolute;
@@ -50,7 +45,6 @@ ul.progress li:before {
     border-width: 15px 0 15px 15px;
     border-color: transparent transparent transparent #fff;  
 }
-
 ul.progress li.active:before {
     background-color: #2d2d2d;
 }
@@ -58,7 +52,69 @@ ul.progress li.active:before {
 ul.progress li.activate:before{
     background-color: green;
 }
-
 ul.progress li.active:after {
     border-color: transparent transparent transparent green;
+}
+.selected {
+    border: 1px solid green;
+    box-shadow: 0 0 10px green;
+}
+.selected #name_holder {
+    background-color: green !important;
+}
+#pointerAbsorber {
+    z-index: 9999; 
+    pointer-events: all; 
+    background-color: #2d2d2d73;
+}
+
+
+
+
+.tableContainer {
+    border-collapse: collapse;
+}
+
+.tableContainer table{
+   height: 50vh;
+   background-color: transparent;
+}
+
+.tableContainer table, .tableContainer th, .tableContainer td {
+    border: 1px solid black;
+    border-radius: 0;
+    text-align: center;
+}
+
+.tableContainer input{
+    font-size: 40px;
+    text-align: center;
+    font-family: 'SF-REGULAR';
+    border: 1px solid black;
+    border-radius: 0;
+    outline: none;
+    height: 100%;
+}
+.tableContainer input:focus{
+    border: 1px solid black;
+    border-radius: 0;
+    outline: none;
+    height: 100%;
+}
+
+.tableContainer button{
+    border: none;
+    border-radius: 0;
+    height: 100%;
+    font-family: 'SF-LIGHT';
+    font-size: 2rem;
+}
+.tableContainer button:hover{
+    background-color: transparent;
+    color: black;
+}
+.tableContainer td{
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
 }

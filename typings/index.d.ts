@@ -31,6 +31,7 @@ declare module 'express-session' {
         data?: {
             companyUUID?: string;
             companyID?: string;
+            hotelID?: string;
             [key: string]: any; // Optional, for additional properties
         };
     }

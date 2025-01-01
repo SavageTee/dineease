@@ -4,5 +4,6 @@
    "errorBodyNoHotel":"no hotels has been found at this momment",
    "title": "Reservation",
    "alertText": "Please select the hotel you are staying in, then press 'Continue' to proceed.",
-   "buttonText": "Continue"
+   "buttonText": "Continue",
+   "noHotelSelectedError": "Please select a hotel first to continue"
 }

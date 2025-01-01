@@ -42,12 +42,13 @@ app.set('views', path.join(__dirname, 'pages'))
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-  const urlParts = req.url.split('/');
-  const language = urlParts[1];
-  if (!language || !locales.includes(language)) {
-    return res.redirect(301, `/en${req.url}`); 
-  }
-  next();
+    if(req.method === 'POST') return next();
+    const urlParts = req.url.split('/');
+    const language = urlParts[1];
+    if (!language || !locales.includes(language)) {
+      return res.redirect(301, `/en${req.url}`); 
+    }
+    next();
 });
 
 import language from "./pages/language/language"
@@ -56,6 +57,8 @@ app.use('/:lng/language',language);
 import reservation from "./pages/reservation/reservation"
 app.use('/:lng/reservation', reservation);
 
+import api from "./api/v1/api"
+app.use('/api/v1', api);
 
 app.use(async (req:Request,res:Response):Promise<any> => notFound(req, res));
 

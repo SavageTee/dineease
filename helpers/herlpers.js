@@ -21,12 +21,15 @@ const logErrorAndRespond = (message, metadata, req, res) => __awaiter(void 0, vo
         message: message,
         metadata: metadata
     });
-    return (0, exports.notFound)(req, res);
-    /*res.status(500).jsonp({
-        status: 'error',
-        origin: 'server',
-        errorText: i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
-    });*/
+    if (req.method === 'POST') {
+        return res.status(500).jsonp({
+            status: "error",
+            errorText: i18n_1.default.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
+        });
+    }
+    else {
+        return (0, exports.errorPage)(req, res, i18n_1.default.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18n_1.default.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18n_1.default.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID }));
+    }
 });
 exports.logErrorAndRespond = logErrorAndRespond;
 const notFound = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

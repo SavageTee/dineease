@@ -1,0 +1,9 @@
+{
+    "title": "Room Number",
+    "alertText": "Please select your room number, then press 'Ok' to proceed.",
+    "buttonText": "Continue",
+    "verificationBD": "Please enter the birth date of anyone staying in this room.",
+    "verificationDD": "Please enter your departure date to confirm your booking.",
+    "confirmButton" : "Confirm"
+
+ }

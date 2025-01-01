@@ -121,5 +121,6 @@
     "api/v1/resetPassword/**/*.ts",
     "testing/**/*.ts",
     "pages/**/*.d.ts",
+    "api/**/*.d.ts",
   ]
 }

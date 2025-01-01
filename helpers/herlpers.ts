@@ -9,12 +9,14 @@ export const logErrorAndRespond = async (message: string, metadata: any, req: Re
         message: message,
         metadata: metadata
     });
-    return notFound(req,res);
-    /*res.status(500).jsonp({
-        status: 'error',
-        origin: 'server',
-        errorText: i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
-    });*/
+    if(req.method === 'POST'){
+        return res.status(500).jsonp({
+            status: "error",
+            errorText: i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
+        })
+    }else{
+        return errorPage(req, res, i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID}) , i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID }) );
+    }
 };
 
 
