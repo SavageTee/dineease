@@ -4,6 +4,7 @@
     "buttonText": "Continue",
     "verificationBD": "Please enter the birth date of anyone staying in this room.",
     "verificationDD": "Please enter your departure date to confirm your booking.",
-    "confirmButton" : "Confirm"
+    "confirmButton": "Confirm",
+    "invalidRoom": "The room number you entered is incorrect. Please review it and try again."
 
  }

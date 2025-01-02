@@ -89,13 +89,43 @@ api.post('/checkroom', express.json(), (req, res, next) => __awaiter(void 0, voi
         }
         ;
         const [rows] = yield mysqlProvider_1.pool.promise().query('CALL check_room(?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
+        if (rows[0][0]) {
+            return res.status(200).jsonp({
+                status: 'success',
+                result: rows[0][0],
+                verification: {
+                    verificationBD: i18n_1.default.t('verificationBD', { ns: 'room', lng: req.language }),
+                    verificationDD: i18n_1.default.t('verificationDD', { ns: 'room', lng: req.language }),
+                },
+            });
+        }
+        else {
+            return res.status(200).jsonp({ status: 'noRoom', errorText: i18n_1.default.t('invalidRoom', { ns: 'room', lng: req.language }) });
+        }
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.post('/savehotel', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.post('/savehotel', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+api.post('/verifyroom', express.json(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        if ((req.headers['content-type'] != "application/json")) {
+            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
+        }
+        ;
+        if (Object.keys(req.body).length != 2) {
+            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
+        }
+        ;
+        if (Object.keys(req.body)[0] != "roomNumber" || Object.keys(req.body)[1] != "date") {
+            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
+        }
+        ;
+        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL verify_room(?, ?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, req.body.date, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
         return res.status(200).jsonp({
             status: 'success',
             result: rows,
-            verification: {
-                verificationBD: i18n_1.default.t('verificationBD', { ns: 'room', lng: req.language }),
-                verificationDD: i18n_1.default.t('verificationDD', { ns: 'room', lng: req.language }),
-            },
         });
     }
     catch (error) {

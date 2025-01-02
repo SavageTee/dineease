@@ -41,9 +41,8 @@ function Confirm(){
             }
             return response.json();
         }).then(result => {
-            console.log(result['result'][0][0]["verification_type"] === 0)
-            console.log(result['verification']['verificationBD'])
-            if(result['result'][0][0]["verification_type"] === 0){
+            if(result['status'] === 'noRoom'){ clicked = false; return showError(result);}
+            if(result['result']["verification_type"] === 0){
                 $('#verification_modal p').text(result['verification']['verificationBD'])
             }else{
                 $('#verification_modal p').text(result['verification']['verificationDD'])
@@ -61,6 +60,38 @@ function Confirm(){
 
 const confirmDate = (date)=>{
     console.log(date)
+
+    fetch(`/api/v1/verifyroom`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+        body: JSON.stringify({ 'roomNumber': input.value,  })
+    }).then(response =>  {
+        if (!response.ok) {
+            return response.json().then(errorDetails => {
+                const error = new Error('HTTP error occurred');
+                error.status = response.status; 
+                error.details = errorDetails; 
+                throw error;
+            });
+        }
+        return response.json();
+    }).then(result => {
+        console.log(result['result'][0][0]["verification_type"] === 0)
+        console.log(result['verification']['verificationBD'])
+        if(result['result'][0][0]["verification_type"] === 0){
+            $('#verification_modal p').text(result['verification']['verificationBD'])
+        }else{
+            $('#verification_modal p').text(result['verification']['verificationDD'])
+        }
+        $('#verification_modal').modal('show')
+        clicked = false;
+    })
+    .catch(error => {
+        console.log(error)
+        showError(error.details)
+        clicked = false;
+    });
+
 }
 
 $(document).ready(function() {
