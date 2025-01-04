@@ -42,7 +42,7 @@ app.set('views', path.join(__dirname, 'pages'))
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-    if(req.method === 'POST') return next();
+    if(req.method === 'POST' || req.url.includes('/api')) return next();
     const urlParts = req.url.split('/');
     const language = urlParts[1];
     if (!language || !locales.includes(language)) {

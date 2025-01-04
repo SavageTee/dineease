@@ -79,7 +79,7 @@ app.set('view engine', 'ejs');
 app.set('views', path_1.default.join(__dirname, 'pages'));
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.use((req, res, next) => {
-    if (req.method === 'POST')
+    if (req.method === 'POST' || req.url.includes('/api'))
         return next();
     const urlParts = req.url.split('/');
     const language = urlParts[1];

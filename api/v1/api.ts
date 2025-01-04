@@ -8,25 +8,26 @@ import { logErrorAndRespond, notFound, errorPage } from "../../helpers/herlpers"
 const api = express.Router()
 api.use(express.json({limit: '1mb'}))
 
-api.post('/savehotel', express.json(), async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
-    try{
-      if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
-      if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
-      if(Object.keys(req.body)[0] != "hotelID") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
-      req.session.data!.hotelID = req.body.hotelID;
-      return res.status(200).jsonp({status: 'success'})
-    }catch(error){
-      logErrorAndRespond("error occured in catch block of reservation.post('/savehotel', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.post('/savehotel', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res ); return notFound(req,res)
-    }
+api.post('/savehotel', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
+    if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
+    if(Object.keys(req.body)[0] != "hotelID") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
+    req.session.data!.hotelID = req.body.hotelID;
+    return res.status(200).jsonp({status: 'success'})
+  }catch(error){
+    logErrorAndRespond("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );
+  }
 })
 
-api.post('/checkroom', express.json(), async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+api.post('/checkroom', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
     if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
     if(Object.keys(req.body)[0] != "roomNumber") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
     const [rows] = await pool.promise().query('CALL check_room(?, ?, ?)',[req.body.roomNumber, req.session.data?.hotelID ,req.session.data?.companyID,]);  
     if((rows as any)[0][0]){
+      req.session.data!.roomNumber = req.body.roomNumber;
       return res.status(200).jsonp({
         status: 'success',
         result: (rows as any)[0][0],
@@ -39,26 +40,46 @@ api.post('/checkroom', express.json(), async (req:Request, res:Response, next:Ne
       return res.status(200).jsonp({status: 'noRoom', errorText: i18next.t('invalidRoom',{ns: 'room', lng: req.language }) })
     }
   }catch(error){
-    logErrorAndRespond("error occured in catch block of reservation.post('/savehotel', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.post('/savehotel', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );
+    logErrorAndRespond("error occured in catch block of api.post('/checkroom', (req,res)=>{})", {script: "api.ts", scope: "api.post('/checkroom', (req,res)=>{})", request: req, error:`${error}`}, req, res );
   }
 })
 
-api.post('/verifyroom', express.json(), async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+api.post('/verifyroom', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
-    if(Object.keys(req.body).length != 2) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
-    if(Object.keys(req.body)[0] != "roomNumber" || Object.keys(req.body)[1] != "date") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
-    const [rows] = await pool.promise().query('CALL verify_room(?, ?, ?, ?)',[req.body.roomNumber, req.session.data?.hotelID , req.body.date  ,req.session.data?.companyID,]);  
+    if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
+    if(Object.keys(req.body)[0] != "date") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
+    const [rows] = await pool.promise().query('CALL verify_room(?, ?, ?, ?)',[req.session.data?.roomNumber, req.session.data?.hotelID , req.body.date  ,req.session.data?.companyID,]);  
+    if((rows as any)[0][0] !== undefined){
+      if(Number((rows as any)[0][0]) == 0){
+          req.session.data!.paid = true;
+      }else{
+          req.session.data!.paid = false;
+      }
+    }
     return res.status(200).jsonp({
       status: 'success',
-      result: rows,
+      result: (rows as any)[0][0],
+      transelations:{
+        freeReservation: i18next.t('freeReservation',{ns: 'room', lng: req.language }),
+        paidReservation: i18next.t('paidReservation',{ns: 'room', lng: req.language }),
+        remainingReservations: i18next.t('remainingReservations',{ns: 'room', lng: req.language }),
+        pressContinue: i18next.t('pressContinue',{ns: 'room', lng: req.language }),
+      }
     })
   }catch(error){
-    logErrorAndRespond("error occured in catch block of reservation.post('/savehotel', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.post('/savehotel', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );
+    logErrorAndRespond("error occured in catch block of api.post('/verifyroom', (req,res)=>{})", {script: "api.ts", scope: "api.post('/verifyroom', (req,res)=>{})", request: req, error:`${error}`}, req, res );
   }
 })
 
-
-
+api.get('/cancelreservation',async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    let apiUrl = req.session.data?.companyID === undefined ? '' : req.session.data?.companyUUID;
+    req.session.destroy((err) =>{});
+    return res.redirect(`/en/language?id=${apiUrl}`)
+  }catch(error){
+    logErrorAndRespond("error occured in catch block of api.post('/cancelreservation', (req,res)=>{})", {script: "api.ts", scope: "api.post('/cancelreservation', (req,res)=>{})", request: req, error:`${error}`}, req, res );
+  }
+})
 
 export default api;

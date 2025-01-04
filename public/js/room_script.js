@@ -51,7 +51,6 @@ function Confirm(){
             clicked = false;
         })
         .catch(error => {
-            console.log(error)
             showError(error.details)
             clicked = false;
         });
@@ -59,12 +58,10 @@ function Confirm(){
 }
 
 const confirmDate = (date)=>{
-    console.log(date)
-
     fetch(`/api/v1/verifyroom`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
-        body: JSON.stringify({ 'roomNumber': input.value,  })
+        body: JSON.stringify({ 'date': date,  })
     }).then(response =>  {
         if (!response.ok) {
             return response.json().then(errorDetails => {
@@ -76,25 +73,65 @@ const confirmDate = (date)=>{
         }
         return response.json();
     }).then(result => {
-        console.log(result['result'][0][0]["verification_type"] === 0)
-        console.log(result['verification']['verificationBD'])
-        if(result['result'][0][0]["verification_type"] === 0){
-            $('#verification_modal p').text(result['verification']['verificationBD'])
-        }else{
-            $('#verification_modal p').text(result['verification']['verificationDD'])
+        if(result['status'] === 'success'){
+            $("#alert-text").empty();
+            var newContent;
+            if(Number(result['result']['result']) !== 0){
+                newContent = `
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span class="tw-text-gray-600" > ${result['transelations']['freeReservation']}</span>
+                    </div>                   
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span> ${result['transelations']['remainingReservations']}  ${result['result']['result']}</span>
+                    </div>                 
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span> ${result['transelations']['pressContinue']}</span>
+                    </div>
+                `;
+            }else{
+                newContent = `
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span class="tw-text-red-700" >${result['transelations']['paidReservation']}</span>
+                    </div>
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span>${result['transelations']['remainingReservations']}  ${result['result']['result']}</span>
+                    </div>
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span>${result['transelations']['pressContinue']}</span>
+                    </div>
+                `;
+            }
+            $("#alert-text").append(newContent);
         }
-        $('#verification_modal').modal('show')
-        clicked = false;
+        $('#verification_modal').modal('hide')
+        $('#keypad').hide()
+        $('#pointerAbsorber').hide()
+        $('#alert-text').text()
+        $('#confirm').show()
     })
     .catch(error => {
-        console.log(error)
         showError(error.details)
         clicked = false;
     });
 
 }
 
-$(document).ready(function() {
+function goToRestaurants(){
+    if(!clicked){
+        clicked = true;
+        hideError();
+        $('#notloader').hide()
+        $('#pointerAbsorber').show();
+        $('#loader').show();
+        window.location.href = '/reservation/restaurant'
+        clicked = false;
+        $('#notloader').show()
+        $('#pointerAbsorber').hide();
+        $('#loader').hide();
+    }
+}
+
+$(document).ready(function() {    
     $('#date_input').on('input', (e) => {
         if(!isDigit(e.target.value.charAt(e.target.value.length -1 ))){ $('#date_input').val(e.target.value.substring(0,  e.target.value.length - 1));}
         if(e.target.value.length == 4 || e.target.value.length == 7){$('#date_input').val( $('#date_input').val() + "-" )}
@@ -118,4 +155,5 @@ $(document).ready(function() {
         }
     });
     $('#go').on('click',()=> Confirm())
+    $('#confirm').on('click',()=> goToRestaurants());
 })

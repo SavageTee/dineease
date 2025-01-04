@@ -51,7 +51,7 @@ i18next
     backend: {
         loadPath: path.join(__dirname, '../../locales/{{lng}}/{{ns}}.json'),
     },
-    ns: ['reservation', '404', 'server', 'room'],
+    ns: ['hotel', '404', 'server', 'room', 'restaurant'],
     detection: {
         order: ['path', 'header'],
         caches: [],

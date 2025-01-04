@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorPage = exports.notFound = exports.logErrorAndRespond = void 0;
+exports.goBack = exports.errorPage = exports.notFound = exports.logErrorAndRespond = void 0;
 const logger_1 = __importDefault(require("../providers/logger/logger"));
 const i18n_1 = __importDefault(require("../providers/i18n/i18n"));
 const logErrorAndRespond = (message, metadata, req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -48,3 +48,5 @@ const errorPage = (req, res, title, errorHeader, errorBody) => __awaiter(void 0,
     });
 });
 exports.errorPage = errorPage;
+const goBack = (res) => { return res.send(`<script>window.history.back();</script>`); };
+exports.goBack = goBack;

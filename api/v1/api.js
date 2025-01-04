@@ -51,7 +51,7 @@ const mysqlProvider_1 = require("../../providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("../../helpers/herlpers");
 const api = express.Router();
 api.use(express.json({ limit: '1mb' }));
-api.post('/savehotel', express.json(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+api.post('/savehotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if ((req.headers['content-type'] != "application/json")) {
             return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
@@ -69,11 +69,10 @@ api.post('/savehotel', express.json(), (req, res, next) => __awaiter(void 0, voi
         return res.status(200).jsonp({ status: 'success' });
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.post('/savehotel', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.post('/savehotel', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
-        return (0, herlpers_1.notFound)(req, res);
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/savehotel', (req,res)=>{})", { script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-api.post('/checkroom', express.json(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+api.post('/checkroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
         if ((req.headers['content-type'] != "application/json")) {
@@ -90,6 +89,7 @@ api.post('/checkroom', express.json(), (req, res, next) => __awaiter(void 0, voi
         ;
         const [rows] = yield mysqlProvider_1.pool.promise().query('CALL check_room(?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
         if (rows[0][0]) {
+            req.session.data.roomNumber = req.body.roomNumber;
             return res.status(200).jsonp({
                 status: 'success',
                 result: rows[0][0],
@@ -104,32 +104,57 @@ api.post('/checkroom', express.json(), (req, res, next) => __awaiter(void 0, voi
         }
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.post('/savehotel', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.post('/savehotel', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/checkroom', (req,res)=>{})", { script: "api.ts", scope: "api.post('/checkroom', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-api.post('/verifyroom', express.json(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+api.post('/verifyroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
     try {
         if ((req.headers['content-type'] != "application/json")) {
             return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
         }
         ;
-        if (Object.keys(req.body).length != 2) {
+        if (Object.keys(req.body).length != 1) {
             return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
         }
         ;
-        if (Object.keys(req.body)[0] != "roomNumber" || Object.keys(req.body)[1] != "date") {
+        if (Object.keys(req.body)[0] != "date") {
             return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
         }
         ;
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL verify_room(?, ?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, req.body.date, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
+        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL verify_room(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.roomNumber, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.date, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID,]);
+        if (rows[0][0] !== undefined) {
+            if (Number(rows[0][0]) == 0) {
+                req.session.data.paid = true;
+            }
+            else {
+                req.session.data.paid = false;
+            }
+        }
         return res.status(200).jsonp({
             status: 'success',
-            result: rows,
+            result: rows[0][0],
+            transelations: {
+                freeReservation: i18n_1.default.t('freeReservation', { ns: 'room', lng: req.language }),
+                paidReservation: i18n_1.default.t('paidReservation', { ns: 'room', lng: req.language }),
+                remainingReservations: i18n_1.default.t('remainingReservations', { ns: 'room', lng: req.language }),
+                pressContinue: i18n_1.default.t('pressContinue', { ns: 'room', lng: req.language }),
+            }
         });
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.post('/savehotel', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.post('/savehotel', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/verifyroom', (req,res)=>{})", { script: "api.ts", scope: "api.post('/verifyroom', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+api.get('/cancelreservation', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        let apiUrl = ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyID) === undefined ? '' : (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyUUID;
+        req.session.destroy((err) => { });
+        return res.redirect(`/en/language?id=${apiUrl}`);
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/cancelreservation', (req,res)=>{})", { script: "api.ts", scope: "api.post('/cancelreservation', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 exports.default = api;

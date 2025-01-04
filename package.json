@@ -26,6 +26,7 @@
     "ionicons": "^7.4.0",
     "mysql2": "^3.12.0",
     "rate-limiter-flexible": "^5.0.4",
+    "serve-favicon": "^2.5.0",
     "supervisor": "^0.12.0",
     "uuid": "^11.0.3",
     "winston": "^3.17.0"

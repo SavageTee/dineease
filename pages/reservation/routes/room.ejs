@@ -8,6 +8,8 @@
     <link href="/css/styles.css" rel="stylesheet">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/reservation.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/all.min.css">
+
 </head>
 
 <body>
@@ -26,13 +28,15 @@
   <div class="content tw-mt-0.5">
 
     <div id="alert-border-1" class=" tw-mt-2 tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-blue-800 tw-border-t-4 tw-border-b-2 tw-border-blue-300 tw-bg-blue-50 dark:tw-text-blue-400 dark:tw-bg-gray-800 dark:tw-border-blue-800" role="alert">
-      <ion-icon class="tw-text-3xl" name="information-circle-sharp"></ion-icon>
-      <div class="tw-ms-3 tw-text-sm tw-font-medium">
+      <i class="fa-solid fa-circle-info"></i>
+      <div id="alert-text" class="tw-ms-3 tw-text-sm tw-font-medium">
         <%= alertText %>
       </div>
     </div>
 
-    <div style="height: 100vh;" class="tw-border tw-flex tw-items-start tw-justify-center">
+    
+
+    <div id="keypad" style="height: 100vh;" class="tw-border tw-flex tw-items-start tw-justify-center">
       <table class="tw-table-fixed lg:tw-w-1/5  tw-w-4/6 tw-h-3/6">
         <tbody class="tw-border tw-bg-slate-800 tw-text-white tw-text-3xl tw-border-gray-500">
           <tr class="tw-border tw-border-gray-500 tw-w-full">
@@ -87,22 +91,30 @@
         </tbody>
       </table>
     </div>
-   
+
+
   <div class="tw-fixed tw-bottom-0 tw-w-full tw-p-4 tw-shadow-lg tw-z-10">
     <div id="selecterror" style="display: none;" class="tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-red-blue-300 tw-bg-red-200 dark:tw-text-red-400 dark:tw-bg-gray-800 dark:tw-red-blue-800" role="alert">
-      <ion-icon class="tw-text-3xl" name="help-circle-sharp"></ion-icon>
+      <i class="fa-solid fa-circle-question"></i>
       <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium">
       </div>
     </div>
-    <button id="confirm" class="tw-w-2/6 tw-float-right tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
-      <div id="notloader" class="tw-flex tw-items-center tw-justify-center">
-        <span class="tw-mr-2"><%= buttonText %></span> 
-        <ion-icon name="arrow-forward-outline"></ion-icon>
-      </div>
-      <div style="display: none;" id="loader" class="spinner-border text-light" role="status"></div>
-    </button>
+    <div class="tw-w-full tw-flex tw-flex-nowrap tw-justify-around">
+      <button onclick="window.location.href='/api/v1/cancelreservation';" class="tw-p-3 tw-bg-red-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
+        <div class="tw-flex tw-items-center tw-justify-center">
+          <span class="tw-mr-2"><%= buttonTextExit %></span> 
+          <i class="fa-regular fa-circle-xmark"></i>
+        </div>
+      </button>
+      <button style="display: none;" id="confirm" class=" tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
+        <div id="notloader" class="tw-flex tw-items-center tw-justify-center">
+          <span class="tw-mr-2"><%= buttonText %></span> 
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+        <div style="display: none;" id="loader" class="spinner-border text-light" role="status"></div>
+      </button>
+    </div>
   </div>
-
 
 
   <div style="padding-top: 30vh;" id="verification_modal" class="modal tw-bg-black tw-bg-opacity-80" tabindex="-1" role="dialog">
@@ -113,7 +125,7 @@
           <div class="input-group">
             <input id="date_input" placeholder="YYYY-MM-DD" type="text" class="form-control" id="birthdayInput">
             <span class="input-group-text">
-              <ion-icon name="calendar-outline"></ion-icon>
+              <i class="fa-solid fa-calendar-days"></i>
             </span>
           </div>
         </div>
@@ -133,8 +145,5 @@
     <script src="/js/popper.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/room_script.js"></script>
-    <script type="module" src="/ionicons/ionicons.esm.js"> </script>
-    <script nomodule src="/ionicons/ionicons.js"> </script>
-
 </body>
 </html>

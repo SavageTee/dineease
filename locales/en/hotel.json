@@ -2,8 +2,9 @@
    "titleNoHotel": "nothing found",
    "errorHeaderNoHotel":"an error occured",
    "errorBodyNoHotel":"no hotels has been found at this momment",
-   "title": "Reservation",
+   "title": "Pick a Hotel",
    "alertText": "Please select the hotel you are staying in, then press 'Continue' to proceed.",
    "buttonText": "Continue",
-   "noHotelSelectedError": "Please select a hotel first to continue"
+   "noHotelSelectedError": "Please select a hotel first to continue",
+   "buttonTextExit": "Cancel reservation"
 }

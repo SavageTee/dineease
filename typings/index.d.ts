@@ -17,11 +17,20 @@ declare global {
         companyLogo: any | undefined
     }
 
-    type hotels = {
+    type hotel = {
         hotelID: string,
         name: string,
         logo: any | undefined,
         verfificationType: number
+    }
+
+    type restaurant = {
+        restaurantID: string,
+        name: string,
+        country:string;
+        photo: any | undefined,
+        about: string,
+        capacity:number
     }
 
 }
@@ -32,7 +41,9 @@ declare module 'express-session' {
             companyUUID?: string;
             companyID?: string;
             hotelID?: string;
-            [key: string]: any; // Optional, for additional properties
+            roomNumber?:string; 
+            paid?:boolean
+            [key: string]: any; 
         };
     }
 }

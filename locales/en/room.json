@@ -2,9 +2,14 @@
     "title": "Room Number",
     "alertText": "Please select your room number, then press 'Ok' to proceed.",
     "buttonText": "Continue",
+    "buttonTextExit": "Cancel reservation",
     "verificationBD": "Please enter the birth date of anyone staying in this room.",
     "verificationDD": "Please enter your departure date to confirm your booking.",
     "confirmButton": "Confirm",
-    "invalidRoom": "The room number you entered is incorrect. Please review it and try again."
+    "invalidRoom": "The room number you entered is incorrect. Please review it and try again.",
+    "freeReservation": "This reservation is completely free of charge.",
+    "paidReservation": "Please note that this reservation may have a fee. You'll be informed of the exact price when selecting your preferred restaurant",
+    "remainingReservations": "Remaining free reservations including this one: ",
+    "pressContinue": "Press Contine to proceed"
 
  }

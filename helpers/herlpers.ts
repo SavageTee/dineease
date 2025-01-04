@@ -31,3 +31,6 @@ export const errorPage = async (req:Request, res:Response, title:string, errorHe
     errorHeader: errorHeader,
     errorBody: errorBody,
 })
+
+
+export const goBack = (res:Response) =>{return res.send(`<script>window.history.back();</script>`);}
