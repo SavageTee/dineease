@@ -48,3 +48,4 @@ const options = {
 exports.options = options;
 let pool = mysql.createPool(options);
 exports.pool = pool;
+pool.on('error', (err) => { console.log('we kola'); });

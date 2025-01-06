@@ -13,7 +13,7 @@ const options: PoolOptions = {
 };
 
 let pool = mysql.createPool(options);
-/*pool.on('error', function (err) {pool = mysql.createPool(options);});*/
+pool.on('error', (err) => {console.log('we kola')});
 
 export {
     pool,

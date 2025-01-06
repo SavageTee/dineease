@@ -33,7 +33,7 @@
 
 
 
-  <div id="restaurants-container" class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-6 tw-p-4 tw-place-content-center tw-place-items-center">
+  <div id="restaurants-container" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-6 tw-p-4 tw-place-content-center tw-place-items-center">
     <% restaurants.forEach(restaurant => { %>   
       <% if (restaurant.isSelected === true) { %>
       <div id="<%= restaurant.restaurantID %>" onclick="selectHotel(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800 selected">
@@ -61,16 +61,19 @@
         </div>
         <div class="tw-pt-2 tw-px-0 tw-mx-0 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-items-baseline tw-justify-evenly tw-rounded-b-md tw-bg-gray-800">
           <div class="tw-inline-flex tw-items-baseline">
-            <i class="tw-text-green-400 fa-solid fa-user-group tw-text-lg"></i>
-            <p class="tw-font-bold tw-text-green-400 tw-text-lg"><%= restaurant.capacity %></p>     
+            <i class="tw-text-green-500 fa-solid fa-user-group tw-text-lg"></i>
+            <p class="tw-font-bold tw-text-green-500 tw-text-lg"><%= restaurant.capacity %></p>     
           </div>
           <div class="tw-inline-flex tw-items-baseline">
-            <p class="tw-font-bold tw-text-green-400 tw-text-lg">#<%= restaurant.country %></p>     
+            <p class="tw-font-bold tw-text-green-500 tw-text-lg">#<%= restaurant.country %></p>     
           </div>
           <div class="tw-inline-flex tw-items-baseline">
-            <button class="tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
-              <i class="fa-solid tw-px-1 fa-file-arrow-down"></i>
-              <span>Download Menu</span>
+            <button onclick="viewMenu('<%= restaurant.restaurantID %>')" class="tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
+              <div id="view_menu_<%= restaurant.restaurantID %>">
+                <i class="tw-text-2xl fa-solid tw-px-1 fa-utensils"></i>
+                <span class="tw-px-2">View Menu</span>
+              </div>
+              <div style="display: none;" id="loader_modal_<%= restaurant.restaurantID %>" class="spinner-border spinner-border-sm  text-light" role="status"></div>
             </button>
           </div>
         </div>
@@ -106,9 +109,46 @@
     </div>
   </div>
 
+
+  <div class="modal fade tw-p-0 tw-m-0" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content tw-p-0 tw-m-0">
+        <div class="modal-header tw-flex tw-justify-between">
+          <button type="button" class="tw-text-white hover:tw-text-gray-300 tw-text-xl tw-p-0 focus:tw-outline-none" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+           <div class="tw-inline-flex tw-flex-nowrap">
+               <button type="button" class="tw-text-white hover:tw-text-gray-300 tw-text-xl tw-p-0 focus:tw-outline-none" id="zoomIn"><i class="fa-solid fa-square-plus"></i></button>
+               <span class="tw-text-white tw-p-2" id="zoom_percent"></span>
+               <button type="button" class="tw-text-white hover:tw-text-gray-300 tw-text-xl tw-p-0 focus:tw-outline-none" id="zoomOut"><i class="fa-solid fa-square-minus"></i></button>
+           </div>
+        </div>
+        <div class="modal-body tw-p-0 tw-m-0">
+          <canvas style="width: 100%;" id="pdfCanvas"></canvas>
+        </div>
+        <div class="modal-footer tw-inline-flex tw-justify-center">      
+            <button type="button" class="btn btn-danger" id="prevPage"><i class="fa-solid fa-arrow-left"></i></button>
+            <p class="text-light">Page: <span id="pageNum"></span> of <span id="pageCount"></span></p>
+            <button type="button" class="btn btn-danger" id="nextPage"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .modal-content {
+        background-color: #000000;
+    }
+    .modal-body {
+        background-color: #000000;
+    }
+  </style>
+
     <script src="/js/jquery-3.7.1.min.js"></script>
     <script src="/js/popper.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/restaurant_script.js"></script>
+    <script src="/js/pdf.min.js"></script>
+
+   
+   
 </body>
 </html>

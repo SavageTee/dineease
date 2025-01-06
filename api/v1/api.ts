@@ -82,4 +82,19 @@ api.get('/cancelreservation',async (req:Request, res:Response, next:NextFunction
   }
 })
 
+api.post('/menu', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
+    if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};  
+    if(Object.keys(req.body)[0] != "restaurantID") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
+    const [rows] = await pool.promise().query('CALL get_pdf(?)',[req.body.restaurantID]);
+    res.status(200).jsonp({
+      status: "success",
+      menu: (rows as any)[0][0] 
+    })  
+  }catch(error){
+    logErrorAndRespond("error occured in catch block of api.post('/menu', (req,res)=>{})", {script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error:`${error}`}, req, res );
+  }
+})
+
 export default api;

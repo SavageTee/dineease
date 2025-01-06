@@ -157,4 +157,28 @@ api.get('/cancelreservation', (req, res, next) => __awaiter(void 0, void 0, void
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/cancelreservation', (req,res)=>{})", { script: "api.ts", scope: "api.post('/cancelreservation', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
+api.post('/menu', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if ((req.headers['content-type'] != "application/json")) {
+            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
+        }
+        ;
+        if (Object.keys(req.body).length != 1) {
+            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
+        }
+        ;
+        if (Object.keys(req.body)[0] != "restaurantID") {
+            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
+        }
+        ;
+        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_pdf(?)', [req.body.restaurantID]);
+        res.status(200).jsonp({
+            status: "success",
+            menu: rows[0][0]
+        });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/menu', (req,res)=>{})", { script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
 exports.default = api;
