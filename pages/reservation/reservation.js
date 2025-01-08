@@ -97,21 +97,56 @@ reservation.get('/room', sessionCheckHotel, (req, res, next) => __awaiter(void 0
 reservation.get('/restaurant', sessionCheckRestaurant, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_restaurants(?, ?)', [req.session.data.hotelID, req.session.data.companyID]);
-        const restaurants = rows[0].map((row) => ({
-            restaurantID: row['restaurants_id'].toString(),
-            name: row['name'].toString(),
-            country: row['country'].toString(),
-            photo: row['photo'] ? `data:image/jpeg;base64,${Buffer.from(row['photo'], 'utf-8').toString('base64')}` : null,
-            about: row['about'].toString(),
-            capacity: Number(row['capacity'])
-        }));
+        const restaurants = rows[0].map((row) => {
+            var _a;
+            return ({
+                restaurantID: row['restaurants_id'].toString(),
+                name: row['name'].toString(),
+                country: row['country'].toString(),
+                photo: row['photo'] ? `data:image/jpeg;base64,${Buffer.from(row['photo'], 'utf-8').toString('base64')}` : null,
+                about: row['about'].toString(),
+                capacity: Number(row['capacity']),
+                isSelected: row['restaurants_id'].toString() === ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID),
+                reservation_by_room: rows[0][0]['reservation_by_room'] === 1 ? true : false,
+            });
+        });
         return res.render('reservation/routes/restaurant', {
             title: i18n_1.default.t('title', { ns: 'restaurant', lng: req.language }),
             alertText: i18n_1.default.t('alertText', { ns: 'restaurant', lng: req.language }),
             buttonText: i18n_1.default.t('buttonText', { ns: 'restaurant', lng: req.language }),
+            error: i18n_1.default.t('noSelectedRestaurant', { ns: 'restaurant', lng: req.language }),
             buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'restaurant', lng: req.language }),
             restaurants: restaurants
         });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+reservation.get('/time', sessionCheckRestaurant, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        const [rows_names] = yield mysqlProvider_1.pool.promise().query('CALL get_names(?)', [req.session.data.guest_reservation_id]);
+        if (rows_names[0][0] != undefined) {
+            let names = rows_names[0][0]['names'].split(' |-| ');
+            const [rows_arrival_departure] = yield mysqlProvider_1.pool.promise().query('CALL get_arrival_departure(?)', [req.session.data.guest_reservation_id]);
+            let dates = rows_arrival_departure[0][0];
+            return res.render('reservation/routes/time', {
+                title: i18n_1.default.t('title', { ns: 'time', lng: req.language }),
+                alertText: i18n_1.default.t('alertText', { ns: 'time', lng: req.language }),
+                buttonText: i18n_1.default.t('buttonText', { ns: 'time', lng: req.language }),
+                error: i18n_1.default.t('noSelectedRestaurant', { ns: 'time', lng: req.language }),
+                buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'time', lng: req.language }),
+                names: names,
+                arrivalDate: dates['arrival_date'],
+                departureDate: dates['departure_date'],
+                reservation_by_room: (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.reservation_by_room,
+                paid: (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.paid
+            });
+        }
+        else {
+            (0, herlpers_1.goBack)(res);
+        }
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
@@ -135,6 +170,14 @@ function sessionCheckHotel(req, res, next) {
 }
 function sessionCheckRestaurant(req, res, next) {
     if (req.session.data && req.session.data !== null && req.session.data.companyUUID && req.session.data.companyID && req.session.data.hotelID && req.session.data.roomNumber && (req.session.data.paid !== undefined)) {
+        next();
+    }
+    else {
+        (0, herlpers_1.goBack)(res);
+    }
+}
+function sessionCheckTime(req, res, next) {
+    if (req.session.data && req.session.data !== null && req.session.data.companyUUID && req.session.data.companyID && req.session.data.hotelID && req.session.data.roomNumber && (req.session.data.paid !== undefined) && (req.session.data.reservation_by_room !== undefined) && (req.session.data.guest_reservation_id !== undefined)) {
         next();
     }
     else {

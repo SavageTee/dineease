@@ -7,7 +7,7 @@
     <title><%= title %></title>
     <link href="/css/styles.css" rel="stylesheet">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/reservation.css" rel="stylesheet">
+    <link href="/css/restaurants.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/all.min.css">
 
 </head>
@@ -36,9 +36,9 @@
   <div id="restaurants-container" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-6 tw-p-4 tw-place-content-center tw-place-items-center">
     <% restaurants.forEach(restaurant => { %>   
       <% if (restaurant.isSelected === true) { %>
-      <div id="<%= restaurant.restaurantID %>" onclick="selectHotel(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800 selected">
+      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800 selected">
       <% } else { %>
-      <div id="<%= restaurant.restaurantID %>" onclick="selectHotel(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800">
+      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800">
       <% } %>  
         <div className="tw-flex tw-flex-column tw-justify-center tw-items-center">
           <% if (!restaurant.photo) { %>
@@ -90,6 +90,7 @@
     <div id="selecterror" style="display: none;" class="tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-red-blue-300 tw-bg-red-200 dark:tw-text-red-400 dark:tw-bg-gray-800 dark:tw-red-blue-800" role="alert">
       <i class="fa-solid fa-circle-question"></i>
       <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium">
+        <%= error %>
       </div>
     </div>
     <div class="tw-w-full tw-flex tw-flex-nowrap tw-justify-around">

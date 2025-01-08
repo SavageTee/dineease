@@ -24,20 +24,20 @@ function Confirm(){
       method: 'POST',
       headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
       body: JSON.stringify({'hotelID': selected})
-  }).then(response => {
+    }).then(response => {
       if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
       return response.json(); 
-  }).then(result => {
+    }).then(result => {
       window.location.href = '/reservation/room'
       $('#loader').hide();
       $('#notloader').show()
       $('#pointerAbsorber').hide();
       clicked = false;
-  })
-  .catch(error => {
+    })
+    .catch(error => {
       console.error('Error:', error);
       alert('Failed to submit data.');
-  });
+    });
   }else{
     if (errorTimeout) {clearTimeout(errorTimeout);}
     $('#selecterror').fadeIn();
@@ -48,7 +48,5 @@ function Confirm(){
 }
 
 $(document).ready(function() {
-
-
   $('#confirm').on('click',()=> Confirm())
 })

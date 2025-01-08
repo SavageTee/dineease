@@ -30,7 +30,8 @@ declare global {
         country:string;
         photo: any | undefined,
         about: string,
-        capacity:number
+        capacity:number,
+        reservation_by_room: boolean;
     }
 
 }
@@ -40,9 +41,11 @@ declare module 'express-session' {
         data?: {
             companyUUID?: string;
             companyID?: string;
+            reservation_by_room?:boolean;
             hotelID?: string;
             roomNumber?:string; 
             paid?:boolean
+            guest_reservation_id?:string;
             [key: string]: any; 
         };
     }

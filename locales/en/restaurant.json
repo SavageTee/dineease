@@ -2,5 +2,6 @@
     "title": "Pick a Restaurant",
     "alertText": "Choose Your Dining Experience! then press 'Continue' to proceed.",
     "buttonText": "Continue",
-    "buttonTextExit": "Cancel reservation"
+    "buttonTextExit": "Cancel reservation",
+    "noSelectedRestaurant": "please select a restaurant first, to continue."
 }

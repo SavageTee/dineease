@@ -56,7 +56,7 @@ ul.progress li.active:after {
     border-color: transparent transparent transparent green;
 }
 .selected {
-    border: 1px solid green;
+    border: 4px solid green;
     box-shadow: 0 0 10px green;
 }
 .selected #name_holder {
@@ -116,3 +116,10 @@ ul.progress li.active:after {
     padding: 0;
     vertical-align: middle;
 }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+  }
+
+  

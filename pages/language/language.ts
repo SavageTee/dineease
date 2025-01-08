@@ -3,7 +3,7 @@ import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../providers/i18n/i18n"
 import {pool} from "../../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond } from "../../helpers/herlpers"
+import { errorPage, logErrorAndRespond } from "../../helpers/herlpers"
 import {notFound} from "../../helpers/herlpers"
 
 const language = express.Router()
@@ -32,13 +32,13 @@ language.get('/', checkIdParam, async (req:Request, res:Response, next:NextFunct
         companyLogo: (rows as any)[0][0]['logo'],
       };
       req.session.data={ companyUUID:id.toString(), companyID:companyInfo.companyID };
-      res.render('language/index',{
+      return res.render('language/index',{
           title: i18next.t('welcome',{ns: 'reservation', lng: req.language }),
           companyID: companyInfo.companyID,
           companyName: companyInfo.companyName,
           companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo,'utf-8').toString('base64')}`,
       });
-    }catch(error){logErrorAndRespond("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", {script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res ); return notFound(req,res)}
+    }catch(error){return logErrorAndRespond("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", {script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 export default language;

@@ -1,10 +1,25 @@
 var clicked = false;
+var clickedConfirm = false;
 var errorTimeout;
 let pdfDoc = null;
 let currentPage = 1;
 let pageCount = 0;
 let zoomScale = 1;
 let renderTask = null; 
+let selectedRestaurant = undefined;
+
+function SelectRestaurant(card,restaurantID) {
+  console.log(restaurantID);   console.log(card);
+  const allCards = document.querySelectorAll('#restaurants-container > div');
+  allCards.forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedRestaurant = restaurantID;
+}
+
+(function(){
+  const selectedElement = document.querySelector('#restaurants-container .selected');
+  if (selectedElement) {selected=selectedElement.id;}
+})();
 
 $('#zoom_percent').text(`${zoomScale * 100}%`)
 $(function() {
@@ -101,22 +116,65 @@ function prevPage() {
     } catch (error) {console.error('Error rendering page:', error);}
   }
 
-  async function loadPDF(pdfData) {
-    try {
-      const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-      pdfDoc = pdf;
-      pageCount = pdf.numPages;
-      document.getElementById('pageCount').textContent = pageCount; // Update total pages
-      renderPage(currentPage); // Render the first page
-    } catch (error) {console.error('Error loading PDF:', error);}
-  }
+async function loadPDF(pdfData) {
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+    pdfDoc = pdf;
+    pageCount = pdf.numPages;
+    document.getElementById('pageCount').textContent = pageCount; // Update total pages
+    renderPage(currentPage); // Render the first page
+  } catch (error) {console.error('Error loading PDF:', error);}
+}
 
+function Confirm(){
+  if(!clickedConfirm && selectedRestaurant){
+    clickedConfirm = true;
+    $('#loader').show();
+    $('#notloader').hide();
+    $('#pointerAbsorber').show();
+    fetch(`/api/v1/saverestaurant`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+      body: JSON.stringify({'restaurantID': selectedRestaurant})
+  }).then(response => {
+    if (!response.ok) {
+      return response.json().then(errorDetails => {
+          const error = new Error('HTTP error occurred');
+          error.status = response.status; 
+          error.details = errorDetails; 
+          throw error;
+        });
+      }
+      return response.json(); 
+  }).then(result => {
+      console.log(result)
+      window.location.href = '/reservation/time'
+      $('#loader').hide();
+      $('#notloader').show()
+      $('#pointerAbsorber').hide();
+      clickedConfirm = false;
+  })
+  .catch(error => {
+      showError(error.details)
+      $('#loader').hide();
+      $('#notloader').show();
+      $('#pointerAbsorber').hide();
+      clickedConfirm = false;
+  });
+  }else{
+    console.log('here')
+    if (errorTimeout) {clearTimeout(errorTimeout);}
+    $('#selecterror').fadeIn();
+    setTimeout(function () {
+      $('#selecterror').fadeOut();
+  }, 3000);
+  }
+}
 
 $(document).ready(function() {
     document.getElementById('nextPage').addEventListener('click', nextPage);
     document.getElementById('prevPage').addEventListener('click', prevPage);
-
+    $('#confirm').on('click',()=> Confirm())
     document.getElementById('zoomIn').addEventListener('click', () => setZoom(zoomScale + 0.5));
     document.getElementById('zoomOut').addEventListener('click', () => setZoom(zoomScale - 0.5));
-
 })

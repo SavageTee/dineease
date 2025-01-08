@@ -76,7 +76,7 @@ language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, vo
             companyLogo: rows[0][0]['logo'],
         };
         req.session.data = { companyUUID: id.toString(), companyID: companyInfo.companyID };
-        res.render('language/index', {
+        return res.render('language/index', {
             title: i18n_1.default.t('welcome', { ns: 'reservation', lng: req.language }),
             companyID: companyInfo.companyID,
             companyName: companyInfo.companyName,
@@ -84,8 +84,7 @@ language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, vo
         });
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
-        return (0, herlpers_2.notFound)(req, res);
+        return (0, herlpers_1.logErrorAndRespond)("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 exports.default = language;

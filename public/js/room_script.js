@@ -76,13 +76,14 @@ const confirmDate = (date)=>{
         if(result['status'] === 'success'){
             $("#alert-text").empty();
             var newContent;
-            if(Number(result['result']['result']) !== 0){
+            console.log(result)
+            if(Number(result['result']) !== 0){
                 newContent = `
                     <div class="tw-flex tw-items-center tw-mb-2">
                         <span class="tw-text-gray-600" > ${result['transelations']['freeReservation']}</span>
                     </div>                   
                     <div class="tw-flex tw-items-center tw-mb-2">
-                        <span> ${result['transelations']['remainingReservations']}  ${result['result']['result']}</span>
+                        <span> ${result['transelations']['remainingReservations']}  ${result['result']}</span>
                     </div>                 
                     <div class="tw-flex tw-items-center tw-mb-2">
                         <span> ${result['transelations']['pressContinue']}</span>
@@ -94,7 +95,7 @@ const confirmDate = (date)=>{
                         <span class="tw-text-red-700" >${result['transelations']['paidReservation']}</span>
                     </div>
                     <div class="tw-flex tw-items-center tw-mb-2">
-                        <span>${result['transelations']['remainingReservations']}  ${result['result']['result']}</span>
+                        <span>${result['transelations']['remainingReservations']}  ${result['result']}</span>
                     </div>
                     <div class="tw-flex tw-items-center tw-mb-2">
                         <span>${result['transelations']['pressContinue']}</span>

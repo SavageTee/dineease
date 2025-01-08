@@ -36,7 +36,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.options = exports.pool = void 0;
 const mysql = __importStar(require("mysql2"));
 const options = {
-    pool: true,
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     user: process.env.DB_USER,
@@ -48,4 +47,3 @@ const options = {
 exports.options = options;
 let pool = mysql.createPool(options);
 exports.pool = pool;
-pool.on('error', (err) => { console.log('we kola'); });

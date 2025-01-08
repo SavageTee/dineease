@@ -52,15 +52,41 @@ reservation.get('/restaurant', sessionCheckRestaurant, async (req:Request, res:R
       country: row['country'].toString(),
       photo: row['photo'] ? `data:image/jpeg;base64,${Buffer.from(row['photo'],'utf-8').toString('base64')}` : null,
       about: row['about'].toString(),
-      capacity: Number(row['capacity'])
+      capacity: Number(row['capacity']),
+      isSelected: row['restaurants_id'].toString() === req.session.data?.restaurantID,
+      reservation_by_room: (rows as any)[0][0]['reservation_by_room'] === 1 ? true : false,
     }))
     return res.render('reservation/routes/restaurant',{
       title: i18next.t('title',{ns: 'restaurant', lng: req.language }),
       alertText: i18next.t('alertText',{ns: 'restaurant', lng: req.language }),
       buttonText: i18next.t('buttonText',{ns: 'restaurant', lng: req.language }),
+      error: i18next.t('noSelectedRestaurant',{ns: 'restaurant', lng: req.language }),
       buttonTextExit: i18next.t('buttonTextExit',{ns: 'restaurant', lng: req.language }),
       restaurants: restaurants
     });
+  }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+})
+
+reservation.get('/time', sessionCheckRestaurant, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    const [rows_names] = await pool.promise().query('CALL get_names(?)',[req.session.data!.guest_reservation_id]); 
+    if((rows_names as any)[0][0] != undefined){
+        let names:string[] = (rows_names as any)[0][0]['names'].split(' |-| ');
+        const [rows_arrival_departure] = await pool.promise().query('CALL get_arrival_departure(?)',[req.session.data!.guest_reservation_id]); 
+        let dates:{arrival_date:string, departure_date:string} = (rows_arrival_departure as any)[0][0];
+        return res.render('reservation/routes/time',{
+          title: i18next.t('title',{ns: 'time', lng: req.language }),
+          alertText: i18next.t('alertText',{ns: 'time', lng: req.language }),
+          buttonText: i18next.t('buttonText',{ns: 'time', lng: req.language }),
+          error: i18next.t('noSelectedRestaurant',{ns: 'time', lng: req.language }),
+          buttonTextExit: i18next.t('buttonTextExit',{ns: 'time', lng: req.language }),
+          names: names,
+          arrivalDate: dates['arrival_date'],
+          departureDate: dates['departure_date'],
+          reservation_by_room: req.session.data?.reservation_by_room,
+          paid: req.session.data?.paid
+        });
+    }else{goBack(res)}
   }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
@@ -78,6 +104,12 @@ function sessionCheckHotel(req:Request,res:Response,next:NextFunction){
 
 function sessionCheckRestaurant(req:Request,res:Response,next:NextFunction){
   if( req.session.data && req.session.data !== null && req.session.data.companyUUID && req.session.data.companyID && req.session.data.hotelID && req.session.data.roomNumber && (req.session.data.paid !== undefined) ){
+    next()
+  }else{goBack(res)}
+}
+
+function sessionCheckTime(req:Request,res:Response,next:NextFunction){
+  if( req.session.data && req.session.data !== null && req.session.data.companyUUID && req.session.data.companyID && req.session.data.hotelID && req.session.data.roomNumber && (req.session.data.paid !== undefined) && (req.session.data.reservation_by_room !== undefined) && (req.session.data.guest_reservation_id !== undefined) ){
     next()
   }else{goBack(res)}
 }
