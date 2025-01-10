@@ -72,20 +72,36 @@ reservation.get('/time', sessionCheckRestaurant, async (req:Request, res:Respons
     const [rows_names] = await pool.promise().query('CALL get_names(?)',[req.session.data!.guest_reservation_id]); 
     if((rows_names as any)[0][0] != undefined){
         let names:string[] = (rows_names as any)[0][0]['names'].split(' |-| ');
-        const [rows_arrival_departure] = await pool.promise().query('CALL get_arrival_departure(?)',[req.session.data!.guest_reservation_id]); 
-        let dates:{arrival_date:string, departure_date:string} = (rows_arrival_departure as any)[0][0];
-        return res.render('reservation/routes/time',{
-          title: i18next.t('title',{ns: 'time', lng: req.language }),
-          alertText: i18next.t('alertText',{ns: 'time', lng: req.language }),
-          buttonText: i18next.t('buttonText',{ns: 'time', lng: req.language }),
-          error: i18next.t('noSelectedRestaurant',{ns: 'time', lng: req.language }),
-          buttonTextExit: i18next.t('buttonTextExit',{ns: 'time', lng: req.language }),
-          names: names,
-          arrivalDate: dates['arrival_date'],
-          departureDate: dates['departure_date'],
-          reservation_by_room: req.session.data?.reservation_by_room,
-          paid: req.session.data?.paid
-        });
+        const [rows_arrival_departure] = await pool.promise().query('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.hotelID,req.session.data?.companyID]); 
+        let dates:{start_date:string, end_date:string} = (rows_arrival_departure as any)[0][0];
+        const start_date = new Date(dates['start_date']);
+        const end_date = new Date(dates['end_date']);
+        if (start_date > end_date) {
+          let uuid = req.session.data?.companyUUID;
+          console.log(req.session)
+          req.session.destroy(()=>{})
+          console.log(req.session)
+          return res.render('error/index',{
+            title:  i18next.t('errorDepartureHead',{ns: 'time', lng: req.language }),
+            errorHeader: i18next.t('errorDepartureHead',{ns: 'time', lng: req.language }),
+            errorBody: i18next.t('errorDepartureBody',{ns: 'time', lng: req.language }),
+            showErrorScript: true,
+            companyUUID: uuid
+          })
+        }else{
+          return res.render('reservation/routes/time',{
+            title: i18next.t('title',{ns: 'time', lng: req.language }),
+            alertText: i18next.t('alertText',{ns: 'time', lng: req.language }),
+            buttonText: i18next.t('buttonText',{ns: 'time', lng: req.language }),
+            error: i18next.t('noSelectedRestaurant',{ns: 'time', lng: req.language }),
+            buttonTextExit: i18next.t('buttonTextExit',{ns: 'time', lng: req.language }),
+            names: names,
+            startDate: dates['start_date'],
+            endDate: dates['end_date'],
+            reservation_by_room: req.session.data?.reservation_by_room,
+            paid: req.session.data?.paid
+          });
+        }
     }else{goBack(res)}
   }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })

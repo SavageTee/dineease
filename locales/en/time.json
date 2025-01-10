@@ -3,5 +3,7 @@
     "alertText": "Select a Suitable Time for You then press 'Continue' to proceed.",
     "buttonText": "Continue",
     "buttonTextExit": "Cancel reservation",
-    "freeText": "FREE"
+    "freeText": "FREE",
+    "errorDepartureHead": "you cannot reserve a restaurant",
+    "errorDepartureBody" : "You no longer have available days in hotel to reserve a restaurant. redirecting in 5 seconds"
 }
