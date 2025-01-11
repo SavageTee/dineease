@@ -9,7 +9,7 @@ const reservation = express.Router()
 
 reservation.get('/hotel', sessionCheckCompany, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
-      const [rows] = await pool.promise().query('CALL get_hotels(?)',[req.session.data!.companyID]);  
+      const rows = pool.query('CALL get_hotels(?)',[req.session.data!.companyID]);  
       if( (rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
       const hotels:hotel[] = (rows as any)[0].map((row: any) => ({
         hotelID: row['hotel_id'].toString(),
@@ -45,7 +45,7 @@ reservation.get('/room', sessionCheckHotel, async (req:Request, res:Response, ne
 
 reservation.get('/restaurant', sessionCheckRestaurant, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    const [rows] = await pool.promise().query('CALL get_restaurants(?, ?)',[req.session.data!.hotelID, req.session.data!.companyID]);  
+    const rows = pool.query('CALL get_restaurants(?, ?)',[req.session.data!.hotelID, req.session.data!.companyID]);  
     const restaurants:restaurant[] = (rows as any)[0].map((row: any) => ({
       restaurantID: row['restaurants_id'].toString(),
       name: row['name'].toString(),
@@ -62,17 +62,17 @@ reservation.get('/restaurant', sessionCheckRestaurant, async (req:Request, res:R
       buttonText: i18next.t('buttonText',{ns: 'restaurant', lng: req.language }),
       error: i18next.t('noSelectedRestaurant',{ns: 'restaurant', lng: req.language }),
       buttonTextExit: i18next.t('buttonTextExit',{ns: 'restaurant', lng: req.language }),
-      restaurants: restaurants
+      restaurants: restaurants,
     });
   }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 reservation.get('/time', sessionCheckRestaurant, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    const [rows_names] = await pool.promise().query('CALL get_names(?)',[req.session.data!.guest_reservation_id]); 
+    const rows_names =  pool.query('CALL get_names(?)',[req.session.data!.guest_reservation_id]); 
     if((rows_names as any)[0][0] != undefined){
         let names:string[] = (rows_names as any)[0][0]['names'].split(' |-| ');
-        const [rows_arrival_departure] = await pool.promise().query('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.hotelID,req.session.data?.companyID]); 
+        const rows_arrival_departure = pool.query('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.hotelID,req.session.data?.companyID]); 
         let dates:{start_date:string, end_date:string} = (rows_arrival_departure as any)[0][0];
         const start_date = new Date(dates['start_date']);
         const end_date = new Date(dates['end_date']);
@@ -99,7 +99,12 @@ reservation.get('/time', sessionCheckRestaurant, async (req:Request, res:Respons
             startDate: dates['start_date'],
             endDate: dates['end_date'],
             reservation_by_room: req.session.data?.reservation_by_room,
-            paid: req.session.data?.paid
+            paid: req.session.data?.paid,
+            tableHeader: i18next.t('tableHeader',{ns: 'time', lng: req.language }),
+            roomNumber: req.session.data!.roomNumber,
+            RoomBasedReservation: i18next.t('RoomBasedReservation',{ns: 'time', lng: req.language }),
+            paxBasedReservation: i18next.t('paxBasedReservation',{ns: 'time', lng: req.language }),
+            selectYourDate: i18next.t('selectYourDate',{ns: 'time', lng: req.language }),
           });
         }
     }else{goBack(res)}

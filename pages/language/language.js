@@ -67,7 +67,7 @@ language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, vo
         const { id } = req.query;
         if (id === undefined || id === null)
             return (0, herlpers_2.notFound)(req, res);
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_company(?)', [id]);
+        let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [id]);
         if (rows[0][0] === undefined || rows[0][0] === null)
             return (0, herlpers_2.notFound)(req, res);
         let companyInfo = {

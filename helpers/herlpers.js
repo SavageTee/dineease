@@ -45,6 +45,7 @@ const errorPage = (req, res, title, errorHeader, errorBody) => __awaiter(void 0,
         title: title,
         errorHeader: errorHeader,
         errorBody: errorBody,
+        showErrorScript: false
     });
 });
 exports.errorPage = errorPage;

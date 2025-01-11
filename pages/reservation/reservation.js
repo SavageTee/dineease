@@ -52,7 +52,7 @@ const herlpers_1 = require("../../helpers/herlpers");
 const reservation = express.Router();
 reservation.get('/hotel', sessionCheckCompany, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_hotels(?)', [req.session.data.companyID]);
+        const rows = mysqlProvider_1.pool.query('CALL get_hotels(?)', [req.session.data.companyID]);
         if (rows[0][0] === undefined || rows[0][0] === null)
             return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorBodyNoHotel', { ns: 'hotel', lng: req.language }));
         const hotels = rows[0].map((row) => {
@@ -96,7 +96,7 @@ reservation.get('/room', sessionCheckHotel, (req, res, next) => __awaiter(void 0
 }));
 reservation.get('/restaurant', sessionCheckRestaurant, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_restaurants(?, ?)', [req.session.data.hotelID, req.session.data.companyID]);
+        const rows = mysqlProvider_1.pool.query('CALL get_restaurants(?, ?)', [req.session.data.hotelID, req.session.data.companyID]);
         const restaurants = rows[0].map((row) => {
             var _a;
             return ({
@@ -116,7 +116,7 @@ reservation.get('/restaurant', sessionCheckRestaurant, (req, res, next) => __awa
             buttonText: i18n_1.default.t('buttonText', { ns: 'restaurant', lng: req.language }),
             error: i18n_1.default.t('noSelectedRestaurant', { ns: 'restaurant', lng: req.language }),
             buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'restaurant', lng: req.language }),
-            restaurants: restaurants
+            restaurants: restaurants,
         });
     }
     catch (error) {
@@ -126,10 +126,10 @@ reservation.get('/restaurant', sessionCheckRestaurant, (req, res, next) => __awa
 reservation.get('/time', sessionCheckRestaurant, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e;
     try {
-        const [rows_names] = yield mysqlProvider_1.pool.promise().query('CALL get_names(?)', [req.session.data.guest_reservation_id]);
+        const rows_names = mysqlProvider_1.pool.query('CALL get_names(?)', [req.session.data.guest_reservation_id]);
         if (rows_names[0][0] != undefined) {
             let names = rows_names[0][0]['names'].split(' |-| ');
-            const [rows_arrival_departure] = yield mysqlProvider_1.pool.promise().query('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
+            const rows_arrival_departure = mysqlProvider_1.pool.query('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
             let dates = rows_arrival_departure[0][0];
             const start_date = new Date(dates['start_date']);
             const end_date = new Date(dates['end_date']);
@@ -157,7 +157,12 @@ reservation.get('/time', sessionCheckRestaurant, (req, res, next) => __awaiter(v
                     startDate: dates['start_date'],
                     endDate: dates['end_date'],
                     reservation_by_room: (_d = req.session.data) === null || _d === void 0 ? void 0 : _d.reservation_by_room,
-                    paid: (_e = req.session.data) === null || _e === void 0 ? void 0 : _e.paid
+                    paid: (_e = req.session.data) === null || _e === void 0 ? void 0 : _e.paid,
+                    tableHeader: i18n_1.default.t('tableHeader', { ns: 'time', lng: req.language }),
+                    roomNumber: req.session.data.roomNumber,
+                    RoomBasedReservation: i18n_1.default.t('RoomBasedReservation', { ns: 'time', lng: req.language }),
+                    paxBasedReservation: i18n_1.default.t('paxBasedReservation', { ns: 'time', lng: req.language }),
+                    selectYourDate: i18n_1.default.t('selectYourDate', { ns: 'time', lng: req.language }),
                 });
             }
         }

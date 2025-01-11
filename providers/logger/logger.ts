@@ -8,7 +8,7 @@ class MysqlTransport extends Transport {
   async log(info: any, callback: () => void){
        setImmediate(() => {this.emit('logged', info);});
        try {
-        await pool.promise().query(
+        await pool.query(
           'CALL create_new_log(?, ?, ?, ?, ?)',
           [
             info.level,

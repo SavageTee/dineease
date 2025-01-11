@@ -9,12 +9,21 @@ const showError = (error) => {
 
 const hideError = ()=> { $('#errorAlert').text(); $('#selecterror').fadeOut();}
 
+function stateFormatter(value, row) {
+    console.log(row)
+    if (row['remaining'] === 0) {
+      return {
+        disabled: true
+      }
+    }
+    return value
+}
 
-function cellStyle(value, row, index) {
-    return {
-     css: {
-        color: 'blue'
-     }
+function rowStyle(row, index) {
+    if(row['remaining'] === 0){
+        return {
+            classes: 'pen-marked',
+        }
     }
 }
 
@@ -40,6 +49,8 @@ function searchDate(){
         $('#search_spinner').show();
         $('#search_normal').hide();
         $('#datepicker').attr('disabled', true);
+        hideError();
+        $('#table_show_hide').hide();
         fetch(`/api/v1/getavailabledate`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
@@ -56,7 +67,20 @@ function searchDate(){
             return response.json();
         }).then(async (result)=>{
             result['data'].map(item=> item['free'] = result['free']);
-            $('#datepricetable').bootstrapTable('destroy').bootstrapTable().bootstrapTable('load',result['data'])
+            if(result['data'].length > 0){
+                $('#datepricetable').bootstrapTable('destroy').bootstrapTable().bootstrapTable('load',result['data'])
+                const columns = $('#datepricetable').bootstrapTable('getVisibleColumns');
+                columns.forEach((column) => {
+                    $('#datepricetable').bootstrapTable('updateColumnTitle', {
+                        field: column.field,
+                        title: result['table'][`${column.field}`].toString()
+                    })
+                });
+                $('#table_show_hide').show();
+            }else{     
+                showError({errorText: result['errorRestaurantNotAvailable']})    
+                $('#table_show_hide').hide();
+            }
             searching = false;
             $('#search_spinner').hide();
             $('#search_normal').show();

@@ -22,7 +22,7 @@ app.use(i18nextMiddleware.handle(i18next as any));
 //app.use((req, res, next) => {rateLimiter.consume(req.ip as any ).then(() => {next();}).catch(() => {res.status(429).json({ error: 'Too Many Requests' });});});
 
 const MySQLStore   = expressMySqlSession(expressSession);
-const sessionStore = new MySQLStore({}, pool.promise().pool as any);
+const sessionStore = new MySQLStore({}, pool as any);
 app.use(session({
 	secret: process.env.SESSION_SECRET! || "1235asdsaffg",
 	store: sessionStore,

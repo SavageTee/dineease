@@ -2,7 +2,7 @@ import * as express from "express"
 import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../providers/i18n/i18n"
-import {pool} from "../../providers/mysqlProvider/mysqlProvider"
+import {pool, executeQuery} from "../../providers/mysqlProvider/mysqlProvider"
 import { errorPage, logErrorAndRespond } from "../../helpers/herlpers"
 import {notFound} from "../../helpers/herlpers"
 
@@ -24,7 +24,7 @@ language.get('/', checkIdParam, async (req:Request, res:Response, next:NextFunct
     try{
       const { id } = req.query;
       if(id === undefined || id === null) return notFound(req,res);
-      const [rows] = await pool.promise().query('CALL get_company(?)',[id]);
+      let rows = await executeQuery('CALL get_company(?)',[id]);
       if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null) return notFound(req,res);
       let companyInfo:companyInfo = {
         companyID: (rows as any)[0][0]['company_id'].toString(),

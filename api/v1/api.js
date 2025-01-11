@@ -87,7 +87,7 @@ api.post('/checkroom', (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
         }
         ;
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL check_room(?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
+        const rows = mysqlProvider_1.pool.query('CALL check_room(?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
         if (rows[0][0]) {
             req.session.data.roomNumber = req.body.roomNumber;
             return res.status(200).jsonp({
@@ -122,7 +122,7 @@ api.post('/verifyroom', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
         }
         ;
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL verify_room(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.roomNumber, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.date, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID,]);
+        const rows = mysqlProvider_1.pool.query('CALL verify_room(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.roomNumber, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.date, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID,]);
         if (rows[0][0] !== undefined) {
             if (Number(rows[0][0]['remaining']) == 0) {
                 req.session.data.paid = true;
@@ -172,7 +172,7 @@ api.post('/menu', (req, res, next) => __awaiter(void 0, void 0, void 0, function
             return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
         }
         ;
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_pdf(?)', [req.body.restaurantID]);
+        const rows = mysqlProvider_1.pool.query('CALL get_pdf(?)', [req.body.restaurantID]);
         res.status(200).jsonp({
             status: "success",
             menu: rows[0][0]
@@ -196,7 +196,7 @@ api.post('/saverestaurant', (req, res, next) => __awaiter(void 0, void 0, void 0
             return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
         }
         ;
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_by_room_flag(?)', [req.body.restaurantID]);
+        const rows = mysqlProvider_1.pool.query('CALL get_by_room_flag(?)', [req.body.restaurantID]);
         if (![0, 1].includes(rows[0][0]['reservation_by_room']))
             return (0, herlpers_1.logErrorAndRespond)("error occured in api.post('/saverestaurant', (req,res)=>{})", { script: "api.ts", scope: "api.post('/saverestaurant', (req,res)=>{})", request: req, error: `THE get_by_room_flag returned null value or undefined` }, req, res);
         req.session.data.restaurantID = req.body.restaurantID;
@@ -222,9 +222,21 @@ api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void
             return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
         }
         ;
-        const [rows] = yield mysqlProvider_1.pool.promise().query('CALL get_available_date(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.desiredDate, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID]);
-        console.log(rows[0][0]);
-        return res.status(200).jsonp({ status: 'success', data: rows[0], free: i18n_1.default.t('freeText', { ns: 'time', lng: req.language }) });
+        const rows = mysqlProvider_1.pool.query('CALL get_available_date(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.desiredDate, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID]);
+        console.log(rows[0]);
+        return res.status(200).jsonp({
+            status: 'success',
+            data: rows[0],
+            free: i18n_1.default.t('freeText', { ns: 'time', lng: req.language }),
+            errorRestaurantNotAvailable: i18n_1.default.t('errorRestaurantNotAvailable', { ns: 'time', lng: req.language }),
+            table: {
+                price: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
+                time: i18n_1.default.t('timeTable', { ns: 'time', lng: req.language }),
+                per_person: i18n_1.default.t('tablePerPerson', { ns: 'time', lng: req.language }),
+                remaining: i18n_1.default.t('tableRemaining', { ns: 'time', lng: req.language }),
+                free: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
+            }
+        });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/getavailabledate', (req,res)=>{})", { script: "api.ts", scope: "api.post('/getavailabledate', (req,res)=>{})", request: req, error: `${error}` }, req, res);

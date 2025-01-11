@@ -30,6 +30,7 @@ export const errorPage = async (req:Request, res:Response, title:string, errorHe
     title: title,
     errorHeader: errorHeader,
     errorBody: errorBody,
+    showErrorScript: false
 })
 
 

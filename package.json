@@ -14,6 +14,7 @@
   "dependencies": {
     "@types/express-mysql-session": "^3.0.6",
     "@types/express-session": "^1.18.1",
+    "@types/mysql": "^2.15.26",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
@@ -24,6 +25,7 @@
     "i18next-fs-backend": "^2.6.0",
     "i18next-http-middleware": "^3.7.1",
     "ionicons": "^7.4.0",
+    "mysql": "^2.18.1",
     "mysql2": "^3.12.0",
     "rate-limiter-flexible": "^5.0.4",
     "serve-favicon": "^2.5.0",
