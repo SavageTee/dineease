@@ -95,6 +95,8 @@ const reservation_1 = __importDefault(require("./pages/reservation/reservation")
 app.use('/:lng/reservation', reservation_1.default);
 const api_1 = __importDefault(require("./api/v1/api"));
 app.use('/api/v1', api_1.default);
+const admin_1 = __importDefault(require("./pages/admin/admin"));
+app.use('/:lng/de-admin', admin_1.default);
 app.use((req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, herlpers_1.notFound)(req, res); }));
 const server = app.listen(process.env.SERVER_PORT || 4999, () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, logger_1.default)({ level: 'info', message: `server started successfully`, metadata: { script: "server.js", port: process.env.SERVER_PORT || 4999 } });

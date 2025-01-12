@@ -223,7 +223,6 @@ api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void
         }
         ;
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_available_date(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.desiredDate, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID]);
-        console.log(rows[0]);
         return res.status(200).jsonp({
             status: 'success',
             data: rows[0],

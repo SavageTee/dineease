@@ -119,7 +119,6 @@ api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunctio
     if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
     if(Object.keys(req.body)[0] != "desiredDate") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
     const rows = await executeQuery('CALL get_available_date(?, ?, ?, ?)',[req.session.data?.restaurantID, req.session.data?.hotelID, req.body.desiredDate, req.session.data?.companyID]);
-    console.log((rows as any)[0])
     return res.status(200).jsonp({
       status: 'success',
       data: (rows as any)[0],

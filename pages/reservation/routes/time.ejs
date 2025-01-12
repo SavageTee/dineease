@@ -128,10 +128,17 @@
           <% } else { %>
             <th class="tw-text-center tw-font-bold tw-font-sans tw-px-4" data-formatter="priceFormatterFree" data-field="free" data-sortable = "true" data-switchable = "true">Price</th>
           <% } %> 
-          <th class="tw-text-center tw-font-bold tw-font-sans tw-px-4" data-formatter="perPersonFormatter" data-field = "per_person" data-sortable = "true" data-switchable = "true">is Price per person ?</th>
+          <th data-field="per_person" data-visible="false"></th>
         </tr>
         </thead>
       </table>
+      <button id="confirm" class="tw-p-3 tw-mx-auto tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
+        <div id="notloader" class="tw-flex tw-items-center tw-justify-center">
+          <span class="tw-mr-2"><%= buttonText %></span> 
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+        <div style="display: none;" id="loader" class="spinner-border text-light" role="status"></div>
+      </button>
   </div>
 
   <br/><br/><br/><br/><br/><br/><br/><br/>
@@ -151,13 +158,6 @@
           <span class="tw-mr-2"><%= buttonTextExit %></span> 
           <i class="fa-regular fa-circle-xmark"></i>
         </div>
-      </button>
-      <button id="confirm" class="tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
-        <div id="notloader" class="tw-flex tw-items-center tw-justify-center">
-          <span class="tw-mr-2"><%= buttonText %></span> 
-          <i class="fa-solid fa-arrow-right"></i>
-        </div>
-        <div style="display: none;" id="loader" class="spinner-border text-light" role="status"></div>
       </button>
     </div>
   </div>

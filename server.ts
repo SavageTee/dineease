@@ -60,6 +60,9 @@ app.use('/:lng/reservation', reservation);
 import api from "./api/v1/api"
 app.use('/api/v1', api);
 
+import admin from "./pages/admin/admin"
+app.use('/:lng/de-admin', admin);
+
 app.use(async (req:Request,res:Response):Promise<any> => notFound(req, res));
 
 const server = app.listen(process.env.SERVER_PORT || 4999, async () =>{

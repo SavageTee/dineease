@@ -9,6 +9,7 @@ module.exports = {
     './pages/404/**/*.{html,js,ejs}',   
     './pages/language/**/*.{html,js,ejs}',  
     './pages/error/**/*.{html,js,ejs}',  
+    './pages/admin/**/*.{html,js,ejs}', 
   ],
   theme: {
     extend: {

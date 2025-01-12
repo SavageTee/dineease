@@ -10,7 +10,6 @@ const showError = (error) => {
 const hideError = ()=> { $('#errorAlert').text(); $('#selecterror').fadeOut();}
 
 function stateFormatter(value, row) {
-    console.log(row)
     if (row['remaining'] === 0) {
       return {
         disabled: true
@@ -28,11 +27,11 @@ function rowStyle(row, index) {
 }
 
 function priceFormatterFree(data,row){
-    return `<p style="color: green;" >${data}</p>`
+    return `<div style="color: green;" >${data}</div>`
 }
 
 function priceFormatter(data,row){
-    return `<p>${data} ${row['currency']}</p>`
+    return `<div>${data} ${row['currency']} ${row['per_person'] === 1 ? ` / ${row['per_person_ident']}` : ''} </div>`
 }
 
 function perPersonFormatter(data,row){
@@ -66,11 +65,12 @@ function searchDate(){
             }
             return response.json();
         }).then(async (result)=>{
-            result['data'].map(item=> item['free'] = result['free']);
+            console.log(result)
+            result['data'].map(item=> {item['free'] = result['free']; item['per_person_ident'] = result['table']['per_person'];});
             if(result['data'].length > 0){
                 $('#datepricetable').bootstrapTable('destroy').bootstrapTable().bootstrapTable('load',result['data'])
                 const columns = $('#datepricetable').bootstrapTable('getVisibleColumns');
-                columns.forEach((column) => {
+                columns.forEach((column, index)=>{    
                     $('#datepricetable').bootstrapTable('updateColumnTitle', {
                         field: column.field,
                         title: result['table'][`${column.field}`].toString()
