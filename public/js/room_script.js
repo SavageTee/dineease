@@ -125,10 +125,12 @@ function goToRestaurants(){
         $('#pointerAbsorber').show();
         $('#loader').show();
         window.location.href = '/reservation/restaurant'
-        clicked = false;
-        $('#notloader').show()
-        $('#pointerAbsorber').hide();
-        $('#loader').hide();
+        setTimeout(() => {
+            clicked = false;
+            $('#notloader').show()
+            $('#pointerAbsorber').hide();
+            $('#loader').hide();
+        }, 10000); 
     }
 }
 

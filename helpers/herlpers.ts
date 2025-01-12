@@ -26,13 +26,14 @@ export const notFound = async (req:Request, res:Response) => res.render('404/ind
     errorBody: i18next.t('errorBody',{ns: '404', lng: req.language }),
 })
 
-export const errorPage = async (req:Request, res:Response, title:string, errorHeader:string, errorBody:string, copyError?:string, goBack?:string   ) => res.render('error/index',{
+export const errorPage = async (req:Request, res:Response, title:string, errorHeader:string, errorBody:string, copyError?:string, goBack?:string, showErrorScript?:boolean, companyUUID?:string ) => res.render('error/index',{
     title: title,
     errorHeader: errorHeader,
     errorBody: errorBody,
-    showErrorScript: false,
+    showErrorScript: showErrorScript || false,
     copyError: copyError || "COPY ERROR",
-    goBack: goBack || "GO BACK"
+    goBack: goBack || "GO BACK",
+    companyUUID: companyUUID || ""
 })
 
 

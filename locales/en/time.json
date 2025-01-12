@@ -14,5 +14,7 @@
     "tableHeader": "Note that all time provided is in UTC",
     "RoomBasedReservation": "Following are the room guests",
     "paxBasedReservation": "Select the room guests to be included",
-    "selectYourDate": "Select prefered Date to find available time"
+    "selectYourDate": "Select prefered Date to find available time",
+    "copyError": "COPY ERROR",
+    "goBack": "GO BACK"
 }

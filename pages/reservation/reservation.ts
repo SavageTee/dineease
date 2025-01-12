@@ -2,7 +2,7 @@ import * as express from "express"
 import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../providers/i18n/i18n"
-import { executeQuery, pool } from "../../providers/mysqlProvider/mysqlProvider"
+import { executeQuery } from "../../providers/mysqlProvider/mysqlProvider"
 import { logErrorAndRespond, notFound, errorPage, goBack } from "../../helpers/herlpers"
 
 const reservation = express.Router()
@@ -10,7 +10,7 @@ const reservation = express.Router()
 reservation.get('/hotel', sessionCheckCompany, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
       const rows = await executeQuery('CALL get_hotels(?)', [req.session.data!.companyID]);
-      if( (rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
+      if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
       const hotels:hotel[] = (rows as any)[0].map((row: any) => ({
         hotelID: row['hotel_id'].toString(),
         name: row['name'],
@@ -45,7 +45,7 @@ reservation.get('/room', sessionCheckHotel, async (req:Request, res:Response, ne
 
 reservation.get('/restaurant', sessionCheckRestaurant, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    const rows = pool.query('CALL get_restaurants(?, ?)',[req.session.data!.hotelID, req.session.data!.companyID]);  
+    const rows = await executeQuery('CALL get_restaurants(?, ?)',[req.session.data!.hotelID, req.session.data!.companyID]);  
     const restaurants:restaurant[] = (rows as any)[0].map((row: any) => ({
       restaurantID: row['restaurants_id'].toString(),
       name: row['name'].toString(),
@@ -69,25 +69,17 @@ reservation.get('/restaurant', sessionCheckRestaurant, async (req:Request, res:R
 
 reservation.get('/time', sessionCheckRestaurant, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    const rows_names =  pool.query('CALL get_names(?)',[req.session.data!.guest_reservation_id]); 
+    const rows_names =  await executeQuery('CALL get_names(?)',[req.session.data!.guest_reservation_id]); 
     if((rows_names as any)[0][0] != undefined){
         let names:string[] = (rows_names as any)[0][0]['names'].split(' |-| ');
-        const rows_arrival_departure = pool.query('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.hotelID,req.session.data?.companyID]); 
+        const rows_arrival_departure = await executeQuery('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.hotelID,req.session.data?.companyID]); 
         let dates:{start_date:string, end_date:string} = (rows_arrival_departure as any)[0][0];
         const start_date = new Date(dates['start_date']);
         const end_date = new Date(dates['end_date']);
         if (start_date > end_date) {
           let uuid = req.session.data?.companyUUID;
-          console.log(req.session)
           req.session.destroy(()=>{})
-          console.log(req.session)
-          return res.render('error/index',{
-            title:  i18next.t('errorDepartureHead',{ns: 'time', lng: req.language }),
-            errorHeader: i18next.t('errorDepartureHead',{ns: 'time', lng: req.language }),
-            errorBody: i18next.t('errorDepartureBody',{ns: 'time', lng: req.language }),
-            showErrorScript: true,
-            companyUUID: uuid
-          })
+          return errorPage(req, res, i18next.t('errorDepartureHead',{ns: 'time', lng: req.language }), i18next.t('errorDepartureHead',{ns: 'time', lng: req.language }), i18next.t('errorDepartureBody',{ns: 'time', lng: req.language }), i18next.t('copyError',{ns: 'time', lng: req.language }), i18next.t('goBack',{ns: 'time', lng: req.language }),true , uuid)
         }else{
           return res.render('reservation/routes/time',{
             title: i18next.t('title',{ns: 'time', lng: req.language }),

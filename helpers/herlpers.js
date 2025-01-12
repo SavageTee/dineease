@@ -40,14 +40,15 @@ const notFound = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.notFound = notFound;
-const errorPage = (req, res, title, errorHeader, errorBody, copyError, goBack) => __awaiter(void 0, void 0, void 0, function* () {
+const errorPage = (req, res, title, errorHeader, errorBody, copyError, goBack, showErrorScript, companyUUID) => __awaiter(void 0, void 0, void 0, function* () {
     return res.render('error/index', {
         title: title,
         errorHeader: errorHeader,
         errorBody: errorBody,
-        showErrorScript: false,
+        showErrorScript: showErrorScript || false,
         copyError: copyError || "COPY ERROR",
-        goBack: goBack || "GO BACK"
+        goBack: goBack || "GO BACK",
+        companyUUID: companyUUID || ""
     });
 });
 exports.errorPage = errorPage;

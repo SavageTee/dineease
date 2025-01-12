@@ -2,7 +2,7 @@ import * as express from "express"
 import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../providers/i18n/i18n"
-import {pool} from "../../providers/mysqlProvider/mysqlProvider"
+import {executeQuery} from "../../providers/mysqlProvider/mysqlProvider"
 import { logErrorAndRespond, notFound, errorPage } from "../../helpers/herlpers"
 
 const api = express.Router()
@@ -25,7 +25,7 @@ api.post('/checkroom', async (req:Request, res:Response, next:NextFunction):Prom
     if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
     if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
     if(Object.keys(req.body)[0] != "roomNumber") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
-    const rows = pool.query('CALL check_room(?, ?, ?)',[req.body.roomNumber, req.session.data?.hotelID ,req.session.data?.companyID,]);  
+    const rows = await executeQuery('CALL check_room(?, ?, ?)',[req.body.roomNumber, req.session.data?.hotelID ,req.session.data?.companyID,]);  
     if((rows as any)[0][0]){
       req.session.data!.roomNumber = req.body.roomNumber;
       return res.status(200).jsonp({
@@ -49,7 +49,7 @@ api.post('/verifyroom', async (req:Request, res:Response, next:NextFunction):Pro
     if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
     if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
     if(Object.keys(req.body)[0] != "date") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
-    const rows = pool.query('CALL verify_room(?, ?, ?, ?)',[req.session.data?.roomNumber, req.session.data?.hotelID , req.body.date  ,req.session.data?.companyID,]);  
+    const rows = await executeQuery('CALL verify_room(?, ?, ?, ?)',[req.session.data?.roomNumber, req.session.data?.hotelID , req.body.date  ,req.session.data?.companyID,]);  
     if((rows as any)[0][0] !== undefined){
       if(Number((rows as any)[0][0]['remaining']) == 0){
           req.session.data!.paid = true;
@@ -88,7 +88,7 @@ api.post('/menu', async (req:Request, res:Response, next:NextFunction):Promise<a
     if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
     if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};  
     if(Object.keys(req.body)[0] != "restaurantID") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
-    const rows = pool.query('CALL get_pdf(?)',[req.body.restaurantID]);
+    const rows = await executeQuery('CALL get_pdf(?)',[req.body.restaurantID]);
     res.status(200).jsonp({
       status: "success",
       menu: (rows as any)[0][0] 
@@ -103,7 +103,7 @@ api.post('/saverestaurant', async (req:Request, res:Response, next:NextFunction)
     if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
     if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
     if(Object.keys(req.body)[0] != "restaurantID") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
-    const rows = pool.query('CALL get_by_room_flag(?)',[req.body.restaurantID]);
+    const rows = await executeQuery('CALL get_by_room_flag(?)',[req.body.restaurantID]);
     if(![0, 1].includes((rows as any)[0][0]['reservation_by_room'])) return logErrorAndRespond("error occured in api.post('/saverestaurant', (req,res)=>{})", {script: "api.ts", scope: "api.post('/saverestaurant', (req,res)=>{})", request: req, error:`THE get_by_room_flag returned null value or undefined`}, req, res );
     req.session.data!.restaurantID = req.body.restaurantID;
     req.session.data!.reservation_by_room = (rows as any)[0][0]['reservation_by_room'] === 1 ? true : false;
@@ -118,7 +118,7 @@ api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunctio
     if((req.headers['content-type'] != "application/json")) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
     if(Object.keys(req.body).length != 1) {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" }); };  
     if(Object.keys(req.body)[0] != "desiredDate") {return res.status(400).jsonp({ status: 'error' ,orign: 'server', errorText: "Bad Request" });};
-    const rows = pool.query('CALL get_available_date(?, ?, ?, ?)',[req.session.data?.restaurantID, req.session.data?.hotelID, req.body.desiredDate, req.session.data?.companyID]);
+    const rows = await executeQuery('CALL get_available_date(?, ?, ?, ?)',[req.session.data?.restaurantID, req.session.data?.hotelID, req.body.desiredDate, req.session.data?.companyID]);
     console.log((rows as any)[0])
     return res.status(200).jsonp({
       status: 'success',

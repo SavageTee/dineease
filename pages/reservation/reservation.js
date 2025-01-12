@@ -96,7 +96,7 @@ reservation.get('/room', sessionCheckHotel, (req, res, next) => __awaiter(void 0
 }));
 reservation.get('/restaurant', sessionCheckRestaurant, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const rows = mysqlProvider_1.pool.query('CALL get_restaurants(?, ?)', [req.session.data.hotelID, req.session.data.companyID]);
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_restaurants(?, ?)', [req.session.data.hotelID, req.session.data.companyID]);
         const restaurants = rows[0].map((row) => {
             var _a;
             return ({
@@ -126,25 +126,17 @@ reservation.get('/restaurant', sessionCheckRestaurant, (req, res, next) => __awa
 reservation.get('/time', sessionCheckRestaurant, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e;
     try {
-        const rows_names = mysqlProvider_1.pool.query('CALL get_names(?)', [req.session.data.guest_reservation_id]);
+        const rows_names = yield (0, mysqlProvider_1.executeQuery)('CALL get_names(?)', [req.session.data.guest_reservation_id]);
         if (rows_names[0][0] != undefined) {
             let names = rows_names[0][0]['names'].split(' |-| ');
-            const rows_arrival_departure = mysqlProvider_1.pool.query('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
+            const rows_arrival_departure = yield (0, mysqlProvider_1.executeQuery)('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
             let dates = rows_arrival_departure[0][0];
             const start_date = new Date(dates['start_date']);
             const end_date = new Date(dates['end_date']);
             if (start_date > end_date) {
                 let uuid = (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyUUID;
-                console.log(req.session);
                 req.session.destroy(() => { });
-                console.log(req.session);
-                return res.render('error/index', {
-                    title: i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }),
-                    errorHeader: i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }),
-                    errorBody: i18n_1.default.t('errorDepartureBody', { ns: 'time', lng: req.language }),
-                    showErrorScript: true,
-                    companyUUID: uuid
-                });
+                return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }), i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }), i18n_1.default.t('errorDepartureBody', { ns: 'time', lng: req.language }), i18n_1.default.t('copyError', { ns: 'time', lng: req.language }), i18n_1.default.t('goBack', { ns: 'time', lng: req.language }), true, uuid);
             }
             else {
                 return res.render('reservation/routes/time', {
