@@ -15,6 +15,7 @@
     "@types/express-mysql-session": "^3.0.6",
     "@types/express-session": "^1.18.1",
     "@types/mysql": "^2.15.26",
+    "@types/serve-favicon": "^2.5.7",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",

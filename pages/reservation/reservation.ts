@@ -2,14 +2,14 @@ import * as express from "express"
 import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../providers/i18n/i18n"
-import {pool} from "../../providers/mysqlProvider/mysqlProvider"
+import { executeQuery, pool } from "../../providers/mysqlProvider/mysqlProvider"
 import { logErrorAndRespond, notFound, errorPage, goBack } from "../../helpers/herlpers"
 
 const reservation = express.Router()
 
 reservation.get('/hotel', sessionCheckCompany, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
-      const rows = pool.query('CALL get_hotels(?)',[req.session.data!.companyID]);  
+      const rows = await executeQuery('CALL get_hotels(?)', [req.session.data!.companyID]);
       if( (rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
       const hotels:hotel[] = (rows as any)[0].map((row: any) => ({
         hotelID: row['hotel_id'].toString(),

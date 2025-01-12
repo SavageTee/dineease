@@ -52,7 +52,7 @@ const herlpers_1 = require("../../helpers/herlpers");
 const reservation = express.Router();
 reservation.get('/hotel', sessionCheckCompany, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const rows = mysqlProvider_1.pool.query('CALL get_hotels(?)', [req.session.data.companyID]);
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_hotels(?)', [req.session.data.companyID]);
         if (rows[0][0] === undefined || rows[0][0] === null)
             return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorBodyNoHotel', { ns: 'hotel', lng: req.language }));
         const hotels = rows[0].map((row) => {

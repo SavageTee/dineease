@@ -53,13 +53,8 @@ const herlpers_2 = require("../../helpers/herlpers");
 const language = express.Router();
 const checkIdParam = (req, res, next) => {
     const { id } = req.query;
-    if (!id) {
-        return res.render('404/index', {
-            title: i18n_1.default.t('title', { ns: '404', lng: req.language }),
-            errorHeader: i18n_1.default.t('errorHeader', { ns: '404', lng: req.language }),
-            errorBody: i18n_1.default.t('errorBody', { ns: '404', lng: req.language }),
-        });
-    }
+    if (!id)
+        return (0, herlpers_2.notFound)(req, res);
     next();
 };
 language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -77,7 +72,7 @@ language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, vo
         };
         req.session.data = { companyUUID: id.toString(), companyID: companyInfo.companyID };
         return res.render('language/index', {
-            title: i18n_1.default.t('welcome', { ns: 'reservation', lng: req.language }),
+            title: i18n_1.default.t('title', { ns: 'language', lng: req.language }),
             companyID: companyInfo.companyID,
             companyName: companyInfo.companyName,
             companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo, 'utf-8').toString('base64')}`,

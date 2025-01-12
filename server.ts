@@ -13,11 +13,10 @@ import i18next from './providers/i18n/i18n';
 import newLog from "./providers/logger/logger"
 import {locales} from "./providers/i18n/i18n"
 import {pool} from "./providers/mysqlProvider/mysqlProvider";
-import {notFound} from "./helpers/herlpers"
+import {errorPage, notFound} from "./helpers/herlpers"
 
 const app = express();
 app.use(i18nextMiddleware.handle(i18next as any));
-
 
 //app.use((req, res, next) => {rateLimiter.consume(req.ip as any ).then(() => {next();}).catch(() => {res.status(429).json({ error: 'Too Many Requests' });});});
 
@@ -42,8 +41,10 @@ app.set('views', path.join(__dirname, 'pages'))
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-    if(req.method === 'POST' || req.url.includes('/api')) return next();
+    return errorPage(req, res, 'this is the title','error header', "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum","COPY ERROR","GO BACK");
+    if(req.method === 'POST' || req.url.includes('/api') || req.url.includes('favicon.ico')) return next();
     const urlParts = req.url.split('/');
+    //if() return res.redirect(urlParts[1]);
     const language = urlParts[1];
     if (!language || !locales.includes(language)) {
       return res.redirect(301, `/en${req.url}`); 
@@ -61,7 +62,6 @@ import api from "./api/v1/api"
 app.use('/api/v1', api);
 
 app.use(async (req:Request,res:Response):Promise<any> => notFound(req, res));
-
 
 const server = app.listen(process.env.SERVER_PORT || 4999, async () =>{
     await newLog({level: 'info',message: `server started successfully` ,metadata: {script: "server.js", port: process.env.SERVER_PORT || 4999}},)
