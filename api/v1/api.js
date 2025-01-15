@@ -45,6 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.verifyRoom = exports.checkRoom = void 0;
 const express = __importStar(require("express"));
 const i18n_1 = __importDefault(require("../../providers/i18n/i18n"));
 const mysqlProvider_1 = require("../../providers/mysqlProvider/mysqlProvider");
@@ -53,18 +54,10 @@ const api = express.Router();
 api.use(express.json({ limit: '1mb' }));
 api.post('/savehotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if ((req.headers['content-type'] != "application/json")) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body).length != 1) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body)[0] != "hotelID") {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["hotelID"]))
+            return;
         req.session.data.hotelID = req.body.hotelID;
         return res.status(200).jsonp({ status: 'success' });
     }
@@ -72,69 +65,65 @@ api.post('/savehotel', (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/savehotel', (req,res)=>{})", { script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-api.post('/checkroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const checkRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
+    const rows = yield (0, mysqlProvider_1.executeQuery)('CALL check_room(?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
+    if (!rows[0][0]) {
+        res.status(200).jsonp({ status: 'noRoom', errorText: i18n_1.default.t('invalidRoom', { ns: 'room', lng: req.language }) });
+        return false;
+    }
+    else {
+        return rows[0][0];
+    }
+});
+exports.checkRoom = checkRoom;
+api.post('/checkroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if ((req.headers['content-type'] != "application/json")) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body).length != 1) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body)[0] != "roomNumber") {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL check_room(?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
-        if (rows[0][0]) {
-            req.session.data.roomNumber = req.body.roomNumber;
-            return res.status(200).jsonp({
-                status: 'success',
-                result: rows[0][0],
-                verification: {
-                    verificationBD: i18n_1.default.t('verificationBD', { ns: 'room', lng: req.language }),
-                    verificationDD: i18n_1.default.t('verificationDD', { ns: 'room', lng: req.language }),
-                },
-            });
-        }
-        else {
-            return res.status(200).jsonp({ status: 'noRoom', errorText: i18n_1.default.t('invalidRoom', { ns: 'room', lng: req.language }) });
-        }
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["roomNumber"]))
+            return;
+        let checkResult = yield (0, exports.checkRoom)(req, res);
+        if (!checkResult)
+            return;
+        req.session.data.roomNumber = req.body.roomNumber;
+        return res.status(200).jsonp({
+            status: 'success',
+            result: checkResult,
+            verification: {
+                verificationBD: i18n_1.default.t('verificationBD', { ns: 'room', lng: req.language }),
+                verificationDD: i18n_1.default.t('verificationDD', { ns: 'room', lng: req.language }),
+            },
+        });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/checkroom', (req,res)=>{})", { script: "api.ts", scope: "api.post('/checkroom', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-api.post('/verifyroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const verifyRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
+    const rows = yield (0, mysqlProvider_1.executeQuery)('CALL verify_room(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.roomNumber, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.date, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID,]);
+    return rows[0][0];
+});
+exports.verifyRoom = verifyRoom;
+api.post('/verifyroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if ((req.headers['content-type'] != "application/json")) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["date"]))
+            return;
+        let result = yield (0, exports.verifyRoom)(req, res);
+        if (Number(result['remaining']) <= 0) {
+            req.session.data.paid = true;
         }
-        ;
-        if (Object.keys(req.body).length != 1) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
+        else {
+            req.session.data.paid = false;
         }
-        ;
-        if (Object.keys(req.body)[0] != "date") {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL verify_room(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.roomNumber, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.date, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID,]);
-        if (rows[0][0] !== undefined) {
-            if (Number(rows[0][0]['remaining']) == 0) {
-                req.session.data.paid = true;
-            }
-            else {
-                req.session.data.paid = false;
-            }
-        }
-        req.session.data.guest_reservation_id = rows[0][0]['guest_reservations_id'];
+        req.session.data.guest_reservation_id = result['guest_reservations_id'];
+        req.session.data.verification = req.body.date;
         return res.status(200).jsonp({
             status: 'success',
-            result: rows[0][0]['remaining'],
+            result: result['remaining'],
             transelations: {
                 freeReservation: i18n_1.default.t('freeReservation', { ns: 'room', lng: req.language }),
                 paidReservation: i18n_1.default.t('paidReservation', { ns: 'room', lng: req.language }),
@@ -147,12 +136,15 @@ api.post('/verifyroom', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/verifyroom', (req,res)=>{})", { script: "api.ts", scope: "api.post('/verifyroom', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-api.get('/cancelreservation', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+function handleCancel(req, res) {
     var _a, _b;
+    let apiUrl = ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID) === undefined ? '' : (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyUUID;
+    req.session.destroy((_) => { });
+    return res.redirect(`/en/language?id=${apiUrl}`);
+}
+api.get('/cancelreservation', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        let apiUrl = ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyID) === undefined ? '' : (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyUUID;
-        req.session.destroy((err) => { });
-        return res.redirect(`/en/language?id=${apiUrl}`);
+        handleCancel(req, res);
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/cancelreservation', (req,res)=>{})", { script: "api.ts", scope: "api.post('/cancelreservation', (req,res)=>{})", request: req, error: `${error}` }, req, res);
@@ -160,18 +152,10 @@ api.get('/cancelreservation', (req, res, next) => __awaiter(void 0, void 0, void
 }));
 api.post('/menu', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if ((req.headers['content-type'] != "application/json")) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body).length != 1) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body)[0] != "restaurantID") {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["restaurantID"]))
+            return;
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_pdf(?)', [req.body.restaurantID]);
         res.status(200).jsonp({
             status: "success",
@@ -184,18 +168,10 @@ api.post('/menu', (req, res, next) => __awaiter(void 0, void 0, void 0, function
 }));
 api.post('/saverestaurant', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if ((req.headers['content-type'] != "application/json")) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body).length != 1) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body)[0] != "restaurantID") {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["restaurantID"]))
+            return;
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_by_room_flag(?)', [req.body.restaurantID]);
         if (![0, 1].includes(rows[0][0]['reservation_by_room']))
             return (0, herlpers_1.logErrorAndRespond)("error occured in api.post('/saverestaurant', (req,res)=>{})", { script: "api.ts", scope: "api.post('/saverestaurant', (req,res)=>{})", request: req, error: `THE get_by_room_flag returned null value or undefined` }, req, res);
@@ -210,35 +186,105 @@ api.post('/saverestaurant', (req, res, next) => __awaiter(void 0, void 0, void 0
 api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {
-        if ((req.headers['content-type'] != "application/json")) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body).length != 1) {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
-        if (Object.keys(req.body)[0] != "desiredDate") {
-            return res.status(400).jsonp({ status: 'error', orign: 'server', errorText: "Bad Request" });
-        }
-        ;
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["desiredDate"]))
+            return;
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_available_date(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.desiredDate, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID]);
         return res.status(200).jsonp({
             status: 'success',
             data: rows[0],
             free: i18n_1.default.t('freeText', { ns: 'time', lng: req.language }),
             errorRestaurantNotAvailable: i18n_1.default.t('errorRestaurantNotAvailable', { ns: 'time', lng: req.language }),
+            noSelectedGuestsError: i18n_1.default.t('noSelectedGuestsError', { ns: 'time', lng: req.language }),
+            noSelectedTimeError: i18n_1.default.t('noSelectedTimeError', { ns: 'time', lng: req.language }),
             table: {
                 price: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
                 time: i18n_1.default.t('timeTable', { ns: 'time', lng: req.language }),
                 per_person: i18n_1.default.t('tablePerPerson', { ns: 'time', lng: req.language }),
                 remaining: i18n_1.default.t('tableRemaining', { ns: 'time', lng: req.language }),
                 free: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
+                meal_type: JSON.stringify(i18n_1.default.t('mealType', { ns: 'time', lng: req.language, returnObjects: true })),
             }
         });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/getavailabledate', (req,res)=>{})", { script: "api.ts", scope: "api.post('/getavailabledate', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+api.post('/validate', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
+    try {
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["selectedTime", "selectedNames", "desiredDate"]))
+            return;
+        const rows_check_room = yield (0, mysqlProvider_1.executeQuery)('CALL check_room(?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.roomNumber, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID,]);
+        if (!rows_check_room[0][0])
+            return res.status(202).jsonp({ status: "error" });
+        const rows_verify_room = yield (0, mysqlProvider_1.executeQuery)('CALL verify_room(?, ?, ?, ?)', [(_d = req.session.data) === null || _d === void 0 ? void 0 : _d.roomNumber, (_e = req.session.data) === null || _e === void 0 ? void 0 : _e.hotelID, (_f = req.session.data) === null || _f === void 0 ? void 0 : _f.verification, (_g = req.session.data) === null || _g === void 0 ? void 0 : _g.companyID,]);
+        if (rows_verify_room[0][0] !== undefined && rows_verify_room[0][0]['remaining'] !== undefined) {
+            if (Number(rows_verify_room[0][0]['remaining']) == 0) {
+                req.session.data.paid = true;
+            }
+            else {
+                req.session.data.paid = false;
+            }
+        }
+        else {
+            return res.status(202).jsonp({ status: "error" });
+        }
+        req.session.data.guest_reservation_id = rows_verify_room[0][0]['guest_reservations_id'];
+        const rows_get_room = yield (0, mysqlProvider_1.executeQuery)('CALL get_by_room_flag(?)', [(_h = req.session.data) === null || _h === void 0 ? void 0 : _h.restaurantID]);
+        if (![0, 1].includes(rows_get_room[0][0]['reservation_by_room']))
+            return res.status(202).jsonp({ status: "error" });
+        req.session.data.reservation_by_room = rows_get_room[0][0]['reservation_by_room'] === 1 ? true : false;
+        const rows_get_available_dates = yield (0, mysqlProvider_1.executeQuery)('CALL get_available_date(?, ?, ?, ?)', [(_j = req.session.data) === null || _j === void 0 ? void 0 : _j.restaurantID, (_k = req.session.data) === null || _k === void 0 ? void 0 : _k.hotelID, req.body.desiredDate, (_l = req.session.data) === null || _l === void 0 ? void 0 : _l.companyID]);
+        let userSelect = (rows_get_available_dates[0]).find((time) => time['restaurant_pricing_times_id'] === req.body.selectedTime);
+        if (userSelect === undefined || userSelect === null)
+            return res.status(202).jsonp({ status: "error" });
+        if ((_m = req.session.data) === null || _m === void 0 ? void 0 : _m.reservation_by_room) {
+            if (userSelect['remaining'] <= 0)
+                return res.status(200).jsonp({ status: "notEnough", errorText: i18n_1.default.t('notEnough', { ns: 'time', lng: req.language }), });
+        }
+        else {
+            if (req.body.selectedNames.length > userSelect['remaining'])
+                return res.status(200).jsonp({ status: "notEnough", errorText: i18n_1.default.t('notEnough', { ns: 'time', lng: req.language }), });
+        }
+        let totalAmount = 0;
+        if ((_o = req.session.data) === null || _o === void 0 ? void 0 : _o.paid) {
+            if (userSelect['per_person'] === 1) {
+                totalAmount = Number(req.body.selectedNames.length) * Number(userSelect['price']);
+                console.log(totalAmount);
+            }
+            else {
+                totalAmount = Number((rows_get_available_dates[0])['price']);
+            }
+        }
+        const insert = yield (0, mysqlProvider_1.executeQuery)('CALL create_reservation(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+            req.session.data.guest_reservation_id,
+            (_p = req.session.data) === null || _p === void 0 ? void 0 : _p.roomNumber,
+            req.body.selectedNames.length,
+            req.body.selectedNames.join(' |-| '),
+            (_q = req.session.data) === null || _q === void 0 ? void 0 : _q.restaurantID,
+            req.body.desiredDate,
+            userSelect['time'],
+            (_r = req.session.data) === null || _r === void 0 ? void 0 : _r.companyID,
+            (_s = req.session.data) === null || _s === void 0 ? void 0 : _s.hotelID,
+            'USER END',
+            userSelect['currencies_id'],
+            ((_t = req.session.data) === null || _t === void 0 ? void 0 : _t.paid) ? userSelect['price'] : null,
+            ((_u = req.session.data) === null || _u === void 0 ? void 0 : _u.paid) ? totalAmount : null,
+            ((_v = req.session.data) === null || _v === void 0 ? void 0 : _v.paid) ? userSelect['exchange_rate'] : null,
+            (_w = req.session.data) === null || _w === void 0 ? void 0 : _w.paid
+        ]);
+        if (insert[0][0]['result'] === "alreadyReserved")
+            return res.status(200).jsonp({ status: "alreadyReserved", errorText: i18n_1.default.t('alreadyReserved', { ns: 'time', lng: req.language }) });
+        req.session.data.qrCode = insert[0][0]['result'];
+        return res.status(200).jsonp({ status: "success" });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/validate', (req,res)=>{})", { script: "api.ts", scope: "api.post('/validate', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 exports.default = api;

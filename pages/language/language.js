@@ -79,6 +79,7 @@ language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, vo
         });
     }
     catch (error) {
+        console.log(error);
         return (0, herlpers_1.logErrorAndRespond)("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));

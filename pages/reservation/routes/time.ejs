@@ -14,7 +14,24 @@
 </head>
 
 <body>
-  <div id="pointerAbsorber" class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-h-full tw-bg-transparent" style="display: none;"></div>
+
+  <div id="pointerAbsorber" class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-h-full tw-bg-transparent" style="display: none;">
+    <div class="load">
+      <div class="hamburger">
+        <div class="top-bun"></div>
+        <div class="pickle"></div>
+        <div class="pickle"></div>
+        <div class="tomato"><div></div></div>
+        <div class="tomato"><div></div></div>
+        <div class="cheese"></div>
+        <div class="cheese"></div>
+        <div class="beef"></div>
+        <div class="bottom-bun"></div>
+      </div>
+      <h1 class="tw-text-white">Please wait while reserving</h1>
+    </div>
+  </div>
+  
   <nav class="tw-w-full tw-z-20">
     <ul style="height: 30px; text-align: center;" class="progress tw-w-full tw-flex tw-flex-nowrap">
       <li class="active activate"><span>HOTEL</span></li>
@@ -34,12 +51,12 @@
 
 
   <div class="tw-relative tw-mx-auto tw-bg-gray-100 tw-w-full tw-p-3 tw-pt-3">
-    <div class="tw-flex tw-py-2">
+    <div class="tw-flex tw-py-2 pb-0">
       <i class="fa-solid fa-2x fa-1 tw-px-4 tw-text-red-600"></i>
       <% if (reservation_by_room === true) { %>
-        <h5 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white tw-inline-flex"> <%= RoomBasedReservation %> <p class="tw-text-red-600 tw-px-2"> (<%= roomNumber %>) </p></h5>
+        <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white tw-inline-flex"> <%= RoomBasedReservation %> <p class="tw-text-red-600 tw-px-2"> (<%= roomNumber %>) </p></h6>
       <% } else { %>
-        <h5 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white"><%= paxBasedReservation %>  <p class="tw-text-red-600"> (<%= roomNumber %>) </p></h5>
+        <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white"><%= paxBasedReservation %>  <p class="tw-text-red-600"> (<%= roomNumber %>) </p></h6>
       <% } %> 
     </div>
     
@@ -50,7 +67,8 @@
           <li class="tw-w-full tw-px-2 tw-border-b tw-border-gray-200 sm:tw-border-b-0 sm:tw-border-r tw-dark:border-gray-600">
             <div class="tw-flex tw-items-center tw-ps-3">
                 <i class="fa-solid fa-1.5x fa-user"></i>           
-                <label for="vue-checkbox-list" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900 tw-dark:text-gray-300"><%= name %></label>                    
+                <label for="<%= name %>" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900 tw-dark:text-gray-300"><%= name %></label>                    
+                <input hidden checked id="<%= name %>" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 tw-dark:focus:tw-ring-blue-600 tw-dark:tw-ring-offset-gray-700 tw-dark:focus:tw-ring-offset-gray-700 focus:tw-ring-2 tw-dark:bg-gray-600 tw-dark:border-gray-500"> 
             </div>
           </li>
         <% }); %>
@@ -71,7 +89,7 @@
 
   <div class="tw-flex tw-pt-7">
     <i class="fa-solid fa-2x fa-2 tw-px-4 tw-text-red-600"></i>
-    <h5 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white"> <%= selectYourDate %> </h5>
+    <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white"> <%= selectYourDate %> </h6>
   </div>
 
   <div class="tw-inline-flex tw-items-center tw-justify-start tw-pt-2">
@@ -113,15 +131,17 @@
         id='datepricetable'   
         data-click-to-select="true"    
         data-row-style="rowStyle"  
-        class="table-bordered table-striped m-0 p-0 tw-w-full tw-border-2"         
+        class="table-bordered table-striped m-0 p-0 tw-w-full tw-border-2"   
+        data-unique-id="restaurant_pricing_times_id"      
         >
         <thead>
         <tr>  
             <th rowspan="2" data-formatter="stateFormatter" data-radio="true" data-show-select-title="true" data-valign="middle"></th>
-            <th colspan="4" class="font-weight-bold" data-align="center"><p> <%= tableHeader %> </p></th>
+            <th colspan="5" class="font-weight-bold" data-align="center"><p> <%= tableHeader %> </p></th>
         </tr>
         <tr>  
-          <th class="tw-text-center tw-font-bold tw-font-sans tw-px-4" data-field="time" data-sortable = "true" data-switchable = "true">Time</th>
+          <th data-visible="false" data-field="restaurant_pricing_times_id"></th>
+          <th class="tw-text-center tw-font-bold tw-font-sans tw-px-4" data-cell-style="timeStyle" data-formatter="timeFormatter" data-field="time" data-sortable = "true" data-switchable = "true">Time</th>
           <th class="tw-text-center tw-font-bold tw-font-sans tw-px-4" data-field = "remaining" data-sortable = "true" data-switchable = "true">remaining</th>
           <% if (paid === true) { %>
               <th class="tw-text-center tw-font-bold tw-font-sans tw-px-4" data-formatter="priceFormatter" data-field="price" data-sortable = "true" data-switchable = "true">Price</th>
@@ -129,10 +149,11 @@
             <th class="tw-text-center tw-font-bold tw-font-sans tw-px-4" data-formatter="priceFormatterFree" data-field="free" data-sortable = "true" data-switchable = "true">Price</th>
           <% } %> 
           <th data-field="per_person" data-visible="false"></th>
+          <th data-field="meal_type" data-visible="false"></th>
         </tr>
         </thead>
       </table>
-      <button id="confirm" class="tw-p-3 tw-mx-auto tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
+      <button id="confirm" class="tw-p-3 tw-mt-4 tw-mx-auto tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
         <div id="notloader" class="tw-flex tw-items-center tw-justify-center">
           <span class="tw-mr-2"><%= buttonText %></span> 
           <i class="fa-solid fa-arrow-right"></i>

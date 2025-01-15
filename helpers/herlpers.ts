@@ -2,6 +2,21 @@ import newLog from "../providers/logger/logger"
 import {Response, Request,} from "express"
 import i18next from "../providers/i18n/i18n"
 
+export const validateContentType = (req: Request, res: Response) => {
+    if (req.headers['content-type'] !== "application/json") {
+        res.status(400).jsonp({ status: 'error', origin: 'server', errorText: "Bad Request" });
+        return false;
+    }
+    return true;
+};
+
+export const validateRequestBodyKeys = (req: Request, res: Response,expectedKeys:string[]) => {
+    if (Object.keys(req.body).length !== expectedKeys.length || !expectedKeys.every((key, index) => key === Object.keys(req.body)[index])) {
+        res.status(400).jsonp({ status: 'error', origin: 'server', errorText: "Bad Request" });
+        return false;
+    }
+    return true;
+};
 
 export const logErrorAndRespond = async (message: string, metadata: any, req: Request, res: Response) => {
     let generatedUUID = await newLog({
@@ -18,7 +33,6 @@ export const logErrorAndRespond = async (message: string, metadata: any, req: Re
         return errorPage(req, res, i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID}) , i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID }) );
     }
 };
-
 
 export const notFound = async (req:Request, res:Response) => res.render('404/index',{
     title: i18next.t('title',{ns: '404', lng: req.language }),

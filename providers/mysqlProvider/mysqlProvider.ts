@@ -3,7 +3,7 @@ import { PoolOptions } from 'mysql2/promise';*/
 
 import mysql, { MysqlError } from "mysql";
 import {PoolConfig} from "mysql"
-import { QueryResult } from "mysql2";
+
 
 
 /*const options: PoolOptions = {
@@ -32,8 +32,8 @@ const options: PoolConfig = {
 let pool = mysql.createPool(options);
 
 
-const executeQuery = (queryString:string, params:Object):Promise<QueryResult | MysqlError> =>{
-	return new Promise<QueryResult>((resolve, reject) => {
+const executeQuery = (queryString:string, params:Object)=>{
+	return new Promise((resolve, reject) => {
 		pool.query(queryString,params, function (error, results) {
 			if (error){reject(error);} else {resolve(results);}
 		});

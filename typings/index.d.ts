@@ -42,10 +42,13 @@ declare module 'express-session' {
             companyUUID?: string;
             companyID?: string;
             reservation_by_room?:boolean;
+            guest_reservation_id?:string;
             hotelID?: string;
             roomNumber?:string; 
-            paid?:boolean
-            guest_reservation_id?:string;
+            restaurantID?:string;
+            paid?:boolean;
+            verification?:string;
+            qrCode?:string;
             [key: string]: any; 
         };
     }

@@ -166,6 +166,33 @@ reservation.get('/time', sessionCheckRestaurant, (req, res, next) => __awaiter(v
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
+reservation.get('/confirm', sessionCheckRestaurant, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID]);
+        if (rows[0][0] === undefined || rows[0][0] === null)
+            return (0, herlpers_1.notFound)(req, res);
+        let companyInfo = {
+            companyID: rows[0][0]['company_id'].toString(),
+            companyName: rows[0][0]['company_name'],
+            companyLogo: rows[0][0]['logo'],
+        };
+        return res.render('reservation/routes/confirm', {
+            title: i18n_1.default.t('title', { ns: 'restaurant', lng: req.language }),
+            companyID: companyInfo.companyID,
+            companyName: companyInfo.companyName,
+            companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo, 'utf-8').toString('base64')}`,
+            alertText: i18n_1.default.t('alertText', { ns: 'restaurant', lng: req.language }),
+            buttonText: i18n_1.default.t('buttonText', { ns: 'restaurant', lng: req.language }),
+            error: i18n_1.default.t('noSelectedRestaurant', { ns: 'restaurant', lng: req.language }),
+            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'restaurant', lng: req.language }),
+            qrCOde: (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.qrCode
+        });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
 function sessionCheckCompany(req, res, next) {
     if (req.session.data && req.session.data !== null && req.session.data.companyUUID && req.session.data.companyID) {
         next();

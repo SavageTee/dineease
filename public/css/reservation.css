@@ -62,12 +62,6 @@ ul.progress li.active:after {
 .selected #name_holder {
     background-color: green !important;
 }
-#pointerAbsorber {
-    z-index: 9999; 
-    pointer-events: all; 
-    background-color: #2d2d2d73;
-}
-
 
 .tableContainer {
     border-collapse: collapse;

@@ -32,7 +32,7 @@ language.get('/', checkIdParam, async (req:Request, res:Response, next:NextFunct
           companyName: companyInfo.companyName,
           companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo,'utf-8').toString('base64')}`,
       });
-    }catch(error){return logErrorAndRespond("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", {script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+    }catch(error){ console.log(error); return logErrorAndRespond("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", {script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 export default language;

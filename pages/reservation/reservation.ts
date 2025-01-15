@@ -103,6 +103,31 @@ reservation.get('/time', sessionCheckRestaurant, async (req:Request, res:Respons
   }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
+reservation.get('/confirm', sessionCheckRestaurant, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+     let rows = await executeQuery('CALL get_company(?)',[req.session.data?.companyUUID]);
+      if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null) return notFound(req,res);
+      let companyInfo: companyInfo = {
+        companyID: (rows as any)[0][0]['company_id'].toString(),
+        companyName: (rows as any)[0][0]['company_name'],
+        companyLogo: (rows as any)[0][0]['logo'],
+      };
+
+    return res.render('reservation/routes/confirm',{
+      title: i18next.t('title',{ns: 'restaurant', lng: req.language }),
+      companyID: companyInfo.companyID,
+      companyName: companyInfo.companyName,
+      companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo,'utf-8').toString('base64')}`,
+      alertText: i18next.t('alertText',{ns: 'restaurant', lng: req.language }),
+      buttonText: i18next.t('buttonText',{ns: 'restaurant', lng: req.language }),
+      error: i18next.t('noSelectedRestaurant',{ns: 'restaurant', lng: req.language }),
+      buttonTextExit: i18next.t('buttonTextExit',{ns: 'restaurant', lng: req.language }),
+      qrCOde: req.session.data?.qrCode
+    });
+  }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+})
+
+
 function sessionCheckCompany(req:Request,res:Response,next:NextFunction){
   if( req.session.data && req.session.data !== null && req.session.data.companyUUID && req.session.data.companyID ){
     next()

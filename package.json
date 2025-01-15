@@ -27,7 +27,6 @@
     "i18next-http-middleware": "^3.7.1",
     "ionicons": "^7.4.0",
     "mysql": "^2.18.1",
-    "mysql2": "^3.12.0",
     "rate-limiter-flexible": "^5.0.4",
     "serve-favicon": "^2.5.0",
     "supervisor": "^0.12.0",

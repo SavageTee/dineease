@@ -12,9 +12,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.goBack = exports.errorPage = exports.notFound = exports.logErrorAndRespond = void 0;
+exports.goBack = exports.errorPage = exports.notFound = exports.logErrorAndRespond = exports.validateRequestBodyKeys = exports.validateContentType = void 0;
 const logger_1 = __importDefault(require("../providers/logger/logger"));
 const i18n_1 = __importDefault(require("../providers/i18n/i18n"));
+const validateContentType = (req, res) => {
+    if (req.headers['content-type'] !== "application/json") {
+        res.status(400).jsonp({ status: 'error', origin: 'server', errorText: "Bad Request" });
+        return false;
+    }
+    return true;
+};
+exports.validateContentType = validateContentType;
+const validateRequestBodyKeys = (req, res, expectedKeys) => {
+    if (Object.keys(req.body).length !== expectedKeys.length || !expectedKeys.every((key, index) => key === Object.keys(req.body)[index])) {
+        res.status(400).jsonp({ status: 'error', origin: 'server', errorText: "Bad Request" });
+        return false;
+    }
+    return true;
+};
+exports.validateRequestBodyKeys = validateRequestBodyKeys;
 const logErrorAndRespond = (message, metadata, req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let generatedUUID = yield (0, logger_1.default)({
         level: 'error',
