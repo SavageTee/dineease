@@ -3,21 +3,46 @@
 @tailwind components;
 @tailwind utilities;
 
+html.tw-dark body {
+  background-color: black; 
+}
+
+body{
+  background-color: black; 
+}
 
 body::after {
-    padding: 0;
-    margin: 0;
-    content: "";
-    background: url('/images/texture.png') repeat;
-    background-size:auto;
-    opacity: 0.25;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    position: fixed;
-    z-index: -1;   
-    height: 100vh;
+  padding: 0;
+  margin: 0;
+  content: "";
+  background-blend-mode: darken;
+  background: url('/images/texture.png') repeat;
+  background-size:auto;
+  opacity: 0.15;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: fixed;
+  z-index: -1;   
+  height: 100vh;
+}
+
+html.tw-dark body::after {
+  padding: 0;
+  margin: 0;
+  content: "";
+  background-blend-mode: darken;
+  background: url('/images/texture.png') repeat;
+  background-size:auto;
+  opacity: 0.2;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: fixed;
+  z-index: -1;   
+  height: 100vh;
 }
 
 
