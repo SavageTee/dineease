@@ -3,11 +3,28 @@ import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../providers/i18n/i18n"
 import {executeQuery} from "../../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond, notFound, errorPage,validateContentType,validateRequestBodyKeys } from "../../helpers/herlpers"
-
+import { logErrorAndRespond, notFound, errorPage, validateContentType, validateRequestBodyKeys, reportErrorAndRespond } from "../../helpers/herlpers"
 
 const api = express.Router()
 api.use(express.json({limit: '1mb'}))
+
+
+api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    if (!validateContentType(req, res)) return;
+    if (!validateRequestBodyKeys(req, res, ["error"])) return;
+    reportErrorAndRespond("USER ERROR REPORT INSIDE api.post('/report', (req,res)=>{})", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${req.body.error}`},req,res);
+  }catch(error){
+    logErrorAndRespond("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${error}`},req,res);
+  }
+})
+
+
+api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  let data = req.session.data;
+  if(data && Object.keys(data).length === 1 && data.companyUUID) return res.status(200).jsonp({state: 'language'});
+  if(data && Object.keys(data).length === 2 && data.companyUUID && data.companyID) return res.status(200).jsonp({state: 'language'});
+})
 
 api.post('/savehotel', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
@@ -114,6 +131,7 @@ api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunctio
     if (!validateContentType(req, res)) return;
     if (!validateRequestBodyKeys(req, res, ["desiredDate"])) return;
     const rows = await executeQuery('CALL get_available_date(?, ?, ?, ?)',[req.session.data?.restaurantID, req.session.data?.hotelID, req.body.desiredDate, req.session.data?.companyID]);
+    console.log((rows as any)[0])
     return res.status(200).jsonp({
       status: 'success',
       data: (rows as any)[0],
@@ -191,6 +209,7 @@ api.post('/validate', async (req:Request, res:Response, next:NextFunction):Promi
         req.session.data?.paid 
       ]
     );
+    console.log((insert as any))
     if((insert as any)[0][0]['result'] === "alreadyReserved") return res.status(200).jsonp({ status: "alreadyReserved", errorText:  i18next.t('alreadyReserved',{ns: 'time', lng: req.language })})
     req.session.data!.qrCode = (insert as any)[0][0]['result'];
     return res.status(200).jsonp({ status: "success" })

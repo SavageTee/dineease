@@ -18,7 +18,7 @@ body::after {
   background-blend-mode: darken;
   background: url('/images/texture.png') repeat;
   background-size:auto;
-  opacity: 0.15;
+  opacity: 0.3;
   top: 0;
   left: 0;
   bottom: 0;
@@ -43,6 +43,14 @@ html.tw-dark body::after {
   position: fixed;
   z-index: -1;   
   height: 100vh;
+}
+
+.selected_hotel {
+  border: 1px solid green;
+  box-shadow: 0 0 10px green;
+}
+.selected_hotel #name_holder {
+  background-color: green !important;
 }
 
 

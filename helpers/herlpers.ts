@@ -18,6 +18,22 @@ export const validateRequestBodyKeys = (req: Request, res: Response,expectedKeys
     return true;
 };
 
+export const reportErrorAndRespond = async (message: string, metadata: any, req: Request, res: Response) => {
+    let generatedUUID = await newLog({
+        level: 'error',
+        message: message,
+        metadata: metadata
+    });
+    if(req.method === 'POST'){
+        return res.status(200).jsonp({
+            status: "error",
+            errorText: i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
+        })
+    }else{
+        return errorPage(req, res, i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID}) , i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID }) );
+    }
+}
+
 export const logErrorAndRespond = async (message: string, metadata: any, req: Request, res: Response) => {
     let generatedUUID = await newLog({
         level: 'error',

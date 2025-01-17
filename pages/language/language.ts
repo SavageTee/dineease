@@ -26,6 +26,7 @@ language.get('/', checkIdParam, async (req:Request, res:Response, next:NextFunct
         companyLogo: (rows as any)[0][0]['logo'],
       };
       req.session.data={ companyUUID: id.toString(), companyID: companyInfo.companyID };
+      //let kola = await new Promise<void>((resolve, reject) => setTimeout(resolve, 10000))
       return res.render('language/index',{
           title: i18next.t('title',{ ns:'language', lng:req.language }),
           companyID: companyInfo.companyID,

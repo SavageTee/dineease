@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.goBack = exports.errorPage = exports.notFound = exports.logErrorAndRespond = exports.validateRequestBodyKeys = exports.validateContentType = void 0;
+exports.goBack = exports.errorPage = exports.notFound = exports.logErrorAndRespond = exports.reportErrorAndRespond = exports.validateRequestBodyKeys = exports.validateContentType = void 0;
 const logger_1 = __importDefault(require("../providers/logger/logger"));
 const i18n_1 = __importDefault(require("../providers/i18n/i18n"));
 const validateContentType = (req, res) => {
@@ -31,6 +31,23 @@ const validateRequestBodyKeys = (req, res, expectedKeys) => {
     return true;
 };
 exports.validateRequestBodyKeys = validateRequestBodyKeys;
+const reportErrorAndRespond = (message, metadata, req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let generatedUUID = yield (0, logger_1.default)({
+        level: 'error',
+        message: message,
+        metadata: metadata
+    });
+    if (req.method === 'POST') {
+        return res.status(200).jsonp({
+            status: "error",
+            errorText: i18n_1.default.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
+        });
+    }
+    else {
+        return (0, exports.errorPage)(req, res, i18n_1.default.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18n_1.default.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18n_1.default.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID }));
+    }
+});
+exports.reportErrorAndRespond = reportErrorAndRespond;
 const logErrorAndRespond = (message, metadata, req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let generatedUUID = yield (0, logger_1.default)({
         level: 'error',

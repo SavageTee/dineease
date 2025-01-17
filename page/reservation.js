@@ -46,34 +46,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = __importStar(require("express"));
-const i18n_1 = __importDefault(require("../../providers/i18n/i18n"));
-const mysqlProvider_1 = require("../../providers/mysqlProvider/mysqlProvider");
-const herlpers_1 = require("../../helpers/herlpers");
-const herlpers_2 = require("../../helpers/herlpers");
-const language = express.Router();
+const i18n_1 = __importDefault(require("../providers/i18n/i18n"));
+const mysqlProvider_1 = require("../providers/mysqlProvider/mysqlProvider");
+const herlpers_1 = require("../helpers/herlpers");
+const reservation = express.Router();
 const checkIdParam = (req, res, next) => {
     const { id } = req.query;
     if (!id)
-        return (0, herlpers_2.notFound)(req, res);
+        return (0, herlpers_1.notFound)(req, res);
+    if (!req.session.data)
+        req.session.data = {};
+    req.session.data.companyUUID = id.toString();
     next();
 };
-language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+reservation.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    return res.render('index', { title: i18n_1.default.t('title', { ns: 'language', lng: req.language }), });
+}));
+reservation.get('/language', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const { id } = req.query;
-        if (id === undefined || id === null)
-            return (0, herlpers_2.notFound)(req, res);
-        let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [id]);
+        let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID]);
         if (rows[0][0] === undefined || rows[0][0] === null)
-            return (0, herlpers_2.notFound)(req, res);
+            return (0, herlpers_1.notFound)(req, res);
         let companyInfo = {
             companyID: rows[0][0]['company_id'].toString(),
             companyName: rows[0][0]['company_name'],
             companyLogo: rows[0][0]['logo'],
         };
-        req.session.data = { companyUUID: id.toString(), companyID: companyInfo.companyID };
-        //let kola = await new Promise<void>((resolve, reject) => setTimeout(resolve, 10000))
-        return res.render('language/index', {
-            title: i18n_1.default.t('title', { ns: 'language', lng: req.language }),
+        req.session.data.companyID = companyInfo.companyID;
+        return res.render('routes/language', {
             companyID: companyInfo.companyID,
             companyName: companyInfo.companyName,
             companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo, 'utf-8').toString('base64')}`,
@@ -84,4 +85,32 @@ language.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, vo
         return (0, herlpers_1.logErrorAndRespond)("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-exports.default = language;
+reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_hotels(?)', [req.session.data.companyID]);
+        if (rows[0][0] === undefined || rows[0][0] === null)
+            return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorBodyNoHotel', { ns: 'hotel', lng: req.language }));
+        const hotels = rows[0].map((row) => {
+            var _a;
+            return ({
+                hotelID: row['hotel_id'].toString(),
+                name: row['name'],
+                logo: row['logo'] ? `data:image/jpeg;base64,${Buffer.from(row['logo'], 'utf-8').toString('base64')}` : null,
+                verificationType: row['verification_type'],
+                isSelected: row['hotel_id'].toString() === ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID)
+            });
+        });
+        return res.render('routes/hotel', {
+            title: i18n_1.default.t('title', { ns: 'hotel', lng: req.language }),
+            alertText: i18n_1.default.t('alertText', { ns: 'hotel', lng: req.language }),
+            buttonText: i18n_1.default.t('buttonText', { ns: 'hotel', lng: req.language }),
+            hotels: hotels,
+            error: i18n_1.default.t('noHotelSelectedError', { ns: 'hotel', lng: req.language }),
+            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'hotel', lng: req.language }),
+        });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/hotel', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/hotel', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+exports.default = reservation;

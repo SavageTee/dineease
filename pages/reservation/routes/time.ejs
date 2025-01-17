@@ -56,7 +56,7 @@
       <% if (reservation_by_room === true) { %>
         <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white tw-inline-flex"> <%= RoomBasedReservation %> <p class="tw-text-red-600 tw-px-2"> (<%= roomNumber %>) </p></h6>
       <% } else { %>
-        <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white"><%= paxBasedReservation %>  <p class="tw-text-red-600"> (<%= roomNumber %>) </p></h6>
+        <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white tw-inline-flex"><%= paxBasedReservation %>  <p class="tw-text-red-600 tw-px-2"> (<%= roomNumber %>) </p></h6>
       <% } %> 
     </div>
     

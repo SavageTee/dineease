@@ -36,7 +36,7 @@ app.use(session({
 
 app.set('view engine', 'ejs');
 
-app.set('views', path.join(__dirname, 'pages'))
+app.set('views', path.join(__dirname, 'page'))
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -54,7 +54,10 @@ app.use((req, res, next) => {
 import language from "./pages/language/language"
 app.use('/:lng/language',language);
 
-import reservation from "./pages/reservation/reservation"
+/*import reservation from "./pages/reservation/reservation"
+app.use('/:lng/reservation', reservation);*/
+
+import reservation from "./page/reservation"
 app.use('/:lng/reservation', reservation);
 
 import api from "./api/v1/api"

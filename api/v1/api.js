@@ -52,6 +52,25 @@ const mysqlProvider_1 = require("../../providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("../../helpers/herlpers");
 const api = express.Router();
 api.use(express.json({ limit: '1mb' }));
+api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["error"]))
+            return;
+        (0, herlpers_1.reportErrorAndRespond)("USER ERROR REPORT INSIDE api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${req.body.error}` }, req, res);
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    let data = req.session.data;
+    if (data && Object.keys(data).length === 1 && data.companyUUID)
+        return res.status(200).jsonp({ state: 'language' });
+    if (data && Object.keys(data).length === 2 && data.companyUUID && data.companyID)
+        return res.status(200).jsonp({ state: 'language' });
+}));
 api.post('/savehotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!(0, herlpers_1.validateContentType)(req, res))
@@ -191,6 +210,7 @@ api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["desiredDate"]))
             return;
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_available_date(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.desiredDate, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID]);
+        console.log(rows[0]);
         return res.status(200).jsonp({
             status: 'success',
             data: rows[0],
@@ -278,6 +298,7 @@ api.post('/validate', (req, res, next) => __awaiter(void 0, void 0, void 0, func
             ((_v = req.session.data) === null || _v === void 0 ? void 0 : _v.paid) ? userSelect['exchange_rate'] : null,
             (_w = req.session.data) === null || _w === void 0 ? void 0 : _w.paid
         ]);
+        console.log(insert);
         if (insert[0][0]['result'] === "alreadyReserved")
             return res.status(200).jsonp({ status: "alreadyReserved", errorText: i18n_1.default.t('alreadyReserved', { ns: 'time', lng: req.language }) });
         req.session.data.qrCode = insert[0][0]['result'];
