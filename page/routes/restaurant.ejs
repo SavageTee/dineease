@@ -1,0 +1,115 @@
+<nav class="tw-w-full tw-z-20">
+    <ul style="height: 30px; text-align: center;" class="progress tw-w-full tw-flex tw-flex-nowrap">
+      <li class="active activate"><span>HOTEL</span></li>
+      <li class="active activate"><span>ROOM</span></li>
+      <li class="active"><span>RESTAURANT</span></li>
+      <li class=""><span>TIME</span></li>
+      <li class=""><span>CONFIRM</span></li>
+    </ul>
+</nav>
+<div id="alert-border-1" class=" tw-mt-2 tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-blue-800 tw-border-t-4 tw-border-b-2 tw-border-blue-300 tw-bg-blue-50 dark:tw-text-blue-400 dark:tw-bg-gray-800 dark:tw-border-blue-800" role="alert">
+    <i class="fa-solid fa-circle-info"></i>
+    <div id="alert-text" class="tw-ms-3 tw-text-sm tw-font-medium">
+      <%= alertText %>
+    </div>
+</div>
+<div id="restaurants-container" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-6 tw-p-4 tw-place-content-center tw-place-items-center">
+    <% restaurants.forEach(restaurant => { %>   
+      <% if (restaurant.isSelected === true) { %>
+      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800 selected">
+      <% } else { %>
+      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800">
+      <% } %>  
+        <div className="tw-flex tw-flex-column tw-justify-center tw-items-center">
+          <% if (!restaurant.photo) { %>
+              <img 
+              class="tw-rounded-t-lg md:tw-h-40 tw-w-96 tw-h-56 object-cover tw-border tw-border-gray-300"               
+              src="/images/noimage.jpg" 
+              alt="restaurant image">
+            <% } else { %>  
+              <img 
+              class="tw-rounded-t-lg tw-w-96 tw-h-56 object-cover tw-border tw-border-gray-300" 
+              src="<%= restaurant.photo %>" 
+              alt="restaurant image">
+          <% } %> 
+        </div>
+        <div class="tw-p-2 tw-rounded-b-md tw-bg-gray-800 tw-text-center">
+            <p class="tw-mb-1 tw-font-bold tw-text-xl tw-text-white tw-dark:text-gray-400"><%= restaurant.name %></p>
+        </div>
+        <div class="tw-p-2 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-flex-nowrap tw-rounded-b-md tw-bg-gray-800 tw-justify-center tw-text-center tw-items-center">
+          <%= restaurant.about %>
+        </div>
+        <div class="tw-pt-2 tw-px-0 tw-mx-0 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-items-baseline tw-justify-evenly tw-rounded-b-md tw-bg-gray-800">
+          <div class="tw-inline-flex tw-items-baseline">
+            <i class="tw-text-green-500 fa-solid fa-user-group tw-text-lg"></i>
+            <p class="tw-font-bold tw-text-green-500 tw-text-lg"><%= restaurant.capacity %></p>     
+          </div>
+          <div class="tw-inline-flex tw-items-baseline">
+            <p class="tw-font-bold tw-text-green-500 tw-text-lg">#<%= restaurant.country %></p>     
+          </div>
+          <div class="tw-inline-flex tw-items-baseline">
+            <button onclick="viewMenu('<%= restaurant.restaurantID %>')" class="tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
+              <div id="view_menu_<%= restaurant.restaurantID %>">
+                <i class="tw-text-2xl fa-solid tw-px-1 fa-utensils"></i>
+                <span class="tw-px-2">View Menu</span>
+              </div>
+              <div style="display: none;" id="loader_modal_<%= restaurant.restaurantID %>" class="spinner-border spinner-border-sm  text-light" role="status"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+    </div>
+    <br/>
+    <br/>
+    <br/>
+</div>
+<div class="tw-fixed tw-bg-white tw-bottom-0 tw-w-full tw-p-4 tw-shadow-lg tw-z-10">
+    <div id="selecterror" style="display: none;" class="tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-red-blue-300 tw-bg-red-200 dark:tw-text-red-400 dark:tw-bg-gray-800 dark:tw-red-blue-800" role="alert">
+      <i class="fa-solid fa-circle-question"></i>
+      <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium">
+        <%= error %>
+      </div>
+    </div>
+    <div class="tw-w-full tw-flex tw-flex-nowrap tw-justify-around">
+      <button onclick="window.location.href='/api/v1/cancelreservation';" class="tw-p-3 tw-bg-red-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
+        <div class="tw-flex tw-items-center tw-justify-center">
+          <span class="tw-mr-2"><%= buttonTextExit %></span> 
+          <i class="fa-regular fa-circle-xmark"></i>
+        </div>
+      </button>
+      <button id="confirm" class=" tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
+        <div id="notloader" class="tw-flex tw-items-center tw-justify-center">
+          <span class="tw-mr-2"><%= buttonText %></span> 
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+        <div style="display: none;" id="loader" class="spinner-border text-light" role="status"></div>
+      </button>
+    </div>
+</div>
+<div class="modal fade tw-p-0 tw-m-0" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content tw-p-0 tw-m-0">
+        <div class="modal-header tw-flex tw-justify-between">
+          <button type="button" class="tw-text-white hover:tw-text-gray-300 tw-text-xl tw-p-0 focus:tw-outline-none" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+           <div class="tw-inline-flex tw-flex-nowrap">
+               <button type="button" class="tw-text-white hover:tw-text-gray-300 tw-text-xl tw-p-0 focus:tw-outline-none" id="zoomIn"><i class="fa-solid fa-square-plus"></i></button>
+               <span class="tw-text-white tw-p-2" id="zoom_percent"></span>
+               <button type="button" class="tw-text-white hover:tw-text-gray-300 tw-text-xl tw-p-0 focus:tw-outline-none" id="zoomOut"><i class="fa-solid fa-square-minus"></i></button>
+           </div>
+        </div>
+        <div class="modal-body tw-p-0 tw-m-0">
+          <canvas style="width: 100%;" id="pdfCanvas"></canvas>
+        </div>
+        <div class="modal-footer tw-inline-flex tw-justify-center">      
+            <button type="button" class="btn btn-danger" id="prevPage"><i class="fa-solid fa-arrow-left"></i></button>
+            <p class="text-light">Page: <span id="pageNum"></span> of <span id="pageCount"></span></p>
+            <button type="button" class="btn btn-danger" id="nextPage"><i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+</div>
+<style>
+.modal-content {background-color: #000000;}
+.modal-body {background-color: #000000;}
+</style>

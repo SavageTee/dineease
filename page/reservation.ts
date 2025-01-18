@@ -49,7 +49,6 @@ reservation.get('/hotel', async (req:Request, res:Response, next:NextFunction):P
         isSelected: row['hotel_id'].toString() === req.session.data?.hotelID
       }));
       return res.render('routes/hotel',{
-          title: i18next.t('title',{ns: 'hotel', lng: req.language }),
           alertText: i18next.t('alertText',{ns: 'hotel', lng: req.language }),
           buttonText: i18next.t('buttonText',{ns: 'hotel', lng: req.language }),
           hotels: hotels,
@@ -57,6 +56,43 @@ reservation.get('/hotel', async (req:Request, res:Response, next:NextFunction):P
           buttonTextExit: i18next.t('buttonTextExit',{ns: 'hotel', lng: req.language }),
       });
     }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/hotel', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/hotel', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+})
+
+reservation.get('/room', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    return res.render('routes/room',{
+      title: i18next.t('title',{ns: 'room', lng: req.language }),
+      alertText: i18next.t('alertText',{ns: 'room', lng: req.language }),
+      buttonText: i18next.t('buttonText',{ns: 'room', lng: req.language }),
+      error: i18next.t('noHotelSelectedError',{ns: 'room', lng: req.language }),
+      confirmButton: i18next.t('confirmButton',{ns: 'room', lng: req.language }),
+      buttonTextExit: i18next.t('buttonTextExit',{ns: 'room', lng: req.language }),
+    });
+  }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/room', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/room', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+})
+
+reservation.get('/restaurant', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    const rows = await executeQuery('CALL get_restaurants(?)',[req.session.data!.companyID]);  
+    const restaurants:restaurant[] = (rows as any)[0].map((row: any) => ({
+      restaurantID: row['restaurants_id'].toString(),
+      name: row['name'].toString(),
+      country: row['country'].toString(),
+      photo: row['photo'] ? `data:image/jpeg;base64,${Buffer.from(row['photo'],'utf-8').toString('base64')}` : null,
+      about: row['about'].toString(),
+      capacity: Number(row['capacity']),
+      isSelected: row['restaurants_id'].toString() === req.session.data?.restaurantID,
+      reservation_by_room: (rows as any)[0][0]['reservation_by_room'] === 1 ? true : false,
+    }))
+    return res.render('reservation/routes/restaurant',{
+      title: i18next.t('title',{ns: 'restaurant', lng: req.language }),
+      alertText: i18next.t('alertText',{ns: 'restaurant', lng: req.language }),
+      buttonText: i18next.t('buttonText',{ns: 'restaurant', lng: req.language }),
+      error: i18next.t('noSelectedRestaurant',{ns: 'restaurant', lng: req.language }),
+      buttonTextExit: i18next.t('buttonTextExit',{ns: 'restaurant', lng: req.language }),
+      restaurants: restaurants,
+    });
+  }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 export default reservation;

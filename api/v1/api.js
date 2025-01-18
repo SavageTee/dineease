@@ -65,11 +65,43 @@ api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 }));
 api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    let data = req.session.data;
-    if (data && Object.keys(data).length === 1 && data.companyUUID)
-        return res.status(200).jsonp({ state: 'language' });
-    if (data && Object.keys(data).length === 2 && data.companyUUID && data.companyID)
-        return res.status(200).jsonp({ state: 'language' });
+    var _a, _b, _c, _d, _e, _f;
+    try {
+        let data = req.session.data;
+        console.log(data);
+        if (data && Object.keys(data).length === 1 && data.companyUUID)
+            return res.status(200).jsonp({ state: 'language' });
+        if (data && Object.keys(data).length === 2 && data.companyUUID && data.companyID)
+            return res.status(200).jsonp({ state: 'language' });
+        if (data && Object.keys(data).length === 3 && data.companyUUID && data.companyID && data.hotelID)
+            return res.status(200).jsonp({ state: 'room' });
+        if (data && Object.keys(data).length === 4 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber) {
+            (_a = req.session.data) === null || _a === void 0 ? true : delete _a.roomNumber;
+            return res.status(200).jsonp({ state: 'room' });
+        }
+        if (data && Object.keys(data).length === 5 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber && data.guest_reservation_id) {
+            (_b = req.session.data) === null || _b === void 0 ? true : delete _b.roomNumber;
+            (_c = req.session.data) === null || _c === void 0 ? true : delete _c.guest_reservation_id;
+            return res.status(200).jsonp({ state: 'room' });
+        }
+        if (data && Object.keys(data).length === 6 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber && data.guest_reservation_id && data.verification) {
+            (_d = req.session.data) === null || _d === void 0 ? true : delete _d.roomNumber;
+            (_e = req.session.data) === null || _e === void 0 ? true : delete _e.guest_reservation_id;
+            (_f = req.session.data) === null || _f === void 0 ? true : delete _f.verification;
+            return res.status(200).jsonp({ state: 'room' });
+        }
+        if (data && Object.keys(data).length === 7 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber && data.guest_reservation_id && data.verification && (data.paid !== undefined && data.paid !== null)) {
+            console.log('here');
+            delete req.session.data['roomNumber'];
+            delete req.session.data['guest_reservation_id'];
+            delete req.session.data['verification'];
+            delete req.session.data['paid'];
+            return res.status(200).jsonp({ state: 'room' });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
 }));
 api.post('/savehotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -132,6 +164,10 @@ api.post('/verifyroom', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["date"]))
             return;
         let result = yield (0, exports.verifyRoom)(req, res);
+        if (result['result'] && result['result'] === 'noReservation')
+            return res.status(200).jsonp({ status: 'error', errorText: i18n_1.default.t('invalidRoom', { ns: 'room', lng: req.language }) });
+        if (result['result'] && result['result'] === 'wrongDate')
+            return res.status(200).jsonp({ status: 'error', errorText: i18n_1.default.t('wrongDate', { ns: 'room', lng: req.language }) });
         if (Number(result['remaining']) <= 0) {
             req.session.data.paid = true;
         }

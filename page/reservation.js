@@ -101,7 +101,6 @@ reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, 
             });
         });
         return res.render('routes/hotel', {
-            title: i18n_1.default.t('title', { ns: 'hotel', lng: req.language }),
             alertText: i18n_1.default.t('alertText', { ns: 'hotel', lng: req.language }),
             buttonText: i18n_1.default.t('buttonText', { ns: 'hotel', lng: req.language }),
             hotels: hotels,
@@ -111,6 +110,50 @@ reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/hotel', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/hotel', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+reservation.get('/room', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return res.render('routes/room', {
+            title: i18n_1.default.t('title', { ns: 'room', lng: req.language }),
+            alertText: i18n_1.default.t('alertText', { ns: 'room', lng: req.language }),
+            buttonText: i18n_1.default.t('buttonText', { ns: 'room', lng: req.language }),
+            error: i18n_1.default.t('noHotelSelectedError', { ns: 'room', lng: req.language }),
+            confirmButton: i18n_1.default.t('confirmButton', { ns: 'room', lng: req.language }),
+            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'room', lng: req.language }),
+        });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/room', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/room', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_restaurants(?)', [req.session.data.companyID]);
+        const restaurants = rows[0].map((row) => {
+            var _a;
+            return ({
+                restaurantID: row['restaurants_id'].toString(),
+                name: row['name'].toString(),
+                country: row['country'].toString(),
+                photo: row['photo'] ? `data:image/jpeg;base64,${Buffer.from(row['photo'], 'utf-8').toString('base64')}` : null,
+                about: row['about'].toString(),
+                capacity: Number(row['capacity']),
+                isSelected: row['restaurants_id'].toString() === ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID),
+                reservation_by_room: rows[0][0]['reservation_by_room'] === 1 ? true : false,
+            });
+        });
+        return res.render('reservation/routes/restaurant', {
+            title: i18n_1.default.t('title', { ns: 'restaurant', lng: req.language }),
+            alertText: i18n_1.default.t('alertText', { ns: 'restaurant', lng: req.language }),
+            buttonText: i18n_1.default.t('buttonText', { ns: 'restaurant', lng: req.language }),
+            error: i18n_1.default.t('noSelectedRestaurant', { ns: 'restaurant', lng: req.language }),
+            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'restaurant', lng: req.language }),
+            restaurants: restaurants,
+        });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 exports.default = reservation;
