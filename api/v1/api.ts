@@ -3,7 +3,7 @@ import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../providers/i18n/i18n"
 import {executeQuery} from "../../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond, notFound, errorPage, validateContentType, validateRequestBodyKeys, reportErrorAndRespond } from "../../helpers/herlpers"
+import { logErrorAndRespond, notFound, errorPage, validateContentType, validateRequestBodyKeys, reportErrorAndRespond, ReportErrorAndRespondJsonGet } from "../../helpers/herlpers"
 
 const api = express.Router()
 api.use(express.json({limit: '1mb'}))
@@ -23,17 +23,30 @@ api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise
 api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     let data = req.session.data!;
-    console.log(data)
-    if(data && Object.keys(data).length === 1 && data.companyUUID) return res.status(200).jsonp({state: 'language'});
-    if(data && Object.keys(data).length === 2 && data.companyUUID && data.companyID) return res.status(200).jsonp({state: 'language'});
-    if(data && Object.keys(data).length === 3 && data.companyUUID && data.companyID && data.hotelID) return res.status(200).jsonp({state: 'room'});
-    if(data && Object.keys(data).length === 4 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber){ delete req.session.data?.roomNumber; return res.status(200).jsonp({state: 'room'});}
-    if(data && Object.keys(data).length === 5 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber && data.guest_reservation_id){ delete req.session.data?.roomNumber; delete req.session.data?.guest_reservation_id; return res.status(200).jsonp({state: 'room'});}
-    if(data && Object.keys(data).length === 6 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber && data.guest_reservation_id && data.verification){ delete req.session.data?.roomNumber; delete req.session.data?.guest_reservation_id; delete req.session.data?.verification; return res.status(200).jsonp({state: 'room'});}
-    if(data && Object.keys(data).length === 7 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber && data.guest_reservation_id && data.verification && (data.paid !== undefined && data.paid !== null)){ console.log('here'); delete req.session.data!['roomNumber']; delete req.session.data!['guest_reservation_id']; delete req.session.data!['verification']; delete req.session.data!['paid']; return res.status(200).jsonp({state: 'room'});}  
-  }catch(error){
-    console.log(error)
-  }
+    const states = [
+      { state: 'language', keys: ['companyUUID'] },
+      { state: 'language', keys: ['companyUUID', 'companyID'] },
+      { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
+      { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber'] },
+      { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id'] },
+      { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification'] },
+      { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification', 'paid'] },
+    ];
+    const matchedState = states.find(({ keys }) =>
+      keys.every(key => key in data && data[key] !== undefined && data[key] !== null) &&
+      Object.keys(data).length === keys.length
+    );
+    if (matchedState) {
+      const keysToRemove = ['roomNumber', 'guest_reservation_id', 'verification', 'paid'];
+      keysToRemove.forEach(key => {
+        if (matchedState.keys.includes(key)) {
+          delete data[key];
+        }
+      });
+      return res.status(200).jsonp({ state: matchedState.state });
+    }
+    return res.status(200).jsonp({state: 'language'});
+  }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of api.get('/state')", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${error}`},req,res)}
 })
 
 api.post('/savehotel', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{

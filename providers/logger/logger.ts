@@ -1,23 +1,20 @@
 import * as winston from "winston"
 import Flatted from "flatted";
 import  Transport from 'winston-transport';
-import {pool} from "../mysqlProvider/mysqlProvider"
+import {executeQuery} from "../mysqlProvider/mysqlProvider"
 import { v4 as uuidv4 } from 'uuid';
 
 class MysqlTransport extends Transport {
   async log(info: any, callback: () => void){
        setImmediate(() => {this.emit('logged', info);});
        try {
-        await pool.query(
-          'CALL create_new_log(?, ?, ?, ?, ?)',
-          [
-            info.level,
-            Flatted.stringify(info.message),
-            Flatted.stringify({ metadata: info.metadata }),
-            new Date(info.timestamp).toISOString().replace('T', ' ').replace('Z', ''),
-            info.uuid,
-          ]
-        );
+        let _ = await executeQuery('CALL create_new_log(?, ?, ?, ?, ?)',[
+          info.level,
+          Flatted.stringify(info.message),
+          Flatted.stringify({ metadata: info.metadata }),
+          new Date(info.timestamp).toISOString().replace('T', ' ').replace('Z', ''),
+          info.uuid,
+        ]);
         callback(); 
       } catch (error) {
         console.error(`Error executing MYSQL query: ${error}`);

@@ -3,7 +3,7 @@ import {Response, Request, NextFunction} from "express"
 
 import i18next from "../providers/i18n/i18n"
 import { executeQuery } from "../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond, notFound, errorPage, goBack } from "../helpers/herlpers"
+import { logErrorAndRespond, notFound, ReportErrorAndRespondJsonGet } from "../helpers/herlpers"
 
 const reservation = express.Router()
 
@@ -34,13 +34,13 @@ reservation.get('/language', async (req:Request, res:Response, next:NextFunction
           companyName: companyInfo.companyName,
           companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo,'utf-8').toString('base64')}`,
       });
-    }catch(error){ console.log(error); return logErrorAndRespond("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", {script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+    }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", {script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 reservation.get('/hotel', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
       const rows = await executeQuery('CALL get_hotels(?)', [req.session.data!.companyID]);
-      if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
+      //if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
       const hotels:hotel[] = (rows as any)[0].map((row: any) => ({
         hotelID: row['hotel_id'].toString(),
         name: row['name'],
@@ -55,7 +55,7 @@ reservation.get('/hotel', async (req:Request, res:Response, next:NextFunction):P
           error: i18next.t('noHotelSelectedError',{ns: 'hotel', lng: req.language }),
           buttonTextExit: i18next.t('buttonTextExit',{ns: 'hotel', lng: req.language }),
       });
-    }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/hotel', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/hotel', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+    }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/hotel', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/hotel', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 reservation.get('/room', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
@@ -68,7 +68,7 @@ reservation.get('/room', async (req:Request, res:Response, next:NextFunction):Pr
       confirmButton: i18next.t('confirmButton',{ns: 'room', lng: req.language }),
       buttonTextExit: i18next.t('buttonTextExit',{ns: 'room', lng: req.language }),
     });
-  }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/room', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/room', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+  }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/room', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/room', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 reservation.get('/restaurant', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
@@ -91,8 +91,8 @@ reservation.get('/restaurant', async (req:Request, res:Response, next:NextFuncti
       error: i18next.t('noSelectedRestaurant',{ns: 'restaurant', lng: req.language }),
       buttonTextExit: i18next.t('buttonTextExit',{ns: 'restaurant', lng: req.language }),
       restaurants: restaurants,
-    });
-  }catch(error){logErrorAndRespond("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+    },(error, html)=>{if(error)throw error.toString();res.send(html)});
+  }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})",{script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request:req , error:`${error}`}, req, res );}
 })
 
 export default reservation;

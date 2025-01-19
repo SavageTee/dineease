@@ -55,7 +55,7 @@ class MysqlTransport extends winston_transport_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             setImmediate(() => { this.emit('logged', info); });
             try {
-                yield mysqlProvider_1.pool.query('CALL create_new_log(?, ?, ?, ?, ?)', [
+                let _ = yield (0, mysqlProvider_1.executeQuery)('CALL create_new_log(?, ?, ?, ?, ?)', [
                     info.level,
                     flatted_1.default.stringify(info.message),
                     flatted_1.default.stringify({ metadata: info.metadata }),

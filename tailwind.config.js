@@ -10,6 +10,8 @@ module.exports = {
     './pages/language/**/*.{html,js,ejs}',  
     './pages/error/**/*.{html,js,ejs}',  
     './pages/admin/**/*.{html,js,ejs}', 
+    './page/404/**/*.{html,js,ejs}',   
+
   ],
   theme: {
     extend: {

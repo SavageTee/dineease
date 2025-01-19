@@ -51,14 +51,14 @@ $(document).ready(function(){
 
 const fetchLanguage = async ()=>{
     fetch('/reservation/language')
-    .then(response => {
-        if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
+    .then(async response => {
+        if (!response.ok) {throw (await response.json());}
         return response.text();
     }).then(result => {
         $('#main').append(result);
         activateDynamicLanguageFunctions();
     }).catch(error => {
-        console.error('Error fetching HTML:', error);
+        showError(error);
     });
 }
 
@@ -99,15 +99,15 @@ const activateDynamicLanguageFunctions = () => {
 
 const fetchHotel = async (url)=>{
     fetch('/reservation/hotel')
-    .then(response => {
-        if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
+    .then(async response => {
+        if (!response.ok) {throw (await response.json());}
         return response.text();
     }).then(result => {
         $('#main').empty();
         $('#main').append(result);
         activateDynamicHotelFunctions();
     }).catch(error => {
-        console.error('Error fetching HTML:', error);
+        showError(error);
     });
 }
 
@@ -147,15 +147,15 @@ function selectHotel(card,hotelID) {
 
 const fetchRoom = async ()=>{
     fetch('/reservation/room')
-    .then(response => {
-        if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
+    .then(async response => {
+        if (!response.ok) {throw (await response.json());}
         return response.text();
     }).then(result => {
         $('#main').empty();
         $('#main').append(result);
         activateDynamicRoomFunctions();
     }).catch(error => {
-        console.error('Error fetching HTML:', error);
+        showError(error);
     });
 }
 
@@ -290,15 +290,14 @@ function goToRestaurants(){
 const fetchRestaurant = async ()=>{
     fetch('/reservation/restaurant')
     .then(async response => {
-        if (!response.ok) {throw new Error(await response.text());}
+        if (!response.ok) {throw (await response.json());}
         return response.text();
     }).then(result => {
         $('#main').empty();
         $('#main').append(result);
         activateDynamicRestaurantFunctions();
     }).catch(error => {
-        console.log(error.message)
-        showError(error.message);
+        showError(error);
     });
 }
 

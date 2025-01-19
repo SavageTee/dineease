@@ -65,42 +65,32 @@ api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 }));
 api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
     try {
         let data = req.session.data;
-        console.log(data);
-        if (data && Object.keys(data).length === 1 && data.companyUUID)
-            return res.status(200).jsonp({ state: 'language' });
-        if (data && Object.keys(data).length === 2 && data.companyUUID && data.companyID)
-            return res.status(200).jsonp({ state: 'language' });
-        if (data && Object.keys(data).length === 3 && data.companyUUID && data.companyID && data.hotelID)
-            return res.status(200).jsonp({ state: 'room' });
-        if (data && Object.keys(data).length === 4 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber) {
-            (_a = req.session.data) === null || _a === void 0 ? true : delete _a.roomNumber;
-            return res.status(200).jsonp({ state: 'room' });
+        const states = [
+            { state: 'language', keys: ['companyUUID'] },
+            { state: 'language', keys: ['companyUUID', 'companyID'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification', 'paid'] },
+        ];
+        const matchedState = states.find(({ keys }) => keys.every(key => key in data && data[key] !== undefined && data[key] !== null) &&
+            Object.keys(data).length === keys.length);
+        if (matchedState) {
+            const keysToRemove = ['roomNumber', 'guest_reservation_id', 'verification', 'paid'];
+            keysToRemove.forEach(key => {
+                if (matchedState.keys.includes(key)) {
+                    delete data[key];
+                }
+            });
+            return res.status(200).jsonp({ state: matchedState.state });
         }
-        if (data && Object.keys(data).length === 5 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber && data.guest_reservation_id) {
-            (_b = req.session.data) === null || _b === void 0 ? true : delete _b.roomNumber;
-            (_c = req.session.data) === null || _c === void 0 ? true : delete _c.guest_reservation_id;
-            return res.status(200).jsonp({ state: 'room' });
-        }
-        if (data && Object.keys(data).length === 6 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber && data.guest_reservation_id && data.verification) {
-            (_d = req.session.data) === null || _d === void 0 ? true : delete _d.roomNumber;
-            (_e = req.session.data) === null || _e === void 0 ? true : delete _e.guest_reservation_id;
-            (_f = req.session.data) === null || _f === void 0 ? true : delete _f.verification;
-            return res.status(200).jsonp({ state: 'room' });
-        }
-        if (data && Object.keys(data).length === 7 && data.companyUUID && data.companyID && data.hotelID && data.roomNumber && data.guest_reservation_id && data.verification && (data.paid !== undefined && data.paid !== null)) {
-            console.log('here');
-            delete req.session.data['roomNumber'];
-            delete req.session.data['guest_reservation_id'];
-            delete req.session.data['verification'];
-            delete req.session.data['paid'];
-            return res.status(200).jsonp({ state: 'room' });
-        }
+        return res.status(200).jsonp({ state: 'language' });
     }
     catch (error) {
-        console.log(error);
+        (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of api.get('/state')", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 api.post('/savehotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

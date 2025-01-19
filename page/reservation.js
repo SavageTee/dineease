@@ -81,15 +81,13 @@ reservation.get('/language', (req, res, next) => __awaiter(void 0, void 0, void 
         });
     }
     catch (error) {
-        console.log(error);
-        return (0, herlpers_1.logErrorAndRespond)("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_hotels(?)', [req.session.data.companyID]);
-        if (rows[0][0] === undefined || rows[0][0] === null)
-            return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorBodyNoHotel', { ns: 'hotel', lng: req.language }));
+        //if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
         const hotels = rows[0].map((row) => {
             var _a;
             return ({
@@ -109,7 +107,7 @@ reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, 
         });
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/hotel', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/hotel', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of reservation.get('/hotel', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/hotel', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 reservation.get('/room', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -124,7 +122,7 @@ reservation.get('/room', (req, res, next) => __awaiter(void 0, void 0, void 0, f
         });
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/room', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/room', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of reservation.get('/room', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/room', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -150,10 +148,11 @@ reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, voi
             error: i18n_1.default.t('noSelectedRestaurant', { ns: 'restaurant', lng: req.language }),
             buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'restaurant', lng: req.language }),
             restaurants: restaurants,
-        });
+        }, (error, html) => { if (error)
+            throw error.toString(); res.send(html); });
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", { script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 exports.default = reservation;
