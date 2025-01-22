@@ -34,6 +34,25 @@ declare global {
         reservation_by_room: boolean;
     }
 
+    type confirm = {
+        roomNumber: string,
+        pax: string,
+        hotelName:string;
+        names: string,
+        restaurant: string,
+        day:string,
+        time: string;
+        createdAt: string;
+        paid: number;
+        totalAmmount: string;
+        price:string,
+        currency:string,
+        companyName:string,
+        logo:any|undefined,
+    }
+
+
+
 }
 
 declare module 'express-session' {

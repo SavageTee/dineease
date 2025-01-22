@@ -16,7 +16,7 @@
 <div id="restaurants-container" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-6 tw-p-4 tw-place-content-center tw-place-items-center">
     <% restaurants.forEach(restaurant => { %>   
       <% if (restaurant.isSelected === true) { %>
-      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800 selected">
+      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800 selected-restaurant">
       <% } else { %>
       <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800">
       <% } %>  
@@ -65,7 +65,7 @@
     <br/>
 </div>
 <div class="tw-fixed tw-bg-white tw-bottom-0 tw-w-full tw-p-4 tw-shadow-lg tw-z-10">
-    <div id="selecterror" style="display: none;" class="tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-red-blue-300 tw-bg-red-200 dark:tw-text-red-400 dark:tw-bg-gray-800 dark:tw-red-blue-800" role="alert">
+    <div id="selectError" style="display: none;" class="tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-red-blue-300 tw-bg-red-200 dark:tw-text-red-400 dark:tw-bg-gray-800 dark:tw-red-blue-800" role="alert">
       <i class="fa-solid fa-circle-question"></i>
       <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium">
         <%= error %>

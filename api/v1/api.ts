@@ -23,6 +23,8 @@ api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise
 api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     let data = req.session.data!;
+
+    console.log(data)
     const states = [
       { state: 'language', keys: ['companyUUID'] },
       { state: 'language', keys: ['companyUUID', 'companyID'] },
@@ -45,7 +47,7 @@ api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<a
       });
       return res.status(200).jsonp({ state: matchedState.state });
     }
-    return res.status(200).jsonp({state: 'language'});
+    if(true)return res.status(200).jsonp({ state: 'qrcode'});
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of api.get('/state')", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${error}`},req,res)}
 })
 
@@ -116,7 +118,7 @@ api.post('/verifyroom', async (req:Request, res:Response, next:NextFunction):Pro
 function handleCancel(req:Request, res:Response){
     let apiUrl = req.session.data?.companyUUID === undefined ? '' : req.session.data?.companyUUID;
     req.session.destroy((_) =>{});
-    return res.redirect(`/en/language?id=${apiUrl}`)
+    return res.redirect(`/en/reservation?id=${apiUrl}`)
 }
 
 api.get('/cancelreservation',async (req:Request, res:Response, next:NextFunction):Promise<any>=>{

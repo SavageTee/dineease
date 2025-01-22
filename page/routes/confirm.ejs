@@ -1,0 +1,147 @@
+<div id="pointerAbsorber" class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-h-full tw-bg-transparent" style="display: none;"></div>
+<nav class="tw-w-full tw-z-20">
+  <ul style="height: 30px; text-align: center;" class="progress tw-w-full tw-flex tw-flex-nowrap">
+    <li class="active activate"><span>HOTEL</span></li>
+    <li class="active activate"><span>ROOM</span></li>
+    <li class="active activate"><span>RESTAURANT</span></li>
+    <li class="active activate"><span>TIME</span></li>
+    <li class="active activate"><span>CONFIRM</span></li>
+  </ul>
+</nav>
+
+<div class="tw-mx-auto tw-bg-gray-100 tw-w-full tw-inline-flex tw-justify-center tw-items-center">
+  <div class="tw-inline-flex tw-flex-col tw-justify-center tw-items-center tw-text-center tw-py-2">
+    <img src="<%= companyLogo %>" alt="Company Logo" class="h-8">
+    <h6 class="tw-text-black tw-font-extrabold tw-text-2xl"><%= companyName %></h6>
+    <canvas id="qrcode"></canvas>
+
+         <p class="tw-text-gray-700"> <%= createdAt %> </p>
+       
+
+        <table class="tw-w-full tw-text-sm tw-text-left tw-rtl:tw-text-right tw-text-gray-500 dark:tw-text-gray-400 tw-border-black tw-border-2">
+            <thead class="tw-text-xs tw-text-gray-700 tw-uppercase tw-bg-blue-100 dark:tw-bg-gray-700 dark:tw-text-gray-400">
+                <tr class="tw-border-black tw-border-2 tw-text-center">
+                    <th scope="col" class="tw-px-6 tw-py-3 tw-border-gray-500 tw-border-2 tw-font-extrabold">
+                       <%= hotelHeader %> 
+                    </th>
+                    <th scope="col" class="tw-px-6 tw-py-3 tw-border-gray-500 tw-border-2 tw-font-extrabold">
+                        <%= roomNumberHeader %>
+                    </th>
+                    <th scope="col" class="tw-px-6 tw-py-3 tw-border-gray-500 tw-border-2 tw-font-extrabold">
+                        <%= paxHeader %>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="tw-bg-white tw-text-center tw-border-b dark:tw-bg-gray-800 dark:tw-border-gray-700 tw-border-black tw-border-2 tw-font-extrabold">
+                    <th scope="row" class="tw-px-6 tw-py-4 tw-text-gray-900 tw-whitespace-nowrap dark:tw-text-white tw-border-gray-500 tw-border-2">
+                        <%= hotel %> 
+                    </th>
+                    <td class=" tw-px-6 tw-py-4 tw-text-gray-900 tw-border-gray-900 tw-border-2 ">
+                        <%= roomNumber %>
+                    </td>
+                    <td class="tw-px-6 tw-py-4 tw-text-gray-900 tw-border-gray-900 tw-border-2">
+                        <%= pax %>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        </br>
+
+        <table class="tw-w-full tw-text-sm tw-text-left tw-rtl:tw-text-right tw-text-gray-500 dark:tw-text-gray-400 tw-border-black tw-border-2">
+            <thead class="tw-text-xs tw-text-gray-700 tw-uppercase tw-bg-blue-100 dark:tw-bg-gray-700 dark:tw-text-gray-400">
+                <tr class="tw-border-black tw-border-2 tw-text-center">
+                    <th scope="col" class="tw-px-6 tw-py-3 tw-border-gray-500 tw-border-2 tw-font-extrabold">
+                       <%= restaurantHeader %> 
+                    </th>
+                    <th scope="col" class="tw-px-6 tw-py-3 tw-border-gray-500 tw-border-2 tw-font-extrabold">
+                        <%= dateHeader %>
+                    </th>
+                    <th scope="col" class="tw-px-6 tw-py-3 tw-border-gray-500 tw-border-2 tw-font-extrabold">
+                        <%= timeHeader %>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="tw-bg-white tw-text-center tw-border-b dark:tw-bg-gray-800 dark:tw-border-gray-700 tw-border-black tw-border-2 tw-font-extrabold">
+                    <th scope="row" class="tw-px-6 tw-py-4 tw-text-gray-900 tw-whitespace-nowrap dark:tw-text-white tw-border-gray-500 tw-border-2">
+                        <%= restaurant %> 
+                    </th>
+                    <td class=" tw-px-6 tw-py-4 tw-text-gray-900 tw-border-gray-900 tw-border-2 ">
+                        <%= date %>
+                    </td>
+                    <td class="tw-px-6 tw-py-4 tw-text-gray-900 tw-border-gray-900 tw-border-2">
+                        <%= time %>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        </br>
+
+        <table class="tw-w-full tw-text-sm tw-text-left tw-rtl:tw-text-right tw-text-gray-500 dark:tw-text-gray-400 tw-border-black tw-border-2">
+            <thead class="tw-text-xs tw-text-gray-700 tw-uppercase tw-bg-blue-100 dark:tw-bg-gray-700 dark:tw-text-gray-400">
+                <tr class="tw-border-black tw-border-2 tw-text-center">
+                    <th scope="col" class="tw-px-6 tw-py-3 tw-border-gray-500 tw-border-2 tw-font-extrabold">
+                        <%= guestsHeader %> 
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <% guests.forEach(function(guest) { %>
+                <tr class="tw-bg-white tw-text-center tw-border-b dark:tw-bg-gray-800 dark:tw-border-gray-700 tw-border-black tw-border-2 tw-font-extrabold">
+                    <td class="tw-px-6 tw-py-1 tw-text-gray-900 tw-whitespace-nowrap dark:tw-text-white tw-border-gray-500 tw-border-2">
+                        <%= guest %>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        </br>
+
+        <% if (paid === true) { %>
+            <table class="tw-w-full tw-text-sm tw-text-left tw-rtl:tw-text-right tw-text-gray-500 dark:tw-text-gray-400 tw-border-black tw-border-2">
+                <thead class="tw-text-xs tw-text-gray-700 tw-uppercase tw-bg-blue-100 dark:tw-bg-gray-700 dark:tw-text-gray-400">
+                    <tr class="tw-border-black tw-border-2 tw-text-center">
+                        <th scope="col" class="tw-px-6 tw-py-3 tw-border-gray-500 tw-border-2 tw-font-extrabold">
+                            <%= paymentHeader %> 
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="tw-bg-white tw-text-center tw-border-b dark:tw-bg-gray-800 dark:tw-border-gray-700 tw-border-black tw-border-2 tw-font-extrabold">
+                        <td class="tw-px-6 tw-py-1 tw-text-gray-900 tw-whitespace-nowrap dark:tw-text-white tw-border-gray-500 tw-border-2">
+                            <%= totalAmmount %>  <%= currency %>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        <% } else { %>    
+            <table class="tw-w-full tw-text-sm tw-text-left tw-rtl:tw-text-right tw-text-gray-500 dark:tw-text-gray-400 tw-border-black tw-border-2">
+                <thead class="tw-text-xs tw-text-gray-700 tw-uppercase tw-bg-blue-100 dark:tw-bg-gray-700 dark:tw-text-gray-400">
+                    <tr class="tw-border-black tw-border-2 tw-text-center">
+                        <th scope="col" class="tw-px-6 tw-py-3 tw-border-gray-500 tw-border-2 tw-font-extrabold">
+                            <%= paymentHeader %> 
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="tw-bg-white tw-text-center tw-border-b dark:tw-bg-gray-800 dark:tw-border-gray-700 tw-border-black tw-border-2 tw-font-extrabold">
+                        <td class="tw-px-6 tw-py-1 tw-text-gray-900 tw-whitespace-nowrap dark:tw-text-white tw-border-gray-500 tw-border-2">
+                            <%= freeHeader %>  
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        <% } %>    
+  </div>
+</div>
+
+<script>
+  QRCode.toCanvas(document.getElementById('qrcode'),"<%= qrCOde %>", function (error) {
+      if (error) return console.error(error);
+      console.log('QR code successfully generated!');
+  });
+</script>

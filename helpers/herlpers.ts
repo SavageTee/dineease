@@ -24,15 +24,22 @@ export const notFound = async (req:Request, res:Response) => res.render('404/ind
     errorBody: i18next.t('errorBody',{ns: '404', lng: req.language }),
 })
 
-export const errorPage = async (req:Request, res:Response, title:string, errorHeader:string, errorBody:string, copyError?:string, goBack?:string, showErrorScript?:boolean, companyUUID?:string ) => res.render('error/index',{
-    title: title,
-    errorHeader: errorHeader,
-    errorBody: errorBody,
-    showErrorScript: showErrorScript || false,
-    copyError: copyError || "COPY ERROR",
-    goBack: goBack || "GO BACK",
-    companyUUID: companyUUID || ""
-})
+
+export const errorPage = (req:Request, res:Response, title:string, errorHeader:string, errorBody:string, copyError?:string, goBack?:string, showErrorScript?:boolean) =>{
+    try{
+        let uuid = req.session.data?.companyUUID;
+        req.session.destroy(()=>{});
+        return res.render('error/index',{
+            title: title,
+            errorHeader: errorHeader,
+            errorBody: errorBody,
+            showErrorScript: showErrorScript || false,
+            copyError: copyError || "COPY ERROR",
+            goBack: goBack || "GO BACK",
+            companyUUID: uuid || ''
+        },(error, html)=>{if(error)throw error.toString();res.send(html)})
+    }catch(error){ ReportErrorAndRespondJsonGet("error occured in catch block of helpers functions export const errorPage()", {script: "helpers.ts", scope: "errorPage()", request: req, error:`${error}`}, req, res ); }
+}
 
 export const ReportErrorAndRespondJsonGet = async (message: string, metadata: any, req: Request, res: Response) => {
     let generatedUUID = await newLog({
@@ -54,9 +61,6 @@ export const ReportErrorAndRespondErrorPage  = async (message: string, metadata:
     });
     return errorPage(req, res, i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID}) , i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID }) );
 }
-
-
-
 
 export const reportErrorAndRespond = async (message: string, metadata: any, req: Request, res: Response) => {
     let generatedUUID = await newLog({

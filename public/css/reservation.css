@@ -63,6 +63,14 @@ ul.progress li.active:after {
     background-color: green !important;
 }
 
+.selected-restaurant {
+    border: 1px solid green;
+    box-shadow: 0 0 10px green;
+}
+.selected-restaurant #name_holder {
+    background-color: green !important;
+}
+
 .tableContainer {
     border-collapse: collapse;
 }

@@ -67,6 +67,7 @@ api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let data = req.session.data;
+        console.log(data);
         const states = [
             { state: 'language', keys: ['companyUUID'] },
             { state: 'language', keys: ['companyUUID', 'companyID'] },
@@ -87,7 +88,8 @@ api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function
             });
             return res.status(200).jsonp({ state: matchedState.state });
         }
-        return res.status(200).jsonp({ state: 'language' });
+        if (true)
+            return res.status(200).jsonp({ state: 'qrcode' });
     }
     catch (error) {
         (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of api.get('/state')", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
@@ -185,7 +187,7 @@ function handleCancel(req, res) {
     var _a, _b;
     let apiUrl = ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID) === undefined ? '' : (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyUUID;
     req.session.destroy((_) => { });
-    return res.redirect(`/en/language?id=${apiUrl}`);
+    return res.redirect(`/en/reservation?id=${apiUrl}`);
 }
 api.get('/cancelreservation', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {

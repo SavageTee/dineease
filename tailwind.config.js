@@ -11,6 +11,7 @@ module.exports = {
     './pages/error/**/*.{html,js,ejs}',  
     './pages/admin/**/*.{html,js,ejs}', 
     './page/404/**/*.{html,js,ejs}',   
+    './page/routes/**/*.{html,js,ejs}',   
 
   ],
   theme: {

@@ -1,0 +1,11 @@
+{
+    "hotelHeader": "Hotel",
+    "paxHeader": "PAX",
+    "roomNumberHeader": "Room Number",
+    "restaurantHeader": "Restaurant",
+    "dateHeader": "Date",
+    "timeHeader": "Time",
+    "guestsHeader": "Guests",
+    "paymentHeader": "Payment Status",
+    "freeHeader": "FREE"
+}

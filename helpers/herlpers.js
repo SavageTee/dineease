@@ -39,17 +39,26 @@ const notFound = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 exports.notFound = notFound;
-const errorPage = (req, res, title, errorHeader, errorBody, copyError, goBack, showErrorScript, companyUUID) => __awaiter(void 0, void 0, void 0, function* () {
-    return res.render('error/index', {
-        title: title,
-        errorHeader: errorHeader,
-        errorBody: errorBody,
-        showErrorScript: showErrorScript || false,
-        copyError: copyError || "COPY ERROR",
-        goBack: goBack || "GO BACK",
-        companyUUID: companyUUID || ""
-    });
-});
+const errorPage = (req, res, title, errorHeader, errorBody, copyError, goBack, showErrorScript) => {
+    var _a;
+    try {
+        let uuid = (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID;
+        req.session.destroy(() => { });
+        return res.render('error/index', {
+            title: title,
+            errorHeader: errorHeader,
+            errorBody: errorBody,
+            showErrorScript: showErrorScript || false,
+            copyError: copyError || "COPY ERROR",
+            goBack: goBack || "GO BACK",
+            companyUUID: uuid || ''
+        }, (error, html) => { if (error)
+            throw error.toString(); res.send(html); });
+    }
+    catch (error) {
+        (0, exports.ReportErrorAndRespondJsonGet)("error occured in catch block of helpers functions export const errorPage()", { script: "helpers.ts", scope: "errorPage()", request: req, error: `${error}` }, req, res);
+    }
+};
 exports.errorPage = errorPage;
 const ReportErrorAndRespondJsonGet = (message, metadata, req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let generatedUUID = yield (0, logger_1.default)({

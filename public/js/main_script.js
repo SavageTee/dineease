@@ -1,6 +1,18 @@
 var errorTimeout;
 var selectedHotel;
 
+let pdfDoc = null;
+let currentPage = 1;
+let pageCount = 0;
+let zoomScale = 1;
+let renderTask = null; 
+let selectedRestaurant = undefined;
+let viewMenuClick = false;
+let confirmRestaurantClick = false;
+
+let timePageSearch = false;
+let timeConfirm = false;
+
 (async function(){
     fetch('/api/v1/state')
     .then(response => {
@@ -10,6 +22,7 @@ var selectedHotel;
         console.log(result)
         if(result['state'] === 'language') fetchLanguage();
         if(result['state'] === 'room') fetchRoom();
+        if(result['state'] === 'qrcode') fetchConfirm();
     }).catch(error => {
         console.error('Error fetching HTML:', error);
     });
@@ -19,7 +32,7 @@ const beginLoading = ()=> $('#pointerAbsorber').show()
 const releaseLoading = ()=> $('#pointerAbsorber').hide()
 const showError = (error) => {
     if (errorTimeout) {clearTimeout(errorTimeout);}
-    if(error.hasOwnProperty('errorText')){
+    if(error && error.hasOwnProperty('errorText')){
         $('#errorAlert').text(error['errorText'])
         $('#selectError').fadeIn();
         releaseLoading();
@@ -302,5 +315,322 @@ const fetchRestaurant = async ()=>{
 }
 
 function activateDynamicRestaurantFunctions(){
-
+    $('#zoom_percent').text(`${zoomScale * 100}%`)
+    $(function() {pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.js';});
+    function setZoom(scale) {
+        if(scale < 0.1) return;
+        if(scale > 5) return;
+        zoomScale = scale;
+        const canvas = document.getElementById('pdfCanvas');
+        canvas.style.width = `${zoomScale * 100}%`;
+        $('#zoom_percent').text(`${zoomScale * 100}%`)
+        renderPage(currentPage);
+    }
+    function nextPage() {
+    if (currentPage < pageCount) {
+        currentPage++;
+        renderPage(currentPage);
+    }
+    }
+    function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderPage(currentPage);
+    }
+    }
+    document.getElementById('nextPage').addEventListener('click', nextPage);
+    document.getElementById('prevPage').addEventListener('click', prevPage);
+    $('#confirm').on('click',()=> ConfirmRestaurant())
+    document.getElementById('zoomIn').addEventListener('click', () => setZoom(zoomScale + 0.5));
+    document.getElementById('zoomOut').addEventListener('click', () => setZoom(zoomScale - 0.5));
+    releaseLoading();
 }
+
+function viewMenu(restaurantID){
+    pdfDoc = null;
+    currentPage = 1;
+    pageCount = 0;
+    zoomScale = 1;
+    renderTask = null; 
+    const canvas = document.getElementById('pdfCanvas');
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    if(!viewMenuClick){
+        viewMenuClick = true;
+        $(`#loader_modal_${restaurantID}`).show()
+        $(`#view_menu_${restaurantID}`).hide()
+        fetch(`/api/v1/menu`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+            body: JSON.stringify({ 'restaurantID': restaurantID })
+        }).then(async response =>  {
+            if (!response.ok) {throw (await response.json());}
+            return response.json();
+        }).then(async (result)=>{
+            loadPDF(result['menu']['menu_pdf'].data);
+            $('#pdfModal').modal('show')
+            $(`#loader_modal_${restaurantID}`).hide()
+            $(`#view_menu_${restaurantID}`).show()
+            viewMenuClick = false;
+        })
+        .catch(error => {
+            showError(error)
+            $(`#loader_modal_${restaurantID}`).hide()
+            $(`#view_menu_${restaurantID}`).show()
+            viewMenuClick = false;
+        });
+    }
+}
+
+async function renderPage(pageNum) {
+    try {
+      if (renderTask) {renderTask.cancel();renderTask = null;}
+      const page = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: zoomScale  });
+      const canvas = document.getElementById('pdfCanvas');
+      canvas.style.width = `${zoomScale * 100}%`;
+      $('#zoom_percent').text(`${zoomScale * 100}%`)
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const renderContext = {canvasContext: context,viewport: viewport,};
+      renderTask = page.render(renderContext);
+      await renderTask.promise;
+      document.getElementById('pageNum').textContent = currentPage;
+    } catch (error) {console.error('Error rendering page:', error);}
+}
+
+async function loadPDF(pdfData) {
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+    pdfDoc = pdf;
+    pageCount = pdf.numPages;
+    document.getElementById('pageCount').textContent = pageCount;
+    renderPage(currentPage);
+  } catch (error) {console.error('Error loading PDF:', error);}
+}
+
+function SelectRestaurant(card,restaurantID) {
+    const allCards = document.querySelectorAll('#restaurants-container > div');
+    allCards.forEach(c => c.classList.remove('selected_restaurant'));
+    card.classList.add('selected_restaurant');
+    selectedRestaurant = restaurantID;
+}
+
+function ConfirmRestaurant(){
+    if(!confirmRestaurantClick && selectedRestaurant){
+      confirmRestaurantClick = true;
+      $('#loader').show();
+      $('#notloader').hide();
+      beginLoading();
+      fetch(`/api/v1/saverestaurant`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+        body: JSON.stringify({'restaurantID': selectedRestaurant})
+    }).then(async response => {
+        if (!response.ok) {throw (await response.json());}
+        return response.json(); 
+    }).then(result => {
+        fetchTime();
+    })
+    .catch(error => {
+        showError(error)
+        $('#loader').hide();
+        $('#notloader').show();
+        confirmRestaurantClick = false;
+        beginLoading();
+    });
+    }
+}
+
+const fetchTime = async ()=>{
+    fetch('/reservation/time')
+    .then(async response => {
+        if (!response.ok) {throw (await response.json());}
+        return response.text();
+    }).then(result => {
+        $('#main').empty();
+        $('#main').append(result);
+        activateDynamicTimeFunctions();
+    }).catch(error => {
+        showError(error);
+    });
+}
+
+
+function activateDynamicTimeFunctions(){
+    $('#datepicker').on('change',()=> {
+        desiredDate = $('#datepicker').val()
+        console.log(desiredDate)
+    })
+    $('#search').on('click', ()=> searchDate());
+    $('#confirm').on('click',()=> confirmTime())
+    releaseLoading();
+}
+
+function timeStyle(value, row, index) {
+    return {
+      css: {
+        color: 'blue'
+      }
+    }
+  }
+
+function stateFormatter(value, row) {
+    if (row['remaining'] === 0) {
+      return {
+        disabled: true
+      }
+    }
+    return value
+}
+
+function rowStyle(row, index) {
+    if(row['remaining'] === 0){
+        return {
+            classes: 'pen-marked',
+        }
+    }
+}
+
+function timeFormatter(data,row){
+    console.log(row)
+    return `<div>${data} <div style="color: black" class="tw-text-sm">${row['meal_type'] !== null ? `(${JSON.parse(row['meal_type_array'])[row['meal_type']]})` : ''}</div> </div>`
+}
+
+function priceFormatterFree(data,row){
+    return `<div style="color: green;" >${data}</div>`
+}
+
+function priceFormatter(data,row){
+    return `<div style="color: green">${data} ${row['currency']} <div style="color: black" class="tw-text-sm"> ${row['per_person'] === 1 ? `(${row['per_person_ident']})` : ''} </div>  </div>`
+}
+
+function perPersonFormatter(data,row){
+    if(data === 1){
+       return `<i class="fa-solid fa-2x fa-circle-check text-success"></i>`
+    }else{
+       return `<i class="fa-solid fa-2x fa-circle-xmark text-danger"></i>`
+    }
+}
+
+function searchDate(){
+    if(!timePageSearch){
+        timePageSearch = true;
+        $('#search_spinner').show();
+        $('#search_normal').hide();
+        $('#datepicker').attr('disabled', true);
+        hideError();
+        $('#table_show_hide').hide();
+        fetch(`/api/v1/getavailabledate`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+            body: JSON.stringify({ 'desiredDate': desiredDate })
+        }).then(async response =>  {
+            if (!response.ok) {throw (await response.json());}
+            return response.json();
+        }).then(async (result)=>{
+            noSelectedGuestsError = result['noSelectedGuestsError'];
+            noSelectedTimeError = result['noSelectedTimeError'];
+            result['data'].map(item=> {item['free'] = result['free']; item['meal_type_array'] = result['table']['meal_type'];  item['per_person_ident'] = result['table']['per_person'];});
+            if(result['data'].length > 0){
+                $('#datepricetable').bootstrapTable('destroy').bootstrapTable().bootstrapTable('load',result['data'])
+                const columns = $('#datepricetable').bootstrapTable('getVisibleColumns');
+                columns.forEach((column, index)=>{    
+                    $('#datepricetable').bootstrapTable('updateColumnTitle', {
+                        field: column.field,
+                        title: result['table'][`${column.field}`].toString()
+                    })
+                });
+                $('#table_show_hide').show();
+            }else{     
+                showError({errorText: result['errorRestaurantNotAvailable']})    
+                $('#table_show_hide').hide();
+            }
+            timePageSearch = false;
+            $('#search_spinner').hide();
+            $('#search_normal').show();
+            $('#datepicker').removeAttr('disabled');
+            
+        })
+        .catch(error => {
+            showError(error)
+            $(`#loader_modal_${restaurantID}`).hide()
+            $(`#view_menu_${restaurantID}`).show()
+            timePageSearch = false;
+        });
+    }
+}
+
+function confirmTime(){
+    if(!timeConfirm){
+        timeConfirm = true;
+        hideError();
+        beginLoading();
+        $('#loader').show()
+        $('#notloader').hide()
+        const selectedRow = $('#datepricetable').bootstrapTable('getSelections');
+        if( selectedRow === null || selectedRow === undefined || selectedRow.length === 0){
+            showError({ errorText: noSelectedTimeError })
+            timeConfirm = false;
+            releaseLoading();
+            $('#loader').hide()
+            $('#notloader').show()
+            return;
+        }
+        const checkboxes = document.querySelectorAll('#names_list input[type="checkbox"]:checked');
+        const selectedNames = Array.from(checkboxes).map(checkbox => {const label = checkbox.closest('li').querySelector('label');return label ? label.textContent.trim() : null;}).filter(name => name !== null);
+        if( selectedNames === null || selectedNames === undefined || selectedNames.length === 0){
+            showError({ errorText: noSelectedGuestsError })
+            timeConfirm = false;
+            releaseLoading();
+            $('#loader').hide()
+            $('#notloader').show()
+            return;
+        }
+        console.log(selectedRow[0]['restaurant_pricing_times_id'])
+        fetch(`/api/v1/validate`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+            body: JSON.stringify({ 'selectedTime':selectedRow[0]['restaurant_pricing_times_id'], "selectedNames":selectedNames, "desiredDate":desiredDate })
+        }).then(async response =>  {
+            if (!response.ok) {throw (await response.json());}
+            return response.json();
+        }).then(async (result)=>{
+            if(result.status === "error") return window.location.href='/api/v1/cancelreservation';
+            if(result.status === "alreadyReserved" || result.status === "notEnough") showError(result);
+            if(result.status === "success") fetchConfirm();
+            timeConfirm = false;
+            releaseLoading();
+            $('#loader').hide()
+            $('#notloader').show()
+        }).catch(error => {
+            timeConfirm = false;
+            showError(error);
+            $('#loader').hide()
+            $('#notloader').show()
+            releaseLoading();
+        });
+    }
+}
+
+const fetchConfirm = async ()=>{
+    fetch('/reservation/confirm')
+    .then(async response => {
+        if (!response.ok) {throw (await response.json());}
+        return response.text();
+    }).then(result => {
+        $('#main').empty();
+        $('#main').append(result);
+        activateDynamicConfirmFunctions();
+    }).catch(error => {
+        showError(error);
+    });
+}
+
+function activateDynamicConfirmFunctions(){
+    releaseLoading();
+}
+
+  
+    
