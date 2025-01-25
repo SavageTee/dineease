@@ -31,7 +31,6 @@ declare global {
         photo: any | undefined,
         about: string,
         capacity:number,
-        reservation_by_room: boolean;
     }
 
     type confirm = {
@@ -49,6 +48,7 @@ declare global {
         currency:string,
         companyName:string,
         logo:any|undefined,
+        tz:string;
     }
 
 

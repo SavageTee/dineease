@@ -23,9 +23,8 @@ api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise
 api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     let data = req.session.data!;
-
-    console.log(data)
-    const states = [
+    return res.status(200).jsonp({ state: 'time' })
+   /* const states = [
       { state: 'language', keys: ['companyUUID'] },
       { state: 'language', keys: ['companyUUID', 'companyID'] },
       { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
@@ -47,7 +46,7 @@ api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<a
       });
       return res.status(200).jsonp({ state: matchedState.state });
     }
-    if(true)return res.status(200).jsonp({ state: 'qrcode'});
+    if(true)return res.status(200).jsonp({ state: 'room'});*/
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of api.get('/state')", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${error}`},req,res)}
 })
 
@@ -145,10 +144,7 @@ api.post('/saverestaurant', async (req:Request, res:Response, next:NextFunction)
   try{
     if (!validateContentType(req, res)) return;
     if (!validateRequestBodyKeys(req, res, ["restaurantID"])) return;
-    const rows = await executeQuery('CALL get_by_room_flag(?)',[req.body.restaurantID]);
-    if(![0, 1].includes((rows as any)[0][0]['reservation_by_room'])) return logErrorAndRespond("error occured in api.post('/saverestaurant', (req,res)=>{})", {script: "api.ts", scope: "api.post('/saverestaurant', (req,res)=>{})", request: req, error:`THE get_by_room_flag returned null value or undefined`}, req, res );
     req.session.data!.restaurantID = req.body.restaurantID;
-    req.session.data!.reservation_by_room = (rows as any)[0][0]['reservation_by_room'] === 1 ? true : false;
     return res.status(200).jsonp({status: 'success'})
   }catch(error){logErrorAndRespond("error occured in catch block of api.post('/saverestaurant', (req,res)=>{})", {script: "api.ts", scope: "api.post('/saverestaurant', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
@@ -157,24 +153,33 @@ api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunctio
   try{
     if (!validateContentType(req, res)) return;
     if (!validateRequestBodyKeys(req, res, ["desiredDate"])) return;
-    const rows = await executeQuery('CALL get_available_date(?, ?, ?, ?)',[req.session.data?.restaurantID, req.session.data?.hotelID, req.body.desiredDate, req.session.data?.companyID]);
-    console.log((rows as any)[0])
-    return res.status(200).jsonp({
-      status: 'success',
-      data: (rows as any)[0],
-      free: i18next.t('freeText',{ns: 'time', lng: req.language }),
-      errorRestaurantNotAvailable: i18next.t('errorRestaurantNotAvailable',{ns: 'time', lng: req.language }),
-      noSelectedGuestsError: i18next.t('noSelectedGuestsError',{ns: 'time', lng: req.language }),
-      noSelectedTimeError: i18next.t('noSelectedTimeError',{ns: 'time', lng: req.language }),
-      table: {
-        price: i18next.t('priceTable',{ns: 'time', lng: req.language }),
-        time: i18next.t('timeTable',{ns: 'time', lng: req.language }),
-        per_person: i18next.t('tablePerPerson',{ns: 'time', lng: req.language }),
-        remaining: i18next.t('tableRemaining',{ns: 'time', lng: req.language }),
-        free: i18next.t('priceTable',{ns: 'time', lng: req.language }),
-        meal_type: JSON.stringify(i18next.t('mealType',{ns: 'time', lng:req.language,returnObjects: true })),
-      } 
-    })
+      const rows_names =  await executeQuery('CALL get_names(?)',[req.session.data!.guest_reservation_id]); 
+      if((rows_names as any)[0][0] != undefined){
+          let names:string[] = (rows_names as any)[0][0]['names'].split(' |-| ');
+          const rows = await executeQuery('CALL get_available_date(?, ?, ?, ?)',[req.session.data?.restaurantID, req.session.data?.hotelID, req.body.desiredDate, req.session.data?.companyID]);
+          console.log((rows as any)[0])
+          return res.status(200).jsonp({
+            status: 'success',
+            data: (rows as any)[0],
+            free: i18next.t('freeText',{ns: 'time', lng: req.language }),
+            errorRestaurantNotAvailable: i18next.t('errorRestaurantNotAvailable',{ns: 'time', lng: req.language }),
+            noSelectedGuestsError: i18next.t('noSelectedGuestsError',{ns: 'time', lng: req.language }),
+            noSelectedTimeError: i18next.t('noSelectedTimeError',{ns: 'time', lng: req.language }),
+            RoomBasedReservation: i18next.t('RoomBasedReservation',{ns: 'time', lng: req.language }),
+            paxBasedReservation: i18next.t('paxBasedReservation',{ns: 'time', lng: req.language }),
+            roomNumber: req.session.data?.roomNumber,
+            names: names,
+            table: {
+              price: i18next.t('priceTable',{ns: 'time', lng: req.language }),
+              time: i18next.t('timeTable',{ns: 'time', lng: req.language }),
+              per_person: i18next.t('tablePerPerson',{ns: 'time', lng: req.language }),
+              remaining: i18next.t('tableRemaining',{ns: 'time', lng: req.language }),
+              free: i18next.t('priceTable',{ns: 'time', lng: req.language }),
+              meal_type: JSON.stringify(i18next.t('mealType',{ns: 'time', lng:req.language,returnObjects: true })),
+              total: i18next.t('total',{ns: 'time', lng: req.language }),
+            } 
+          })
+    }else{throw Error("if stetemnt did not find any names in api if((rows_names as any)[0][0] != undefined){}")}  
   }catch(error){
     logErrorAndRespond("error occured in catch block of api.post('/getavailabledate', (req,res)=>{})", {script: "api.ts", scope: "api.post('/getavailabledate', (req,res)=>{})", request: req, error:`${error}`}, req, res );
   }

@@ -67,29 +67,30 @@ api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let data = req.session.data;
-        console.log(data);
-        const states = [
-            { state: 'language', keys: ['companyUUID'] },
-            { state: 'language', keys: ['companyUUID', 'companyID'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification', 'paid'] },
-        ];
-        const matchedState = states.find(({ keys }) => keys.every(key => key in data && data[key] !== undefined && data[key] !== null) &&
-            Object.keys(data).length === keys.length);
-        if (matchedState) {
-            const keysToRemove = ['roomNumber', 'guest_reservation_id', 'verification', 'paid'];
-            keysToRemove.forEach(key => {
-                if (matchedState.keys.includes(key)) {
-                    delete data[key];
-                }
-            });
-            return res.status(200).jsonp({ state: matchedState.state });
-        }
-        if (true)
-            return res.status(200).jsonp({ state: 'qrcode' });
+        return res.status(200).jsonp({ state: 'time' });
+        /* const states = [
+           { state: 'language', keys: ['companyUUID'] },
+           { state: 'language', keys: ['companyUUID', 'companyID'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification', 'paid'] },
+         ];
+         const matchedState = states.find(({ keys }) =>
+           keys.every(key => key in data && data[key] !== undefined && data[key] !== null) &&
+           Object.keys(data).length === keys.length
+         );
+         if (matchedState) {
+           const keysToRemove = ['roomNumber', 'guest_reservation_id', 'verification', 'paid'];
+           keysToRemove.forEach(key => {
+             if (matchedState.keys.includes(key)) {
+               delete data[key];
+             }
+           });
+           return res.status(200).jsonp({ state: matchedState.state });
+         }
+         if(true)return res.status(200).jsonp({ state: 'room'});*/
     }
     catch (error) {
         (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of api.get('/state')", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
@@ -219,11 +220,7 @@ api.post('/saverestaurant', (req, res, next) => __awaiter(void 0, void 0, void 0
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["restaurantID"]))
             return;
-        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_by_room_flag(?)', [req.body.restaurantID]);
-        if (![0, 1].includes(rows[0][0]['reservation_by_room']))
-            return (0, herlpers_1.logErrorAndRespond)("error occured in api.post('/saverestaurant', (req,res)=>{})", { script: "api.ts", scope: "api.post('/saverestaurant', (req,res)=>{})", request: req, error: `THE get_by_room_flag returned null value or undefined` }, req, res);
         req.session.data.restaurantID = req.body.restaurantID;
-        req.session.data.reservation_by_room = rows[0][0]['reservation_by_room'] === 1 ? true : false;
         return res.status(200).jsonp({ status: 'success' });
     }
     catch (error) {
@@ -231,30 +228,42 @@ api.post('/saverestaurant', (req, res, next) => __awaiter(void 0, void 0, void 0
     }
 }));
 api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     try {
         if (!(0, herlpers_1.validateContentType)(req, res))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["desiredDate"]))
             return;
-        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_available_date(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.desiredDate, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID]);
-        console.log(rows[0]);
-        return res.status(200).jsonp({
-            status: 'success',
-            data: rows[0],
-            free: i18n_1.default.t('freeText', { ns: 'time', lng: req.language }),
-            errorRestaurantNotAvailable: i18n_1.default.t('errorRestaurantNotAvailable', { ns: 'time', lng: req.language }),
-            noSelectedGuestsError: i18n_1.default.t('noSelectedGuestsError', { ns: 'time', lng: req.language }),
-            noSelectedTimeError: i18n_1.default.t('noSelectedTimeError', { ns: 'time', lng: req.language }),
-            table: {
-                price: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
-                time: i18n_1.default.t('timeTable', { ns: 'time', lng: req.language }),
-                per_person: i18n_1.default.t('tablePerPerson', { ns: 'time', lng: req.language }),
-                remaining: i18n_1.default.t('tableRemaining', { ns: 'time', lng: req.language }),
-                free: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
-                meal_type: JSON.stringify(i18n_1.default.t('mealType', { ns: 'time', lng: req.language, returnObjects: true })),
-            }
-        });
+        const rows_names = yield (0, mysqlProvider_1.executeQuery)('CALL get_names(?)', [req.session.data.guest_reservation_id]);
+        if (rows_names[0][0] != undefined) {
+            let names = rows_names[0][0]['names'].split(' |-| ');
+            const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_available_date(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.desiredDate, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID]);
+            console.log(rows[0]);
+            return res.status(200).jsonp({
+                status: 'success',
+                data: rows[0],
+                free: i18n_1.default.t('freeText', { ns: 'time', lng: req.language }),
+                errorRestaurantNotAvailable: i18n_1.default.t('errorRestaurantNotAvailable', { ns: 'time', lng: req.language }),
+                noSelectedGuestsError: i18n_1.default.t('noSelectedGuestsError', { ns: 'time', lng: req.language }),
+                noSelectedTimeError: i18n_1.default.t('noSelectedTimeError', { ns: 'time', lng: req.language }),
+                RoomBasedReservation: i18n_1.default.t('RoomBasedReservation', { ns: 'time', lng: req.language }),
+                paxBasedReservation: i18n_1.default.t('paxBasedReservation', { ns: 'time', lng: req.language }),
+                roomNumber: (_d = req.session.data) === null || _d === void 0 ? void 0 : _d.roomNumber,
+                names: names,
+                table: {
+                    price: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
+                    time: i18n_1.default.t('timeTable', { ns: 'time', lng: req.language }),
+                    per_person: i18n_1.default.t('tablePerPerson', { ns: 'time', lng: req.language }),
+                    remaining: i18n_1.default.t('tableRemaining', { ns: 'time', lng: req.language }),
+                    free: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
+                    meal_type: JSON.stringify(i18n_1.default.t('mealType', { ns: 'time', lng: req.language, returnObjects: true })),
+                    total: i18n_1.default.t('total', { ns: 'time', lng: req.language }),
+                }
+            });
+        }
+        else {
+            throw Error("if stetemnt did not find any names in api if((rows_names as any)[0][0] != undefined){}");
+        }
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/getavailabledate', (req,res)=>{})", { script: "api.ts", scope: "api.post('/getavailabledate', (req,res)=>{})", request: req, error: `${error}` }, req, res);

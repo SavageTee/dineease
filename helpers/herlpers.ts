@@ -95,8 +95,4 @@ export const logErrorAndRespond = async (message: string, metadata: any, req: Re
 };
 
 
-
-
-
-
 export const goBack = (res:Response) =>{return res.send(`<script>window.history.back();</script>`);}

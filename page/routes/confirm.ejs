@@ -9,13 +9,25 @@
   </ul>
 </nav>
 
-<div class="tw-mx-auto tw-bg-gray-100 tw-w-full tw-inline-flex tw-justify-center tw-items-center">
+
+<div class="tw-p-4  tw-w-full tw-mb-0 tw-items-center tw-inline-flex tw-align-middle tw-text-sm tw-text-yellow-800 tw-rounded-sm tw-bg-yellow-100" role="alert">
+    <i class="fa-solid fa-2x tw-px-2 fa-circle-exclamation tw-text-yellow-800"></i>
+    <span class="tw-font-medium">Make sure to download and bring this with you</span>  
+    <button id="downloadBtn" type="button" class=" tw-mx-auto  tw-focus:outline-none tw-text-white tw-bg-green-600 tw-hover:bg-yellow-800 tw-focus:ring-4 tw-focus:ring-yellow-300 tw-font-medium tw-rounded-sm tw-text-sm tw-px-5 tw-py-1 tw-me-2 tw-mb-2">
+        <i class="fa-solid fa-download"></i>
+    </button>
+</div>
+
+
+<div id="content" class="tw-mx-auto tw-pt-0 tw-bg-gray-100 tw-w-full tw-inline-flex tw-justify-center tw-items-center">
   <div class="tw-inline-flex tw-flex-col tw-justify-center tw-items-center tw-text-center tw-py-2">
     <img src="<%= companyLogo %>" alt="Company Logo" class="h-8">
     <h6 class="tw-text-black tw-font-extrabold tw-text-2xl"><%= companyName %></h6>
     <canvas id="qrcode"></canvas>
 
-         <p class="tw-text-gray-700"> <%= createdAt %> </p>
+        <div class="tw-p-2 tw-mb-2 tw-text-sm tw-text-blue-800 tw-rounded-lg tw-bg-blue-200 dark:tw-bg-gray-800 dark:tw-text-blue-400" role="alert">
+            <span class="tw-font-medium"><%= timeZone %></span>
+        </div>
        
 
         <table class="tw-w-full tw-text-sm tw-text-left tw-rtl:tw-text-right tw-text-gray-500 dark:tw-text-gray-400 tw-border-black tw-border-2">
@@ -136,12 +148,45 @@
                 </tbody>
             </table>
         <% } %>    
+        <p class="tw-text-gray-700 tw-py-1">Printed: <%= createdAt %> </p>
   </div>
 </div>
+
+<script src="/js/html2canvas.min.js" ></script>
+<script src="/js/purify.min.js" ></script>
+<script src="/js/jspdf.umd.min.js" ></script>
 
 <script>
   QRCode.toCanvas(document.getElementById('qrcode'),"<%= qrCOde %>", function (error) {
       if (error) return console.error(error);
       console.log('QR code successfully generated!');
   });
+
+  const download = ()=>{
+    return;
+    const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p');
+      html2canvas(document.getElementById("content"), {
+      scale: 5,
+      useCORS: true,
+      allowTaint: true,
+      onrendered: function (canvas) {
+        const image = canvas.toDataURL('image/jpeg', 1.0);
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const widthRatio = pageWidth / canvas.width;
+        const heightRatio = pageHeight / canvas.height;
+        const ratio = widthRatio > heightRatio ? heightRatio : widthRatio;
+        const canvasWidth = canvas.width * ratio;
+        const canvasHeight = canvas.height * ratio;
+        const marginX = (pageWidth - canvasWidth) / 2;
+        const marginY = (pageHeight - canvasHeight) / 2;
+        doc.addImage(image, 'JPEG', marginX, marginY, canvasWidth, canvasHeight);
+        doc.save("content.pdf");
+        }
+     });
+  }
+
+  document.getElementById("downloadBtn").addEventListener("click", function () {});
+    $(document).ready(function(){ download(); })
 </script>

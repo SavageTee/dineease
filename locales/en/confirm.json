@@ -7,5 +7,6 @@
     "timeHeader": "Time",
     "guestsHeader": "Guests",
     "paymentHeader": "Payment Status",
-    "freeHeader": "FREE"
+    "freeHeader": "FREE",
+    "timeZoneMessage": "All times displayed are in UTC"
 }

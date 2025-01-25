@@ -23,6 +23,7 @@ let timeConfirm = false;
         if(result['state'] === 'language') fetchLanguage();
         if(result['state'] === 'room') fetchRoom();
         if(result['state'] === 'qrcode') fetchConfirm();
+        if(result['state'] === 'time') fetchTime();
     }).catch(error => {
         console.error('Error fetching HTML:', error);
     });
@@ -40,7 +41,7 @@ const showError = (error) => {
         fetch(`/api/v1/report`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
-            body: JSON.stringify({'error': error})
+            body: JSON.stringify({'error':error.toString()})
         }).then(response => {
             if (!response.ok) {throw new Error(`HTTP error! Status: ${response.json()}`);}
             return response.json(); 
@@ -235,7 +236,6 @@ function activateDynamicRoomFunctions(){
                 hideError();
                 $("#alert-text").empty();
                 var newContent;
-                console.log(result)
                 if(Number(result['result']) !== 0){
                     newContent = `
                         <div class="tw-flex tw-items-center tw-mb-2">
@@ -461,11 +461,73 @@ const fetchTime = async ()=>{
 function activateDynamicTimeFunctions(){
     $('#datepicker').on('change',()=> {
         desiredDate = $('#datepicker').val()
-        console.log(desiredDate)
     })
     $('#search').on('click', ()=> searchDate());
     $('#confirm').on('click',()=> confirmTime())
     releaseLoading();
+    $('#datepricetable').on('check.bs.table', function (e, row) {
+        $('#step_two').empty();
+        if(row['reservation_by_room'] === 1){
+            $('#step_two').append(`
+                <hr class="py-0 mb-3" /> 
+                <div class="tw-flex tw-py-0 pb-0">
+                    <i class="fa-solid fa-2x fa-2 tw-px-4 tw-text-red-600"></i>
+                    <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white tw-inline-flex">${row['RoomBasedReservation']}<p class="tw-text-red-600 tw-px-2"> (${row['roomNumber']}) </p></h6>
+                </div>
+            `)
+            $('#step_two').append(`
+                <ul id="names_list" class="tw-items-center tw-w-full tw-text-sm tw-font-medium tw-text-gray-900 tw-bg-gray-300 tw-border tw-border-gray-200 tw-rounded-lg sm:tw-flex tw-dark:bg-gray-700 tw-dark:border-gray-600 tw-dark:text-white">
+                  ${row['names'].map((name) => `
+                    <li class="tw-w-full tw-px-2 tw-border-b tw-border-gray-200 sm:tw-border-b-0 sm:tw-border-r tw-dark:border-gray-600">
+                      <div class="tw-flex tw-items-center tw-ps-3"> 
+                        <i class="fa-solid fa-1.5x fa-user"></i> 
+                        <label for="${name}" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900 tw-dark:text-gray-300">${name}</label>                    
+                        <input onchange="UpdateTotal()" hidden checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 tw-dark:focus:tw-ring-blue-600 tw-dark:tw-ring-offset-gray-700 tw-dark:focus:tw-ring-offset-gray-700 focus:tw-ring-2 tw-dark:bg-gray-600 tw-dark:border-gray-500"> 
+                      </div>
+                    </li>
+                  `).join('')}
+                </ul>
+            `);
+        }else{
+            $('#step_two').append(`
+                <hr class="py-0 mb-3" /> 
+                <div class="tw-flex tw-py-2 pb-0">
+                    <i class="fa-solid fa-2x fa-2 tw-px-4 tw-text-red-600"></i>
+                    <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white tw-inline-flex">${row['paxBasedReservation']}<p class="tw-text-red-600 tw-px-2"> (${row['roomNumber']}) </p></h6>
+                </div>
+            `)
+            $('#step_two').append(`
+                <ul id="names_list" class="tw-items-center tw-w-full tw-text-sm tw-font-medium tw-text-gray-900 tw-bg-gray-300 tw-border tw-border-gray-200 tw-rounded-lg sm:tw-flex tw-dark:bg-gray-700 tw-dark:border-gray-600 tw-dark:text-white">
+                  ${row['names'].map((name) => `
+                    <li class="tw-w-full tw-px-2 tw-border-b tw-border-gray-200 sm:tw-border-b-0 sm:tw-border-r tw-dark:border-gray-600">
+                      <div class="tw-flex tw-items-center tw-ps-3"> 
+                        <i class="fa-solid fa-1.5x fa-user"></i> 
+                        <label for="${name}" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900 tw-dark:text-gray-300">${name}</label>                    
+                        <input onchange="UpdateTotal()" checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 tw-dark:focus:tw-ring-blue-600 tw-dark:tw-ring-offset-gray-700 tw-dark:focus:tw-ring-offset-gray-700 focus:tw-ring-2 tw-dark:bg-gray-600 tw-dark:border-gray-500"> 
+                      </div>
+                    </li>
+                  `).join('')}
+                </ul>
+            `);
+        }
+        UpdateTotal();
+        $('#step_two').show()
+        console.log('Row selected:', row);
+    });  
+}
+
+function UpdateTotal(){
+    const selectedRow = $('#datepricetable').bootstrapTable('getSelections');
+    const per_person = selectedRow[0]['per_person'];
+    const price = selectedRow[0]['price'];
+    const currency = selectedRow[0]['currency'];
+    if(per_person === 1){
+        let count = document.querySelectorAll('#names_list input[type="checkbox"]:checked').length;
+        if(count === 0){document.querySelector('#names_list input[type="checkbox"]').checked = true; count = 1; }
+        $('#totalAmmount').text(`${Number(count) * Number(price)} ${currency}`)
+    }else{
+        $('#totalAmmount').text(`${Number(price)} ${currency}`)
+    }
 }
 
 function timeStyle(value, row, index) {
@@ -493,17 +555,20 @@ function rowStyle(row, index) {
     }
 }
 
+function remainingFormatter(data,row){
+      return `<div style="color: #005792;" >${data} <i class="fa-solid fa-user-group"></i> </div>`
+}
+
 function timeFormatter(data,row){
-    console.log(row)
     return `<div>${data} <div style="color: black" class="tw-text-sm">${row['meal_type'] !== null ? `(${JSON.parse(row['meal_type_array'])[row['meal_type']]})` : ''}</div> </div>`
 }
 
 function priceFormatterFree(data,row){
-    return `<div style="color: green;" >${data}</div>`
+    return `<div style="color: #38598b;" >${data}</div>`
 }
 
 function priceFormatter(data,row){
-    return `<div style="color: green">${data} ${row['currency']} <div style="color: black" class="tw-text-sm"> ${row['per_person'] === 1 ? `(${row['per_person_ident']})` : ''} </div>  </div>`
+    return `<div style="color: #38598b">${data} ${row['currency']} <div style="color: black" class="tw-text-sm"> ${row['per_person'] === 1 ? `(${row['per_person_ident']})` : ''} </div>  </div>`
 }
 
 function perPersonFormatter(data,row){
@@ -514,6 +579,8 @@ function perPersonFormatter(data,row){
     }
 }
 
+
+
 function searchDate(){
     if(!timePageSearch){
         timePageSearch = true;
@@ -522,6 +589,7 @@ function searchDate(){
         $('#datepicker').attr('disabled', true);
         hideError();
         $('#table_show_hide').hide();
+        $('#step_two').hide();
         fetch(`/api/v1/getavailabledate`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
@@ -532,7 +600,7 @@ function searchDate(){
         }).then(async (result)=>{
             noSelectedGuestsError = result['noSelectedGuestsError'];
             noSelectedTimeError = result['noSelectedTimeError'];
-            result['data'].map(item=> {item['free'] = result['free']; item['meal_type_array'] = result['table']['meal_type'];  item['per_person_ident'] = result['table']['per_person'];});
+            result['data'].map(item=> { item['names'] = result['names']; item['roomNumber'] = result['roomNumber']; item['RoomBasedReservation'] = result['RoomBasedReservation']; item['paxBasedReservation'] = result['paxBasedReservation']; item['free'] = result['free']; item['meal_type_array'] = result['table']['meal_type'];  item['per_person_ident'] = result['table']['per_person'];});
             if(result['data'].length > 0){
                 $('#datepricetable').bootstrapTable('destroy').bootstrapTable().bootstrapTable('load',result['data'])
                 const columns = $('#datepricetable').bootstrapTable('getVisibleColumns');
@@ -543,6 +611,7 @@ function searchDate(){
                     })
                 });
                 $('#table_show_hide').show();
+                console.log(result['data'])
             }else{     
                 showError({errorText: result['errorRestaurantNotAvailable']})    
                 $('#table_show_hide').hide();
@@ -555,8 +624,8 @@ function searchDate(){
         })
         .catch(error => {
             showError(error)
-            $(`#loader_modal_${restaurantID}`).hide()
-            $(`#view_menu_${restaurantID}`).show()
+            $('#search_spinner').hide();
+            $('#search_normal').show();
             timePageSearch = false;
         });
     }
@@ -588,7 +657,6 @@ function confirmTime(){
             $('#notloader').show()
             return;
         }
-        console.log(selectedRow[0]['restaurant_pricing_times_id'])
         fetch(`/api/v1/validate`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},

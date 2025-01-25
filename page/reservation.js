@@ -141,7 +141,6 @@ reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, voi
                 about: row['about'].toString(),
                 capacity: Number(row['capacity']),
                 isSelected: row['restaurants_id'].toString() === ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID),
-                reservation_by_room: rows[0][0]['reservation_by_room'] === 1 ? true : false,
             });
         });
         return res.render('routes/restaurant', {
@@ -159,41 +158,30 @@ reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, voi
     }
 }));
 reservation.get('/time', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d;
+    var _a, _b, _c;
     try {
-        const rows_names = yield (0, mysqlProvider_1.executeQuery)('CALL get_names(?)', [req.session.data.guest_reservation_id]);
-        if (rows_names[0][0] != undefined) {
-            let names = rows_names[0][0]['names'].split(' |-| ');
-            const rows_arrival_departure = yield (0, mysqlProvider_1.executeQuery)('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
-            let dates = rows_arrival_departure[0][0];
-            const start_date = new Date(dates['start_date']);
-            const end_date = new Date(dates['end_date']);
-            if (start_date > end_date) {
-                return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }), i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }), i18n_1.default.t('errorDepartureBody', { ns: 'time', lng: req.language }), i18n_1.default.t('copyError', { ns: 'time', lng: req.language }), i18n_1.default.t('goBack', { ns: 'time', lng: req.language }), true);
-            }
-            else {
-                return res.render('routes/time', {
-                    title: i18n_1.default.t('title', { ns: 'time', lng: req.language }),
-                    alertText: i18n_1.default.t('alertText', { ns: 'time', lng: req.language }),
-                    buttonText: i18n_1.default.t('buttonText', { ns: 'time', lng: req.language }),
-                    error: i18n_1.default.t('noSelectedRestaurant', { ns: 'time', lng: req.language }),
-                    buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'time', lng: req.language }),
-                    names: names,
-                    startDate: dates['start_date'],
-                    endDate: dates['end_date'],
-                    reservation_by_room: (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.reservation_by_room,
-                    paid: (_d = req.session.data) === null || _d === void 0 ? void 0 : _d.paid,
-                    tableHeader: i18n_1.default.t('tableHeader', { ns: 'time', lng: req.language }),
-                    roomNumber: req.session.data.roomNumber,
-                    RoomBasedReservation: i18n_1.default.t('RoomBasedReservation', { ns: 'time', lng: req.language }),
-                    paxBasedReservation: i18n_1.default.t('paxBasedReservation', { ns: 'time', lng: req.language }),
-                    selectYourDate: i18n_1.default.t('selectYourDate', { ns: 'time', lng: req.language }),
-                }, (error, html) => { if (error)
-                    throw error.toString(); res.send(html); });
-            }
+        const rows_arrival_departure = yield (0, mysqlProvider_1.executeQuery)('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
+        let dates = rows_arrival_departure[0][0];
+        const start_date = new Date(dates['start_date']);
+        const end_date = new Date(dates['end_date']);
+        if (start_date > end_date) {
+            return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }), i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }), i18n_1.default.t('errorDepartureBody', { ns: 'time', lng: req.language }), i18n_1.default.t('copyError', { ns: 'time', lng: req.language }), i18n_1.default.t('goBack', { ns: 'time', lng: req.language }), true);
         }
         else {
-            throw Error("if stetemnt did not find any names in api if((rows_names as any)[0][0] != undefined){}");
+            return res.render('routes/time', {
+                title: i18n_1.default.t('title', { ns: 'time', lng: req.language }),
+                alertText: i18n_1.default.t('alertText', { ns: 'time', lng: req.language }),
+                buttonText: i18n_1.default.t('buttonText', { ns: 'time', lng: req.language }),
+                error: i18n_1.default.t('noSelectedRestaurant', { ns: 'time', lng: req.language }),
+                buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'time', lng: req.language }),
+                startDate: dates['start_date'],
+                endDate: dates['end_date'],
+                paid: (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.paid,
+                tableHeader: `${i18n_1.default.t('tableHeader', { ns: 'time', lng: req.language })} ${dates['tz']}`,
+                roomNumber: req.session.data.roomNumber,
+                selectYourDate: i18n_1.default.t('selectYourDate', { ns: 'time', lng: req.language }),
+            }, (error, html) => { if (error)
+                throw error.toString(); res.send(html); });
         }
     }
     catch (error) {
@@ -221,6 +209,7 @@ reservation.get('/confirm', (req, res, next) => __awaiter(void 0, void 0, void 0
             currency: rows[0][0]['currency'],
             companyName: rows[0][0]['company_name'],
             logo: rows[0][0]['logo'],
+            tz: rows[0][0]['tz'],
         };
         console.log(confirmResult);
         return res.render('routes/confirm', {
@@ -248,6 +237,7 @@ reservation.get('/confirm', (req, res, next) => __awaiter(void 0, void 0, void 0
             paid: confirmResult.paid === 1 ? true : false,
             totalAmmount: confirmResult.totalAmmount,
             currency: confirmResult.currency,
+            timeZone: `${i18n_1.default.t('timeZoneMessage', { ns: 'confirm', lng: req.language })}${confirmResult.tz}`
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }
