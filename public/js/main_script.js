@@ -457,7 +457,6 @@ const fetchTime = async ()=>{
     });
 }
 
-
 function activateDynamicTimeFunctions(){
     $('#datepicker').on('change',()=> {
         desiredDate = $('#datepicker').val()

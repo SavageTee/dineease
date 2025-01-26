@@ -23,8 +23,8 @@ api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise
 api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     let data = req.session.data!;
-    return res.status(200).jsonp({ state: 'time' })
-   /* const states = [
+    //return res.status(200).jsonp({ state: 'time' })
+    const states = [
       { state: 'language', keys: ['companyUUID'] },
       { state: 'language', keys: ['companyUUID', 'companyID'] },
       { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
@@ -46,7 +46,7 @@ api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<a
       });
       return res.status(200).jsonp({ state: matchedState.state });
     }
-    if(true)return res.status(200).jsonp({ state: 'room'});*/
+    if(true)return res.status(200).jsonp({ state: 'room'});
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of api.get('/state')", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${error}`},req,res)}
 })
 

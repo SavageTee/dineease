@@ -67,30 +67,29 @@ api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let data = req.session.data;
-        return res.status(200).jsonp({ state: 'time' });
-        /* const states = [
-           { state: 'language', keys: ['companyUUID'] },
-           { state: 'language', keys: ['companyUUID', 'companyID'] },
-           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
-           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber'] },
-           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id'] },
-           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification'] },
-           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification', 'paid'] },
-         ];
-         const matchedState = states.find(({ keys }) =>
-           keys.every(key => key in data && data[key] !== undefined && data[key] !== null) &&
-           Object.keys(data).length === keys.length
-         );
-         if (matchedState) {
-           const keysToRemove = ['roomNumber', 'guest_reservation_id', 'verification', 'paid'];
-           keysToRemove.forEach(key => {
-             if (matchedState.keys.includes(key)) {
-               delete data[key];
-             }
-           });
-           return res.status(200).jsonp({ state: matchedState.state });
-         }
-         if(true)return res.status(200).jsonp({ state: 'room'});*/
+        //return res.status(200).jsonp({ state: 'time' })
+        const states = [
+            { state: 'language', keys: ['companyUUID'] },
+            { state: 'language', keys: ['companyUUID', 'companyID'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification'] },
+            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification', 'paid'] },
+        ];
+        const matchedState = states.find(({ keys }) => keys.every(key => key in data && data[key] !== undefined && data[key] !== null) &&
+            Object.keys(data).length === keys.length);
+        if (matchedState) {
+            const keysToRemove = ['roomNumber', 'guest_reservation_id', 'verification', 'paid'];
+            keysToRemove.forEach(key => {
+                if (matchedState.keys.includes(key)) {
+                    delete data[key];
+                }
+            });
+            return res.status(200).jsonp({ state: matchedState.state });
+        }
+        if (true)
+            return res.status(200).jsonp({ state: 'room' });
     }
     catch (error) {
         (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of api.get('/state')", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
