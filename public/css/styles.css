@@ -534,6 +534,9 @@ video {
 .tw-aspect-square {
   aspect-ratio: 1 / 1;
 }
+.tw-h-12 {
+  height: 3rem;
+}
 .tw-h-3\/6 {
   height: 50%;
 }
@@ -836,6 +839,10 @@ video {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
 }
+.tw-px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
 .tw-px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -1086,7 +1093,7 @@ html.tw-dark body::after {
   background-blend-mode: darken;
   background: url('/images/texture.png') repeat;
   background-size:auto;
-  opacity: 0.2;
+  opacity: 0.3;
   top: 0;
   left: 0;
   bottom: 0;

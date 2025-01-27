@@ -1,17 +1,16 @@
-<nav class="tw-bg-gray-100 dark:tw-bg-black tw-w-full tw-z-20 tw-top-0 tw-start-0 tw-border-b-4 tw-border-red-900 dark:tw-border-red-900 container-fluid">
-    <div class="row tw-items-center">
-     <div class="col-lg-4 col-md-4 col-12 d-flex justify-content-center justify-content-md-start justify-content-lg-start py-2">
-       <img src="<%= companyLogo %>" alt="Company Logo" class="h-8">
-     </div>
-     <div class="col-lg-4 col-md-4 col-12 d-flex justify-content-center justify-content-md-center justify-content-lg-center pt-2">
+<nav class="tw-bg-gray-100 dark:tw-bg-black tw-w-full tw-z-20 tw-top-0 tw-start-0 container-fluid">
+  <div class="tw-flex tw-pt-2 tw-flex-nowrap tw-items-center tw-justify-between">
+      <img src="<%= companyLogo %>" alt="Company Logo" class="tw-h-12">
+      <button id="theme-toggle" class="tw-px-3 tw-py-3 tw-bg-gray-800 tw-text-white tw-rounded tw-flex tw-items-center tw-justify-center">
+        <i style="display: none;scale: 1.3;" id="sun-icon" class="fas fa-sun"></i>
+        <i style="display: none;scale: 1.3;" id="moon-icon" class="fas fa-moon"></i>
+      </button>
+  </div>
+</nav>
+
+<nav class="tw-bg-gray-100 dark:tw-bg-black tw-border-red-900 dark:tw-border-red-900 tw-w-full tw-z-20 tw-top-0 tw-start-0 tw-border-b-4 container-fluid">
+    <div class="tw-flex tw-justify-center tw-items-center">
        <div><h6 class="tw-text-black dark:tw-text-white tw-font-extrabold tw-text-2xl"><%= companyName %></h6></div>
-     </div>
-     <div class="col-lg-4 col-md-4 col-12 d-flex justify-content-center justify-content-md-end justify-content-lg-end py-2">
-       <button id="theme-toggle" class="tw-px-4 tw-py-2 tw-bg-gray-800 tw-text-white tw-rounded tw-flex tw-items-center tw-justify-center">
-         <i style="display: none;" id="sun-icon" class="fas fa-sun fa-2x"></i>
-         <i style="display: none;" id="moon-icon" class="fas fa-moon fa-2x"></i>
-       </button>
-     </div>
     </div>
 </nav>
 
