@@ -59,11 +59,16 @@ const logger_1 = __importDefault(require("./providers/logger/logger"));
 const i18n_2 = require("./providers/i18n/i18n");
 const mysqlProvider_1 = require("./providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("./helpers/herlpers");
+const admin_server_1 = require("./admin_server");
 const app = (0, express_1.default)();
 app.use(i18nextMiddleware.handle(i18n_1.default));
 //app.use((req, res, next) => {rateLimiter.consume(req.ip as any ).then(() => {next();}).catch(() => {res.status(429).json({ error: 'Too Many Requests' });});});
 const MySQLStore = (0, express_mysql_session_1.default)(expressSession);
-const sessionStore = new MySQLStore({}, mysqlProvider_1.pool);
+const sessionStore = new MySQLStore({
+    schema: {
+        tableName: 'users_session',
+    }
+}, mysqlProvider_1.pool);
 app.use((0, express_session_1.default)({
     secret: process.env.SESSION_SECRET || "1235asdsaffg",
     store: sessionStore,
@@ -97,12 +102,10 @@ const reservation_1 = __importDefault(require("./page/reservation"));
 app.use('/:lng/reservation', reservation_1.default);
 const api_1 = __importDefault(require("./api/v1/api"));
 app.use('/api/v1', api_1.default);
-const admin_1 = __importDefault(require("./pages/admin/admin"));
-app.use('/:lng/de-admin', admin_1.default);
 app.use((req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, herlpers_1.notFound)(req, res); }));
 const server = app.listen(process.env.SERVER_PORT || 4999, () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, logger_1.default)({ level: 'info', message: `server started successfully`, metadata: { script: "server.js", port: process.env.SERVER_PORT || 4999 } });
-    console.log('Started lestining');
+    console.log('Started lestining: server');
 }));
 server.on('error', (error) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, logger_1.default)({ level: 'error', message: `cannot create server`, metadata: { script: "server.js", error: error, port: process.env.SERVER_PORT || 4999 }, });
@@ -115,3 +118,4 @@ process.on('SIGINT', () => __awaiter(void 0, void 0, void 0, function* () {
         process.exit(0);
     }));
 }));
+(0, admin_server_1.startAdminServer)();

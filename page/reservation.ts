@@ -16,8 +16,10 @@ const checkIdParam = (req: Request, res: Response, next: NextFunction):any=> {
 };
 
 reservation.get('/', checkIdParam, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
-  return res.render('index',{title: i18next.t('title',{ns:'language', lng:req.language}),})
-})
+  try{
+    return res.render('index',{title: i18next.t('title',{ns:'language', lng:req.language}),},(error, html)=>{if(error)throw error.toString();res.send(html)})
+    }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/', checkIdParam, (req,res)=>{})", {script: "language.ts", scope: "reservation.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+  })
 
 reservation.get('/language', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
@@ -34,13 +36,13 @@ reservation.get('/language', async (req:Request, res:Response, next:NextFunction
           companyName: companyInfo.companyName,
           companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo,'utf-8').toString('base64')}`,
       },(error, html)=>{if(error)throw error.toString();res.send(html)});
-    }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", {script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+    }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of language.get('/language', (req,res)=>{})", {script: "language.ts", scope: "language.get('/language', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 reservation.get('/hotel', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
       const rows = await executeQuery('CALL get_hotels(?)', [req.session.data!.companyID]);
-      //if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
+      if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
       const hotels:hotel[] = (rows as any)[0].map((row: any) => ({
         hotelID: row['hotel_id'].toString(),
         name: row['name'],

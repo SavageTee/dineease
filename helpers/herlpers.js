@@ -43,6 +43,7 @@ const errorPage = (req, res, title, errorHeader, errorBody, copyError, goBack, s
     var _a;
     try {
         let uuid = (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID;
+        console.log(uuid);
         req.session.destroy(() => { });
         return res.render('error/index', {
             title: title,

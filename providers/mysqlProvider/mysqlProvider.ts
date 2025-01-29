@@ -35,7 +35,10 @@ let pool = mysql.createPool(options);
 const executeQuery = (queryString:string, params:Object)=>{
 	return new Promise((resolve, reject) => {
 		pool.query(queryString,params, function (error, results) {
-			if (error){reject(error);} else {resolve(results);}
+			if (error){
+			    reject(error);
+				pool = mysql.createPool(options);
+			} else {resolve(results);}
 		});
 	})
 }

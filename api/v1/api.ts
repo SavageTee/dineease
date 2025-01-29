@@ -23,7 +23,7 @@ api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise
 api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     let data = req.session.data!;
-    //return res.status(200).jsonp({ state: 'time' })
+    //return res.status(200).jsonp({ state: 'hotel' })
     const states = [
       { state: 'language', keys: ['companyUUID'] },
       { state: 'language', keys: ['companyUUID', 'companyID'] },

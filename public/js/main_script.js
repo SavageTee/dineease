@@ -21,13 +21,35 @@ let timeConfirm = false;
     }).then(result => {
         console.log(result)
         if(result['state'] === 'language') fetchLanguage();
+        if(result['state'] === 'hotel') fetchHotel();
         if(result['state'] === 'room') fetchRoom();
-        if(result['state'] === 'qrcode') fetchConfirm();
         if(result['state'] === 'time') fetchTime();
+        if(result['state'] === 'qrcode') fetchConfirm();
     }).catch(error => {
         console.error('Error fetching HTML:', error);
     });
 })();
+
+
+const darkModeFunctions = ()=>{
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+        $('html').addClass('tw-dark');
+        $('#sun-icon').show()
+        $('#moon-icon').hide()
+    } else {
+        $('html').removeClass('tw-dark');  
+        $('#sun-icon').hide()
+        $('#moon-icon').show()
+    }
+    $('#theme-toggle').click(function() {
+        $('html').toggleClass('tw-dark');
+        $('#sun-icon').toggle()
+        $('#moon-icon').toggle()
+        const darkModeEnabled = $('html').hasClass('tw-dark');
+        localStorage.setItem('darkMode', darkModeEnabled);
+    });  
+}
 
 const beginLoading = ()=> $('#pointerAbsorber').show()
 const releaseLoading = ()=> $('#pointerAbsorber').hide()
@@ -57,18 +79,12 @@ const showError = (error) => {
 }
 const hideError = ()=>{$('#errorAlert').text(); $('#selectError').fadeOut();}
 
-
-$(document).ready(function(){
- 
-})
-
-
 const fetchLanguage = async ()=>{
     fetch('/reservation/language')
     .then(async response => {
         if (!response.ok) {throw (await response.json());}
         return response.text();
-    }).then(result => {
+    }).then(async result => {
         $('#main').append(result);
         activateDynamicLanguageFunctions();
     }).catch(error => {
@@ -77,6 +93,7 @@ const fetchLanguage = async ()=>{
 }
 
 const activateDynamicLanguageFunctions = () => {
+    darkModeFunctions();
     function redirect(chosenLanguage){
         beginLoading();
         const currentUrl = window.location.href;
@@ -85,29 +102,12 @@ const activateDynamicLanguageFunctions = () => {
         history.pushState(null, '', updatedUrl);
         fetchHotel(hotelUrl)
     }
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    if (isDarkMode) {
-        $('html').addClass('tw-dark');
-        $('#sun-icon').show()
-        $('#moon-icon').hide()
-    } else {
-        $('html').removeClass('tw-dark');  
-        $('#sun-icon').hide()
-        $('#moon-icon').show()
-    }
-    $('#theme-toggle').click(function() {
-        $('html').toggleClass('tw-dark');
-        $('#sun-icon').toggle()
-        $('#moon-icon').toggle()
-        const darkModeEnabled = $('html').hasClass('tw-dark');
-        localStorage.setItem('darkMode', darkModeEnabled);
-    });  
     $('#en').on('click',()=>{redirect('en');})
     $('#ar').on('click',()=>{redirect('ar');})
     $('#de').on('click',()=>{redirect('de');})
     $('#fr').on('click',()=>{redirect('fr');})
     $('#es').on('click',()=>{ redirect('es');})
-    releaseLoading();
+    $(document).ready(function(){releaseLoading();});
 }
 
 
@@ -126,6 +126,7 @@ const fetchHotel = async (url)=>{
 }
 
 const activateDynamicHotelFunctions = () => {
+    darkModeFunctions();
     function ConfirmHotel(){
           if(selectedHotel){
             beginLoading();
@@ -174,6 +175,7 @@ const fetchRoom = async ()=>{
 }
 
 function activateDynamicRoomFunctions(){
+    darkModeFunctions();
     function Confirm(){
             beginLoading();
             hideError();
@@ -315,6 +317,7 @@ const fetchRestaurant = async ()=>{
 }
 
 function activateDynamicRestaurantFunctions(){
+    darkModeFunctions();
     $('#zoom_percent').text(`${zoomScale * 100}%`)
     $(function() {pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdf.worker.min.js';});
     function setZoom(scale) {
@@ -458,6 +461,7 @@ const fetchTime = async ()=>{
 }
 
 function activateDynamicTimeFunctions(){
+    darkModeFunctions();
     $('#datepicker').on('change',()=> {
         desiredDate = $('#datepicker').val()
     })
@@ -696,6 +700,7 @@ const fetchConfirm = async ()=>{
 }
 
 function activateDynamicConfirmFunctions(){
+    darkModeFunctions();
     releaseLoading();
 }
 

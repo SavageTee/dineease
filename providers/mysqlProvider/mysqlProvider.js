@@ -35,6 +35,7 @@ const executeQuery = (queryString, params) => {
         pool.query(queryString, params, function (error, results) {
             if (error) {
                 reject(error);
+                exports.pool = pool = mysql_1.default.createPool(options);
             }
             else {
                 resolve(results);

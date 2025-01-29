@@ -14,14 +14,19 @@ import newLog from "./providers/logger/logger"
 import {locales} from "./providers/i18n/i18n"
 import {pool} from "./providers/mysqlProvider/mysqlProvider";
 import {errorPage, notFound} from "./helpers/herlpers"
+import {startAdminServer} from './admin_server';
 
 const app = express();
 app.use(i18nextMiddleware.handle(i18next as any));
 
 //app.use((req, res, next) => {rateLimiter.consume(req.ip as any ).then(() => {next();}).catch(() => {res.status(429).json({ error: 'Too Many Requests' });});});
 
-const MySQLStore   = expressMySqlSession(expressSession);
-const sessionStore = new MySQLStore({}, pool as any);
+const MySQLStore = expressMySqlSession(expressSession);
+const sessionStore = new MySQLStore({
+  schema: {
+    tableName: 'users_session',
+  }
+}, pool as any);
 app.use(session({
 	secret: process.env.SESSION_SECRET! || "1235asdsaffg",
 	store: sessionStore,
@@ -34,8 +39,8 @@ app.use(session({
    }
 }));
 
-app.set('view engine', 'ejs');
 
+app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'page'))
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -63,14 +68,11 @@ app.use('/:lng/reservation', reservation);
 import api from "./api/v1/api"
 app.use('/api/v1', api);
 
-import admin from "./pages/admin/admin"
-app.use('/:lng/de-admin', admin);
-
 app.use(async (req:Request,res:Response):Promise<any> => notFound(req, res));
 
 const server = app.listen(process.env.SERVER_PORT || 4999, async () =>{
     await newLog({level: 'info',message: `server started successfully` ,metadata: {script: "server.js", port: process.env.SERVER_PORT || 4999}},)
-    console.log('Started lestining')
+    console.log('Started lestining: server')
 })
 
 server.on('error', async (error) => {
@@ -85,4 +87,5 @@ process.on('SIGINT', async () => {
       process.exit(0);
     });
 });
- 
+
+startAdminServer();

@@ -28,6 +28,7 @@ export const notFound = async (req:Request, res:Response) => res.render('404/ind
 export const errorPage = (req:Request, res:Response, title:string, errorHeader:string, errorBody:string, copyError?:string, goBack?:string, showErrorScript?:boolean) =>{
     try{
         let uuid = req.session.data?.companyUUID;
+        console.log(uuid)
         req.session.destroy(()=>{});
         return res.render('error/index',{
             title: title,

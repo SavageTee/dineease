@@ -67,7 +67,7 @@ api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let data = req.session.data;
-        //return res.status(200).jsonp({ state: 'time' })
+        //return res.status(200).jsonp({ state: 'hotel' })
         const states = [
             { state: 'language', keys: ['companyUUID'] },
             { state: 'language', keys: ['companyUUID', 'companyID'] },

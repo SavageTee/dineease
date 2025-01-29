@@ -60,7 +60,13 @@ const checkIdParam = (req, res, next) => {
     next();
 };
 reservation.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    return res.render('index', { title: i18n_1.default.t('title', { ns: 'language', lng: req.language }), });
+    try {
+        return res.render('index', { title: i18n_1.default.t('title', { ns: 'language', lng: req.language }), }, (error, html) => { if (error)
+            throw error.toString(); res.send(html); });
+    }
+    catch (error) {
+        return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of reservation.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "reservation.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
 }));
 reservation.get('/language', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -82,13 +88,14 @@ reservation.get('/language', (req, res, next) => __awaiter(void 0, void 0, void 
             throw error.toString(); res.send(html); });
     }
     catch (error) {
-        return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of language.get('/language', (req,res)=>{})", { script: "language.ts", scope: "language.get('/language', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_hotels(?)', [req.session.data.companyID]);
-        //if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: req.language }), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: req.language }));
+        if (rows[0][0] === undefined || rows[0][0] === null)
+            return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorBodyNoHotel', { ns: 'hotel', lng: req.language }));
         const hotels = rows[0].map((row) => {
             var _a;
             return ({

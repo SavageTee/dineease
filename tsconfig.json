@@ -113,6 +113,7 @@
     "schemas/**/*.ts",
     "api/v1/register/**/*.ts", 
     "server.ts",
+    "admin_server.ts",
     "providers/rateLimiter/**/*.ts", 
     "providers/authentication/**/*.ts", 
     "providers/mailProvider/**/*.ts", 

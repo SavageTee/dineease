@@ -2,17 +2,11 @@
 module.exports = {
   prefix: 'tw-',
   darkMode: 'class',
-  content: [
-    './pages/index.html', 
+  content: [ 
     './src/**/*.{html,js,ts}',
-    './pages/reservation/**/*.{html,js,ejs}',    
-    './pages/404/**/*.{html,js,ejs}',   
-    './pages/language/**/*.{html,js,ejs}',  
-    './pages/error/**/*.{html,js,ejs}',  
-    './pages/admin/**/*.{html,js,ejs}', 
+    './page/admin/**/*.{html,js,ejs}', 
     './page/404/**/*.{html,js,ejs}',   
     './page/routes/**/*.{html,js,ejs}',   
-
   ],
   theme: {
     extend: {
@@ -20,7 +14,7 @@ module.exports = {
         primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a","950":"#172554"}
       },
       fontFamily: {
-        'body': [
+      'body': [
       'Inter', 
       'ui-sans-serif', 
       'system-ui', 
