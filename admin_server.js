@@ -46,7 +46,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startAdminServer = exports.admin = void 0;
-// admin_server.ts
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const expressSession = __importStar(require("express-session"));
@@ -56,7 +55,7 @@ const logger_1 = __importDefault(require("./providers/logger/logger"));
 const i18n_1 = require("./providers/i18n/i18n");
 const mysqlProvider_1 = require("./providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("./helpers/herlpers");
-exports.admin = (0, express_1.default)(); // Export the admin server
+exports.admin = (0, express_1.default)();
 const AdminMySQLStore = (0, express_mysql_session_1.default)(expressSession);
 const AdminsessionStore = new AdminMySQLStore({
     schema: {
@@ -89,13 +88,15 @@ exports.admin.use((req, res, next) => {
 });
 const admin_1 = __importDefault(require("./page/admin/admin"));
 exports.admin.use('/:lng/de-admin', admin_1.default);
+const api_1 = __importDefault(require("./api/admin/v1/api"));
+exports.admin.use('/api/v1', api_1.default);
 exports.admin.use((req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, herlpers_1.notFound)(req, res); }));
 const startAdminServer = () => {
-    const server = exports.admin.listen(process.env.ADMIN_SERVER_PORT || 4999, () => __awaiter(void 0, void 0, void 0, function* () {
+    const server = exports.admin.listen(process.env.ADMIN_SERVER_PORT || 8001, () => __awaiter(void 0, void 0, void 0, function* () {
         yield (0, logger_1.default)({
             level: 'info',
             message: `admin_server started successfully`,
-            metadata: { script: "admin_server.js", port: process.env.ADMIN_SERVER_PORT || 4999 },
+            metadata: { script: "admin_server.js", port: process.env.ADMIN_SERVER_PORT || 8001 },
         });
         console.log('Started listening: ADMIN SERVER');
     }));
@@ -103,7 +104,7 @@ const startAdminServer = () => {
         yield (0, logger_1.default)({
             level: 'error',
             message: `cannot create server`,
-            metadata: { script: "admin_server.js", error: error, port: process.env.ADMIN_SERVER_PORT || 4999 },
+            metadata: { script: "admin_server.js", error: error, port: process.env.ADMIN_SERVER_PORT || 8001 },
         });
         process.exit(1);
     }));
@@ -111,13 +112,13 @@ const startAdminServer = () => {
         yield (0, logger_1.default)({
             level: 'info',
             message: `Server shutting down...`,
-            metadata: { script: "admin_server.js", port: String(process.env.ADMIN_SERVER_PORT || 4999) },
+            metadata: { script: "admin_server.js", port: String(process.env.ADMIN_SERVER_PORT || 8001) },
         });
         server.close(() => __awaiter(void 0, void 0, void 0, function* () {
             yield (0, logger_1.default)({
                 level: 'info',
                 message: `Server shut down gracefully`,
-                metadata: { script: "admin_server.js", port: String(process.env.ADMIN_SERVER_PORT || 4999) },
+                metadata: { script: "admin_server.js", port: String(process.env.ADMIN_SERVER_PORT || 8001) },
             });
             process.exit(0);
         }));

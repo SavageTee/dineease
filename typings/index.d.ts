@@ -50,9 +50,6 @@ declare global {
         logo:any|undefined,
         tz:string;
     }
-
-
-
 }
 
 declare module 'express-session' {
@@ -68,6 +65,11 @@ declare module 'express-session' {
             paid?:boolean;
             verification?:string;
             qrCode?:string;
+            [key: string]: any; 
+        },
+        adminData?: {
+            companyUUID?: string;
+            companyID?: string;
             [key: string]: any; 
         };
     }

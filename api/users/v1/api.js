@@ -47,9 +47,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyRoom = exports.checkRoom = void 0;
 const express = __importStar(require("express"));
-const i18n_1 = __importDefault(require("../../providers/i18n/i18n"));
-const mysqlProvider_1 = require("../../providers/mysqlProvider/mysqlProvider");
-const herlpers_1 = require("../../helpers/herlpers");
+const i18n_1 = __importDefault(require("../../../providers/i18n/i18n"));
+const mysqlProvider_1 = require("../../../providers/mysqlProvider/mysqlProvider");
+const herlpers_1 = require("../../../helpers/herlpers");
 const api = express.Router();
 api.use(express.json({ limit: '1mb' }));
 api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

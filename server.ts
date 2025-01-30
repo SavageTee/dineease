@@ -65,7 +65,7 @@ app.use('/:lng/reservation', reservation);*/
 import reservation from "./page/reservation"
 app.use('/:lng/reservation', reservation);
 
-import api from "./api/v1/api"
+import api from "./api/users/v1/api"
 app.use('/api/v1', api);
 
 app.use(async (req:Request,res:Response):Promise<any> => notFound(req, res));

@@ -123,5 +123,6 @@
     "testing/**/*.ts",
     "pages/**/*.d.ts",
     "api/**/*.d.ts",
+    "api/admin/**/*.d.ts",
   ]
 }

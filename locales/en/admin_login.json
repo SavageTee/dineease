@@ -4,5 +4,6 @@
     "password": "Password",
     "login": "Login",
     "signIn": "Sign in",
-    "signInHeader": "Sign in to your account"
+    "signInHeader": "Sign in to your account",
+    "invalidCredentials": "incorrect username or password."
 }

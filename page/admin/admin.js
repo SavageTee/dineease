@@ -54,9 +54,9 @@ const checkIdParam = (req, res, next) => {
     const { id } = req.query;
     if (!id)
         return (0, herlpers_1.notFound)(req, res);
-    if (!req.session.data)
-        req.session.data = {};
-    req.session.data.companyUUID = id.toString();
+    if (!req.session.adminData)
+        req.session.adminData = {};
+    req.session.adminData.companyUUID = id.toString();
     next();
 };
 admin.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -68,12 +68,10 @@ admin.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 
         return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of admin.get('/', checkIdParam, (req,res)=>{})", { script: "admin.ts", scope: "admin.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-admin.get('/login', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+admin.get('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const { id } = req.query;
-        if (id === undefined || id === null)
-            return (0, herlpers_1.notFound)(req, res);
-        let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [id]);
+        let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [(_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.companyUUID]);
         if (rows[0][0] === undefined || rows[0][0] === null)
             return (0, herlpers_1.notFound)(req, res);
         let companyInfo = {
@@ -81,7 +79,7 @@ admin.get('/login', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, 
             companyName: rows[0][0]['company_name'],
             companyLogo: rows[0][0]['logo'],
         };
-        req.session.data = { companyUUID: id.toString(), companyID: companyInfo.companyID };
+        req.session.adminData['companyID'] = companyInfo.companyID;
         return res.render('routes/login', {
             title: i18n_1.default.t('title', { ns: 'admin_login', lng: req.language }),
             companyID: companyInfo.companyID,

@@ -7,12 +7,11 @@ import { logErrorAndRespond, notFound, ReportErrorAndRespondJsonGet  } from "../
 
 const admin = express.Router()
 
-
 const checkIdParam = (req: Request, res: Response, next: NextFunction):any=> {
   const { id } = req.query;
   if (!id) return notFound(req, res);
-  if(!req.session.data)req.session.data={};
-  req.session.data.companyUUID=id.toString();
+  if(!req.session.adminData)req.session.adminData={};
+  req.session.adminData.companyUUID=id.toString();
   next(); 
 };
 
@@ -22,18 +21,16 @@ admin.get('/', checkIdParam, async (req:Request, res:Response, next:NextFunction
   }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of admin.get('/', checkIdParam, (req,res)=>{})", {script: "admin.ts", scope: "admin.get('/', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
-admin.get('/login', checkIdParam, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+admin.get('/login', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
-      const { id } = req.query;
-      if(id === undefined || id === null) return notFound(req,res);
-      let rows = await executeQuery('CALL get_company(?)',[id]);
+      let rows = await executeQuery('CALL get_company(?)',[req.session.adminData?.companyUUID]);
       if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null) return notFound(req,res);
       let companyInfo: companyInfo = {
         companyID: (rows as any)[0][0]['company_id'].toString(),
         companyName: (rows as any)[0][0]['company_name'],
         companyLogo: (rows as any)[0][0]['logo'],
       };
-      req.session.data={ companyUUID: id.toString(), companyID: companyInfo.companyID };
+      req.session.adminData!['companyID'] = companyInfo.companyID;
       return res.render('routes/login',{
           title: i18next.t('title',{ ns:'admin_login', lng:req.language }),
           companyID: companyInfo.companyID,

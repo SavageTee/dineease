@@ -100,7 +100,7 @@ app.use('/:lng/language', language_1.default);
 app.use('/:lng/reservation', reservation);*/
 const reservation_1 = __importDefault(require("./page/reservation"));
 app.use('/:lng/reservation', reservation_1.default);
-const api_1 = __importDefault(require("./api/v1/api"));
+const api_1 = __importDefault(require("./api/users/v1/api"));
 app.use('/api/v1', api_1.default);
 app.use((req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, herlpers_1.notFound)(req, res); }));
 const server = app.listen(process.env.SERVER_PORT || 4999, () => __awaiter(void 0, void 0, void 0, function* () {
