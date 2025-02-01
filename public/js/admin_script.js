@@ -1,15 +1,20 @@
 var loginButton = false;
 var errorTimeout;
+var saveChangeUserBool = false;
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+console.log(csrfToken);
 
 (async function(){
-    fetch('/api/v1/adminstate')
-    .then(response => {
-        if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
+    fetch('/api/v1/adminstate',{headers:{'X-CSRF-Token': csrfToken}})
+    .then(async response => {
+        if (!response.ok) {throw (await response.json());}
         return response.json();
     }).then(result => {
         console.log(result)
         if(result['state'] === 'login') fetchLogin();
+        if(result['state'] === 'dashboard') fetchDashboard();
     }).catch(error => {
+        showError(error);
         console.error('Error fetching HTML:', error);
     });
 })();
@@ -43,13 +48,13 @@ const showError = (error) => {
         $('#errorAlert').text(error['errorText'])
         $('#selectError').fadeIn();
         releaseLoading();
-    }else{
+    }else{ 
         fetch(`/api/v1/report`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'X-CSRF-Token': csrfToken},
             body: JSON.stringify({'error':error.toString()})
-        }).then(response => {
-            if (!response.ok) {throw new Error(`HTTP error! Status: ${response.json()}`);}
+        }).then(async response => {
+            if (!response.ok) {throw (await response.json());}
             return response.json(); 
         }).then(result => {
             $('#errorAlert').text(result['errorText'])
@@ -65,7 +70,7 @@ const showError = (error) => {
 const hideError = ()=>{$('#errorAlert').text(); $('#selectError').fadeOut();}
 
 const fetchLogin = async ()=>{
-    fetch('/de-admin/login')
+    fetch('/de-admin/login',{headers:{'X-CSRF-Token': csrfToken}})
     .then(async response => {
         if (!response.ok) {throw (await response.json());}
         return response.text();
@@ -78,7 +83,7 @@ const fetchLogin = async ()=>{
 }
 
 const activateDynamicsForLoginFunctions =() => { 
-
+    darkModeFunctions();
     $('#loginForm').on('submit', function (event) {
         event.preventDefault(); 
         if(!loginButton){
@@ -90,17 +95,21 @@ const activateDynamicsForLoginFunctions =() => {
             const password = $('#password').val();  
             fetch(`/api/v1/login`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+                headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache','X-CSRF-Token': csrfToken},
                 body: JSON.stringify({'username': email, 'password':password })
-            }).then(response => {
-                if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
+            }).then(async response => {
+                if (!response.ok) {throw (await response.json());}
                 return response.json(); 
             }).then(result => {
                 console.log(result)
                 if(result["status"] === "error") {
                     showError(result);
                 }
-                if(result['status'] === "success"){}
+                if(result['status'] === "success"){
+                    beginLoading();
+                    fetchDashboard();
+                    return;
+                }
                 $('#loader').hide();
                 $('#notloader').show()
                 loginButton = false;
@@ -114,4 +123,86 @@ const activateDynamicsForLoginFunctions =() => {
         }
     })
     releaseLoading();
+}
+
+
+
+const fetchDashboard = async ()=>{
+    fetch('/de-admin/dashboard',{headers:{'X-CSRF-Token': csrfToken}})
+    .then(async response => {
+        if (!response.ok) {throw (await response.json());}
+        return response.text();
+    }).then(async result => {
+        $('#main').empty();
+        $('#main').append(result);
+        activateDynamicsForDashboardFunctions();
+    }).catch(error => {
+        showError(error);
+    });
+}
+
+const activateDynamicsForDashboardFunctions =() => {
+    darkModeFunctions();
+    $('#navToggle').on('click',()=>{
+        const sidebar = document.getElementById("sidebar");
+        if (sidebar.classList.contains("tw-w-56")) {
+          sidebar.classList.remove("tw-w-56");
+          sidebar.classList.add("tw-w-0");
+        } else {
+          sidebar.classList.remove("tw-w-0");
+          sidebar.classList.add("tw-w-56");
+        }
+    })
+   
+  
+    console.log($('#save_changes').length);
+    const saveChagesToUser = ()=>{
+        console.log('heere')
+        if(!saveChangeUserBool){
+            saveChangeUserBool = true;
+            $('#userSaveNotLoader').show()
+            $('#userSaveLoader').hide()
+            fetch(`/api/v1/saveuserchanges`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache','X-CSRF-Token': csrfToken},
+                body: JSON.stringify({'displayName':$('#displayName').val(), 'email': $('#email').val(), 'phone': $('#phone').val(),})
+            }).then(async response => {
+                if (!response.ok) {throw (await response.json());}
+                return response.json(); 
+            }).then(result => {
+                if(result["status"] === "error") {
+                    showError(result);
+                }
+                if(result['status'] === "success"){             
+                    $('#displayName').val(result['data'][0][0]['display_name'])
+                    $('#email').val(result['data'][0][0]['email'])
+                    $('#phone').val(result['data'][0][0]['phone'])
+                }
+                console.log('her')
+                $('#userSaveLoader').show();
+                $('#userSaveNotLoader').hide()
+                saveChangeUserBool = false;
+            })
+            .catch(error => {
+                $('#userSaveLoader').show();
+                $('#userSaveNotLoader').hide()
+                saveChangeUserBool = false;
+                showError(error);
+            });
+        }
+    }
+    $('#save_changes').on('click',()=> saveChagesToUser());
+    let sidebarOpen = true;
+    $('toggle-sidebar').on("click", () => {
+      sidebarOpen = !sidebarOpen;
+      if (sidebarOpen) {
+        document.getElementById("logo-sidebar").classList.remove("-tw-translate-x-full");
+        document.getElementById("main-content").classList.add("tw-ml-64");
+      } else {
+        document.getElementById("logo-sidebar").classList.add("-tw-translate-x-full");
+        document.getElementById("main-content").classList.remove("tw-ml-64");
+        document.getElementById("logo-sidebar").classList.add("-tw-w-0");
+      }
+    });
+  releaseLoading();
 }

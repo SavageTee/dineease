@@ -33,6 +33,15 @@ declare global {
         capacity:number,
     }
 
+    type adminUser = {
+        userName:string;
+        email:string;
+        phone:string;
+        displayName:string;
+        admin:boolean;
+        createdAt:string;
+    }
+
     type confirm = {
         roomNumber: string,
         pax: string,
@@ -70,6 +79,7 @@ declare module 'express-session' {
         adminData?: {
             companyUUID?: string;
             companyID?: string;
+            adminUser?: string;
             [key: string]: any; 
         };
     }

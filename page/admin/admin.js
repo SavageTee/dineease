@@ -46,10 +46,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = __importStar(require("express"));
+const csurf_1 = __importDefault(require("csurf"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const i18n_1 = __importDefault(require("../../providers/i18n/i18n"));
 const mysqlProvider_1 = require("../../providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("../../helpers/herlpers");
 const admin = express.Router();
+admin.use((0, cookie_parser_1.default)());
+const csrfProtection = (0, csurf_1.default)({ cookie: true });
 const checkIdParam = (req, res, next) => {
     const { id } = req.query;
     if (!id)
@@ -59,16 +63,16 @@ const checkIdParam = (req, res, next) => {
     req.session.adminData.companyUUID = id.toString();
     next();
 };
-admin.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+admin.get('/', checkIdParam, csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return res.render('index', { title: i18n_1.default.t('title', { ns: 'admin_page', lng: req.language }), }, (error, html) => { if (error)
+        return res.render('index', { title: i18n_1.default.t('title', { ns: 'admin_page', lng: req.language }), csrfToken: req.csrfToken() }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }
     catch (error) {
         return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of admin.get('/', checkIdParam, (req,res)=>{})", { script: "admin.ts", scope: "admin.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-admin.get('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+admin.get('/login', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [(_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.companyUUID]);
@@ -90,10 +94,59 @@ admin.get('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             signIn: i18n_1.default.t('signIn', { ns: 'admin_login', lng: req.language }),
             signInHeader: i18n_1.default.t('signInHeader', { ns: 'admin_login', lng: req.language }),
             companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo, 'utf-8').toString('base64')}`,
-        });
+        }, (error, html) => { if (error)
+            throw error.toString(); res.send(html); });
     }
     catch (error) {
-        return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of language.get('/', checkIdParam, (req,res)=>{})", { script: "language.ts", scope: "language.get('/', checkIdParam, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of admin.get('/login', csrfProtection, (req,res)=>{})", { script: "admin.ts", scope: "login.get('/', csrfProtection, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+admin.get('/dashboard', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [(_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.companyUUID]);
+        if (rows[0][0] === undefined || rows[0][0] === null)
+            return (0, herlpers_1.notFound)(req, res);
+        let user = yield (0, mysqlProvider_1.executeQuery)('CALL get_admin_user(?)', [(_b = req.session.adminData) === null || _b === void 0 ? void 0 : _b.adminUser]);
+        if (user[0][0] === undefined || user[0][0] === null)
+            return (0, herlpers_1.notFound)(req, res);
+        let companyInfo = {
+            companyID: rows[0][0]['company_id'].toString(),
+            companyName: rows[0][0]['company_name'],
+            companyLogo: rows[0][0]['logo'],
+        };
+        let adminUser = {
+            userName: user[0][0]['user_name'].toUpperCase(),
+            email: user[0][0]['email'],
+            phone: user[0][0]['phone'],
+            displayName: user[0][0]['display_name'],
+            createdAt: user[0][0]['created_at'],
+            admin: user[0][0]['admin'] === 1 ? true : false,
+        };
+        return res.render('routes/dashboard', {
+            companyID: companyInfo.companyID,
+            companyName: companyInfo.companyName,
+            companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo, 'utf-8').toString('base64')}`,
+            userName: adminUser.userName,
+            email: adminUser.email,
+            phone: adminUser.phone,
+            displayName: adminUser.displayName,
+            createdAt: adminUser.createdAt,
+            admin: adminUser.admin,
+            userModalTitle: i18n_1.default.t('userModalTitle', { ns: 'admin_page', lng: req.language }),
+            close: i18n_1.default.t('close', { ns: 'admin_page', lng: req.language }),
+            saveChanges: i18n_1.default.t('saveChanges', { ns: 'admin_page', lng: req.language }),
+            userNameTitle: i18n_1.default.t('userNameTitle', { ns: 'admin_page', lng: req.language }),
+            displayNameTitle: i18n_1.default.t('displayNameTitle', { ns: 'admin_page', lng: req.language }),
+            emailTitle: i18n_1.default.t('emailTitle', { ns: 'admin_page', lng: req.language }),
+            phoneTitle: i18n_1.default.t('phoneTitle', { ns: 'admin_page', lng: req.language }),
+            createdAtTitle: i18n_1.default.t('createdAtTitle', { ns: 'admin_page', lng: req.language }),
+            isAdminTitle: i18n_1.default.t('isAdminTitle', { ns: 'admin_page', lng: req.language }),
+        }, (error, html) => { if (error)
+            throw error.toString(); res.send(html); });
+    }
+    catch (error) {
+        return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of admin.get('/dashboard', csrfProtection, (req,res)=>{})", { script: "admin.ts", scope: "admin.get('/dashboard', csrfProtection, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 exports.default = admin;

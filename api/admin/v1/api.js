@@ -47,12 +47,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = __importStar(require("express"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const csurf_1 = __importDefault(require("csurf"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const i18n_1 = __importDefault(require("../../../providers/i18n/i18n"));
 const mysqlProvider_1 = require("../../../providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("../../../helpers/herlpers");
 const adminApi = express.Router();
 adminApi.use(express.json({ limit: '1mb' }));
-adminApi.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+adminApi.use((0, cookie_parser_1.default)());
+const csrfProtection = (0, csurf_1.default)({ cookie: true });
+adminApi.post('/report', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         if (!(0, herlpers_1.validateContentType)(req, res))
             return;
@@ -64,30 +68,18 @@ adminApi.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, f
         (0, herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-adminApi.get('/adminstate', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+adminApi.get('/adminstate', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let data = req.session.adminData;
-        const states = [
-            { state: 'login', keys: ['companyUUID'] },
-            { state: 'login', keys: ['companyUUID', 'companyID'] }
-        ];
-        const matchedState = states.find(({ keys }) => keys.every(key => key in data && data[key] !== undefined && data[key] !== null) &&
-            Object.keys(data).length === keys.length);
-        if (matchedState) {
-            const keysToRemove = [''];
-            keysToRemove.forEach(key => {
-                if (matchedState.keys.includes(key)) {
-                    delete data[key];
-                }
-            });
-            return res.status(200).jsonp({ state: matchedState.state });
-        }
+        if (data.adminUser)
+            return res.status(200).jsonp({ state: 'dashboard' });
+        return res.status(200).jsonp({ state: 'login' });
     }
     catch (error) {
         (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of api.get('/state')", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-adminApi.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+adminApi.post('/login', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         if (!(0, herlpers_1.validateContentType)(req, res))
@@ -98,12 +90,30 @@ adminApi.post('/login', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!result || !result[0][0])
             return res.status(202).jsonp({ status: "error", errorText: i18n_1.default.t('invalidCredentials', { ns: 'admin_login', lng: req.language }) });
         let isMatch = yield bcrypt_1.default.compare(req.body.password, result[0][0]['password']);
-        if (isMatch)
+        if (isMatch) {
+            req.session.adminData['adminUser'] = result[0][0]['admin_users_id'];
             return res.status(200).jsonp({ status: "success" });
+        }
         return res.status(202).jsonp({ status: "error", errorText: i18n_1.default.t('invalidCredentials', { ns: 'admin_login', lng: req.language }) });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+adminApi.post('/saveuserchanges', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["displayName", "email", "phone"]))
+            return;
+        let result = yield (0, mysqlProvider_1.executeQuery)('CALL save_user_changes(?, ?, ?, ?)', [req.body.displayName, req.body.phone, req.body.email, (_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.adminUser]);
+        if (!result || !result[0][0])
+            return res.status(202).jsonp({ status: "error", errorText: i18n_1.default.t('updateUnsuccessfull', { ns: 'admin_page', lng: req.language }) });
+        return res.status(200).jsonp({ status: "success", data: result });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH adminApi.post('/saveuserchanges', (req,res)=>{})", { script: "api.ts", scope: "adminApi.post('/saveuserchanges', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 function generateHash(password) {

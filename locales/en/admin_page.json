@@ -1,3 +1,13 @@
 {
-    "title": "ADMIN PAGE"
+    "title": "ADMIN PAGE",
+    "userModalTitle": "User Information",
+    "close": "Close",
+    "saveChanges": "Save Changes",
+    "userNameTitle": "username",
+    "displayNameTitle": "Display Name",
+    "emailTitle": "Email",
+    "phoneTitle": "Phone",
+    "createdAtTitle": "Created At",
+    "isAdminTitle": "this user is admin",
+    "updateUnsuccessfull": "Failed to save data. If this issue continues, please contact the administrator."
 }
