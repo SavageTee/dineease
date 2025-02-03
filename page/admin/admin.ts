@@ -50,7 +50,6 @@ admin.get('/login', csrfProtection, async (req:Request, res:Response, next:NextF
     }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of admin.get('/login', csrfProtection, (req,res)=>{})", {script: "admin.ts", scope: "login.get('/', csrfProtection, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
-
 admin.get('/dashboard', csrfProtection, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
       let rows = await executeQuery('CALL get_company(?)',[req.session.adminData?.companyUUID]);
@@ -90,9 +89,23 @@ admin.get('/dashboard', csrfProtection, async (req:Request, res:Response, next:N
         phoneTitle: i18next.t('phoneTitle',{ ns:'admin_page', lng:req.language }),
         createdAtTitle: i18next.t('createdAtTitle',{ ns:'admin_page', lng:req.language }),
         isAdminTitle: i18next.t('isAdminTitle',{ ns:'admin_page', lng:req.language }),
-        
+        hotels: i18next.t('hotels',{ ns:'admin_page', lng:req.language }),
+        statics: i18next.t('statics',{ ns:'admin_page', lng:req.language }),
       },(error, html)=>{if(error)throw error.toString();res.send(html)})
     }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of admin.get('/dashboard', csrfProtection, (req,res)=>{})", {script: "admin.ts", scope: "admin.get('/dashboard', csrfProtection, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+})
+
+admin.get('/statics', csrfProtection, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    let rows = await executeQuery('CALL get_statics(?)',[req.session.adminData?.companyID]);
+    if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null) return notFound(req,res);
+    return res.render('routes/statics',{
+        title: i18next.t('title',{ ns:'admin_login', lng:req.language }),
+        mostLikedTitle: i18next.t('mostLikedTitle',{ ns:'statics', lng:req.language }),
+        fullRestaurantsTitle: i18next.t('fullRestaurantsTitle',{ ns:'statics', lng:req.language }),
+        TotalReservationsTitle: i18next.t('TotalReservationsTitle',{ ns:'statics', lng:req.language }),
+    },(error, html)=>{if(error)throw error.toString();res.send(html)});
+  }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of admin.get('/statics', csrfProtection, (req,res)=>{})", {script: "admin.ts", scope: "login.get('/statics', csrfProtection, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 export default admin;

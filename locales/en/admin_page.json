@@ -9,5 +9,7 @@
     "phoneTitle": "Phone",
     "createdAtTitle": "Created At",
     "isAdminTitle": "this user is admin",
-    "updateUnsuccessfull": "Failed to save data. If this issue continues, please contact the administrator."
+    "updateUnsuccessfull": "Failed to save data. If this issue continues, please contact the administrator.",
+    "statics": "Statics",
+    "hotels": "Hotels"
 }

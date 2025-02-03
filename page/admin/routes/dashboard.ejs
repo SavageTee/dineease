@@ -9,7 +9,7 @@
         </button>
     </div>
 </nav>
-<nav class="tw-top-0 tw-z-50 tw-w-full tw-border-b-red-950 tw-border-b-2 dark:tw-border-t-2 dark:tw-border-t-gray-950 tw-bg-white dark:tw-bg-darkModeBais">
+<nav class="tw-top-0 tw-z-50 tw-w-full tw-border-b-red-950 tw-border-b-2 dark:tw-border-t-2 tw-border tw-border-gray-300 dark:tw-border-t-gray-950 tw-bg-white dark:tw-bg-darkModeBais">
     <div class="tw-px-3 tw-py-3 lg:tw-px-5 lg:tw-pl-3">
       <div class="tw-flex tw-items-center tw-justify-between">
         <div class="tw-flex tw-items-center tw-justify-start rtl:tw-justify-end">
@@ -20,11 +20,14 @@
         </div>  
         <div class="tw-flex tw-items-center">
             <div class="tw-flex tw-items-center ms-3">
-              <div>
+              <div class="tw-inline-flex tw-justify-center tw-items-center">
                 <button onclick="$('#userModal').modal('show')" type="button" data-bs-toggle="collapse" data-bs-target="#dropBody" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="tw-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-bg-gray-800 tw-rounded-full focus:tw-ring-4 focus:tw-ring-gray-300 dark:focus:tw-ring-gray-600">
                   <span class="tw-sr-only">Open user menu</span>
                   <i class="fa-solid fa-user-astronaut tw-text-white tw-text-lg"></i>
                 </button>
+                <% if (admin === true) { %>
+                  <i class="fa-solid tw-px-2 tw-scale-125 tw-text-yellow-500 fa-star"></i>
+                <% } %> 
               </div>
             </div>
           </div>
@@ -32,30 +35,69 @@
     </div>
   </nav>
 
-  
-  <div class="tw-flex tw-h-screen">
+  <div id="selectError" style="display: none;" class="tw-flex tw-items-center tw-p-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-border-red-500 tw-bg-red-200" role="alert">
+    <i class="fa-solid fa-circle-question"></i>
+    <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium"></div>
+  </div>
+
+  <div class="tw-flex tw-h-screen tw-pt-0 tw-mt-0">
     <!-- Sidebar -->
     <aside id="sidebar" class="tw-border-r-gray-400 tw-overflow-hidden dark:tw-bg-darkModeBais tw-w-0 tw-transition-all tw-duration-500 tw-bg-white tw-border-gray-200 dark:tw-border-gray-700">
-       <div class="tw-p-2">
-          <button class="tw-w-full tw-flex tw-items-center tw-p-2 tw-text-gray-900 tw-rounded-lg dark:tw-text-white hover:tw-bg-gray-100 dark:hover:tw-bg-gray-800 tw-transition tw-duration-300 tw-ease-in-out">
+     
+      <div class="tw-p-2 tw-flex tw-justify-center tw-items-center">
+          <button id="statics_page" class="tw-w-full tw-flex tw-items-center tw-p-2 tw-text-gray-900 tw-rounded-lg dark:tw-text-white hover:tw-bg-gray-100 dark:hover:tw-bg-gray-800 tw-transition tw-duration-300 tw-ease-in-out">
             <i class="fas fa-chart-line tw-w-5 tw-h-5 tw-text-gray-500 tw-transition tw-duration-75 dark:tw-text-gray-400 group-hover:tw-text-gray-900 dark:group-hover:tw-text-white"></i>
-            <span class="tw-ml-3">Statistics</span>
+            <span class="tw-ml-3 tw-font-medium"><%= statics %></span>
           </button>
        </div>
+
+      <div class="tw-p-1 tw-flex tw-justify-center tw-items-center">
+        <button id="hotels_page" class="tw-w-full tw-flex tw-items-center tw-p-2 tw-text-gray-900 tw-rounded-lg dark:tw-text-white hover:tw-bg-gray-100 dark:hover:tw-bg-gray-800 tw-transition tw-duration-300 tw-ease-in-out">
+          <i class="fas fa-hotel tw-w-5 tw-h-5 tw-text-gray-500 tw-transition tw-duration-75 dark:tw-text-gray-400 group-hover:tw-text-gray-900 dark:group-hover:tw-text-white"></i>
+          <span class="tw-ml-3 tw-font-medium"><%= hotels %></span>
+        </button>
+     </div>
      
     </aside>
-  
     <!-- Main Content -->
-    <div class="tw-flex-1 tw-p-5 tw-overflow-auto dark:tw-bg-darkmodeBg">
-        <button type="button" class="btn btn-primary">Primary</button>
-        <button type="button" class="btn btn-secondary">Secondary</button>
-        <button type="button" class="btn btn-success">Success</button>
-        <button type="button" class="btn btn-danger">Danger</button>
-        <button type="button" class="btn btn-warning">Warning</button>
-        <button type="button" class="btn btn-info">Info</button>
-        <button type="button" class="btn btn-light">Light</button>
-        <button type="button" class="btn btn-dark">Dark</button>
+    <div id="main_content_dashboard" class="tw-flex-1 tw-p-5 tw-overflow-auto tw-items-center tw-bg-gray-50 dark:tw-bg-darkmodeBg">
+      
+      <table id='hotels_table'
+          data-toggle="table"
+          data-toolbar="#toolbar"
+          data-pagination = "false" 
+          data-search = "true"
+          data-search-align = "right"
+          data-show-columns = "true"
+          data-show-toggle = "true"
+          data-show-refresh = "true"
+          data-show-fullscreen = "true"
+          data-show-pagination-switch = "true"
+          data-show-pagination-pre-text = "true"
+          data-show-pagination-next-text = "true"
+          data-show-pagination-h-align = "true"
+          data-show-pagination-h-align = "right"
+          data-page-list= "[1,2,10, 20, 30, 40, 50, All]"
+          data-loading-template="loadingTemplate"
+          data-show-footer = "true"
+          data-show-print="true"
+          data-show-print= "true"
+          data-print-page-builder: "Formatit"
+          >
+          <thead>
+          <tr>    
+          <th colspan="3" data-align="center">Hotels</th>
+          </tr>
+          <tr>
+            <th class="text-center font-weight-bold" data-footer-formatter="hotelcode" data-field = "id" data-sortable = "true" data-switchable = "true">Code</th>
+            <th class="text-center" data-footer-formatter="hotel_name" data-field = "name" data-sortable = "true" data-switchable = "true">Hotel Name</th>
+            <th class="text-center"  data-align="center" data-formatter="Action_edit" data-footer-formatter="ACTION">Tools</th>
+          </tr>
+          </thead>
+      </table>
+
     </div>
+
   </div>
 </div>
   <script>
@@ -91,21 +133,21 @@
           <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-300 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
             <i class="fa-solid fa-id-card tw-text-white tw-scale-150"></i>
           </span>
-          <input value="<%= displayName %>" type="text" id="displayName" class="tw-font-extrabold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="<%= displayNameTitle %>">
+          <input value="<%= displayName %>" type="text" id="displayName" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="<%= displayNameTitle %>">
         </div>
         <label for="email" class="tw-pt-2 tw-block tw-mb-1 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= emailTitle  %></label>
         <div class="tw-flex">
           <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-300 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
             <i class="fa-solid fa-envelope tw-text-white tw-scale-150"></i>
           </span>
-          <input value="<%= email %>" type="text" id="email" class="tw-font-extrabold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="<%= emailTitle %>">
+          <input value="<%= email %>" type="text" id="email" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="<%= emailTitle %>">
         </div>
         <label for="phone" class="tw-pt-2 tw-block tw-mb-1 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= phoneTitle  %></label>
         <div class="tw-flex">
           <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-300 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
             <i class="fa-solid fa-mobile-button tw-text-white tw-scale-150"></i>
           </span>
-          <input value="<%= phone %>" type="text" id="phone" class="tw-font-extrabold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="<%= phoneTitle %>">
+          <input value="<%= phone %>" type="text" id="phone" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="<%= phoneTitle %>">
         </div>
       </div>
       <div class="modal-footer">

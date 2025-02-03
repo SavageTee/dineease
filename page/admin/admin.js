@@ -142,11 +142,31 @@ admin.get('/dashboard', csrfProtection, (req, res, next) => __awaiter(void 0, vo
             phoneTitle: i18n_1.default.t('phoneTitle', { ns: 'admin_page', lng: req.language }),
             createdAtTitle: i18n_1.default.t('createdAtTitle', { ns: 'admin_page', lng: req.language }),
             isAdminTitle: i18n_1.default.t('isAdminTitle', { ns: 'admin_page', lng: req.language }),
+            hotels: i18n_1.default.t('hotels', { ns: 'admin_page', lng: req.language }),
+            statics: i18n_1.default.t('statics', { ns: 'admin_page', lng: req.language }),
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }
     catch (error) {
         return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of admin.get('/dashboard', csrfProtection, (req,res)=>{})", { script: "admin.ts", scope: "admin.get('/dashboard', csrfProtection, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+admin.get('/statics', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_statics(?)', [(_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.companyID]);
+        if (rows[0][0] === undefined || rows[0][0] === null)
+            return (0, herlpers_1.notFound)(req, res);
+        return res.render('routes/statics', {
+            title: i18n_1.default.t('title', { ns: 'admin_login', lng: req.language }),
+            mostLikedTitle: i18n_1.default.t('mostLikedTitle', { ns: 'statics', lng: req.language }),
+            fullRestaurantsTitle: i18n_1.default.t('fullRestaurantsTitle', { ns: 'statics', lng: req.language }),
+            TotalReservationsTitle: i18n_1.default.t('TotalReservationsTitle', { ns: 'statics', lng: req.language }),
+        }, (error, html) => { if (error)
+            throw error.toString(); res.send(html); });
+    }
+    catch (error) {
+        return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of admin.get('/statics', csrfProtection, (req,res)=>{})", { script: "admin.ts", scope: "login.get('/statics', csrfProtection, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 exports.default = admin;

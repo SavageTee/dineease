@@ -1,6 +1,7 @@
 var loginButton = false;
 var errorTimeout;
 var saveChangeUserBool = false;
+var staticsPageBool = false;
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 console.log(csrfToken);
 
@@ -125,8 +126,6 @@ const activateDynamicsForLoginFunctions =() => {
     releaseLoading();
 }
 
-
-
 const fetchDashboard = async ()=>{
     fetch('/de-admin/dashboard',{headers:{'X-CSRF-Token': csrfToken}})
     .then(async response => {
@@ -153,9 +152,18 @@ const activateDynamicsForDashboardFunctions =() => {
           sidebar.classList.add("tw-w-56");
         }
     })
-   
-  
-    console.log($('#save_changes').length);
+
+    const LoaderForDashBoard = ()=>{
+        $('#main_content_dashboard').empty();
+        $('#main_content_dashboard').append(`
+            <div class="tw-flex tw-justify-center tw-items-center tw-my-auto">
+                <span class="spinner-grow spinner-grow-sm text-light mx-1" role="status" aria-hidden="true"></span>
+                <span class="spinner-grow spinner-grow-sm text-light mx-1" role="status" aria-hidden="true"></span>
+                <span class="spinner-grow spinner-grow-sm text-light mx-1" role="status" aria-hidden="true"></span>
+            </div>
+        `);
+    }
+
     const saveChagesToUser = ()=>{
         console.log('heere')
         if(!saveChangeUserBool){
@@ -192,6 +200,14 @@ const activateDynamicsForDashboardFunctions =() => {
         }
     }
     $('#save_changes').on('click',()=> saveChagesToUser());
+    $('#statics_page').on('click',()=> {
+        if(!staticsPageBool){
+            staticsPageBool = true;
+            LoaderForDashBoard();
+            fetchStatics();
+        }
+    })
+    $('#hotels_table').bootstrapTable().bootstrapTable()
     let sidebarOpen = true;
     $('toggle-sidebar').on("click", () => {
       sidebarOpen = !sidebarOpen;
@@ -205,4 +221,25 @@ const activateDynamicsForDashboardFunctions =() => {
       }
     });
   releaseLoading();
+}
+
+//hotels_page
+
+const fetchStatics = async ()=>{
+    fetch('/de-admin/statics',{headers:{'X-CSRF-Token': csrfToken}})
+    .then(async response => {
+        if (!response.ok) {throw (await response.json());}
+        return response.text();
+    }).then(async result => {
+        $('#main_content_dashboard').empty();
+        $('#main_content_dashboard').append(result);
+        activateDynamicsForStaticsFunctions();
+    }).catch(error => {
+        staticsPageBool = false;
+        showError(error);
+    });
+}
+
+const activateDynamicsForStaticsFunctions = ()=>{
+    staticsPageBool = false;
 }
