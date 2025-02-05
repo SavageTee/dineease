@@ -169,4 +169,28 @@ admin.get('/statics', csrfProtection, (req, res, next) => __awaiter(void 0, void
         return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of admin.get('/statics', csrfProtection, (req,res)=>{})", { script: "admin.ts", scope: "login.get('/statics', csrfProtection, (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
+admin.get('/hotels', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return res.render('routes/hotels', {
+            codeTitle: i18n_1.default.t('codeTitle', { ns: 'hotels_page', lng: req.language }),
+            nameTitle: i18n_1.default.t('nameTitle', { ns: 'hotels_page', lng: req.language }),
+            LogoTitle: i18n_1.default.t('LogoTitle', { ns: 'hotels_page', lng: req.language }),
+            verificationTitle: i18n_1.default.t('verificationTitle', { ns: 'hotels_page', lng: req.language }),
+            NoFreeCountTitle: i18n_1.default.t('NoFreeCountTitle', { ns: 'hotels_page', lng: req.language }),
+            timeZoneTitle: i18n_1.default.t('timeZoneTitle', { ns: 'hotels_page', lng: req.language }),
+            daysAfterArrivalTitle: i18n_1.default.t('daysAfterArrivalTitle', { ns: 'hotels_page', lng: req.language }),
+            daysBeforeDepartureTitle: i18n_1.default.t('daysBeforeDepartureTitle', { ns: 'hotels_page', lng: req.language }),
+            createdTitle: i18n_1.default.t('createdTitle', { ns: 'hotels_page', lng: req.language }),
+            lastUpdateTitle: i18n_1.default.t('lastUpdateTitle', { ns: 'hotels_page', lng: req.language }),
+            addNew: i18n_1.default.t('addNew', { ns: 'hotels_page', lng: req.language }),
+            userModalTitle: i18n_1.default.t('addNew', { ns: 'hotels_page', lng: req.language }),
+            close: i18n_1.default.t('close', { ns: 'hotels_page', lng: req.language }),
+            saveChanges: i18n_1.default.t('saveChanges', { ns: 'hotels_page', lng: req.language }),
+        }, (error, html) => { if (error)
+            throw error.toString(); res.send(html); });
+    }
+    catch (error) {
+        return (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of admin.get('/statics', csrfProtection, (req,res)=>{})", { script: "admin.ts", scope: "login.get('/statics', csrfProtection, (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
 exports.default = admin;

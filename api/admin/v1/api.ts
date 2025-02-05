@@ -54,6 +54,22 @@ adminApi.post('/saveuserchanges', csrfProtection, async (req:Request, res:Respon
   }catch(error){logErrorAndRespond("USER ERROR REPORT INSIDE CATCH adminApi.post('/saveuserchanges', (req,res)=>{})", {script: "api.ts", scope: "adminApi.post('/saveuserchanges', (req,res)=>{})", request: req, error:`${error}`},req,res);}
 })
 
+adminApi.get('/gethotels', csrfProtection, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    let result = await executeQuery('CALL get_hotels(?)',[req.session.adminData?.companyID]);
+    if(!(result as any) || !(result as any)[0][0]) return res.status(202).jsonp({status: "error", errorText: i18next.t('updateUnsuccessfull',{ ns:'admin_page', lng:req.language })});
+    console.log((result as any))
+    const updatedData = (result as any)[0].map((item:any)=> {
+      return {
+          ...item, 
+          verification_text: item.verification_type === 0 ? i18next.t('birthDay',{ ns:'hotels_page', lng:req.language }) : i18next.t('departureDate',{ ns:'hotels_page', lng:req.language })
+      };
+    });
+    console.log(updatedData)
+    return res.status(200).jsonp(updatedData);
+  }catch(error){logErrorAndRespond("USER ERROR REPORT INSIDE CATCH adminApi.post('/saveuserchanges', (req,res)=>{})", {script: "api.ts", scope: "adminApi.post('/saveuserchanges', (req,res)=>{})", request: req, error:`${error}`},req,res);}
+})
+
 async function generateHash(password: string): Promise<string> {
   const saltRounds = 10;
   try {

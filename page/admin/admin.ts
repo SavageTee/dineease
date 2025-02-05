@@ -108,4 +108,26 @@ admin.get('/statics', csrfProtection, async (req:Request, res:Response, next:Nex
   }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of admin.get('/statics', csrfProtection, (req,res)=>{})", {script: "admin.ts", scope: "login.get('/statics', csrfProtection, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
+admin.get('/hotels', csrfProtection, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    return res.render('routes/hotels',{
+      codeTitle: i18next.t('codeTitle',{ ns:'hotels_page', lng:req.language }),
+      nameTitle: i18next.t('nameTitle',{ ns:'hotels_page', lng:req.language }),
+      LogoTitle: i18next.t('LogoTitle',{ ns:'hotels_page', lng:req.language }),
+      verificationTitle: i18next.t('verificationTitle',{ ns:'hotels_page', lng:req.language }),
+      NoFreeCountTitle: i18next.t('NoFreeCountTitle',{ ns:'hotels_page', lng:req.language }),
+      timeZoneTitle: i18next.t('timeZoneTitle',{ ns:'hotels_page', lng:req.language }),
+      daysAfterArrivalTitle: i18next.t('daysAfterArrivalTitle',{ ns:'hotels_page', lng:req.language }),
+      daysBeforeDepartureTitle: i18next.t('daysBeforeDepartureTitle',{ ns:'hotels_page', lng:req.language }),
+      createdTitle: i18next.t('createdTitle',{ ns:'hotels_page', lng:req.language }),
+      lastUpdateTitle: i18next.t('lastUpdateTitle',{ ns:'hotels_page', lng:req.language }), 
+      addNew: i18next.t('addNew',{ ns:'hotels_page', lng:req.language }),
+      userModalTitle: i18next.t('addNew',{ ns:'hotels_page', lng:req.language }),
+      close: i18next.t('close',{ ns:'hotels_page', lng:req.language }),
+      saveChanges: i18next.t('saveChanges',{ ns:'hotels_page', lng:req.language }),
+    },(error, html)=>{if(error)throw error.toString();res.send(html)});
+  }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of admin.get('/statics', csrfProtection, (req,res)=>{})", {script: "admin.ts", scope: "login.get('/statics', csrfProtection, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+})
+
+
 export default admin;

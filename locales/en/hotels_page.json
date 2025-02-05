@@ -1,0 +1,17 @@
+{
+    "codeTitle": "Code",
+    "nameTitle": "Name",
+    "LogoTitle": "Logo",
+    "verificationTitle": "Verification",
+    "NoFreeCountTitle": "N. Free Count",
+    "timeZoneTitle": "Time Zone",
+    "daysAfterArrivalTitle": "Days After Arrival",
+    "daysBeforeDepartureTitle": "Days Before Departure",
+    "createdTitle": "Created",
+    "lastUpdateTitle": "Updated",
+    "birthDay": "Birth Day",
+    "departureDate": "Departure Date",
+    "addNew": "Add New Hotel",
+    "close": "Close",
+    "saveChanges": "Save Changes"    
+}

@@ -1,0 +1,232 @@
+
+
+<div id="toolbar">
+  <button onclick="$('#add_new_hotel_modal').modal('show')" type="button" class="tw-text-white tw-flex tw-items-center tw-justify-center tw-bg-gray-800 hover:tw-bg-gray-900 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-gray-300 tw-font-medium tw-rounded-md tw-text-sm tw-px-5 tw-py-2.5 me-2 tw-mb-2 dark:tw-bg-gray-950 dark:hover:tw-bg-gray-700 dark:focus:tw-ring-gray-700 dark:tw-border-gray-700"> <div class="tw-px-1"><%= addNew %></div>  <i class="fa-solid tw-scale-110 fa-circle-plus"></i> </button>
+</div>
+
+<table class="table tw-border-2 table-bordered table-striped table-condensed" 
+    id='hotels_table'
+    data-toggle="table"
+    data-ajax="ajaxRequest"
+    data-toolbar="#toolbar"
+    data-buttons="buttons"
+    data-search="true"
+    data-search-align="right"
+    data-loading-template="loadingTemplate"
+    data-show-toggle="true"
+    data-show-refresh="true"
+    data-show-fullscreen="true"
+    data-show-print="true"
+    data-show-pagination-switch="true"
+    data-row-style="rowStyle"
+    data-show-pagination-switch="true"
+    data-show-pagination-pre-text = "true"
+    data-show-pagination-next-text = "true"
+    data-show-pagination-h-align = "true"
+    data-show-pagination-h-align = "right"         
+    >
+    <thead>
+        <tr>    
+            <th class="tw-font-extrabold tw-text-xl" colspan="11" data-align="center">Hotels</th>
+        </tr>
+        <tr>
+            <th class="text-center" data-field="hotel_id" data-sortable="true" data-switchable="true"><%= codeTitle %></th>
+            <th class="text-center" data-field="name" data-sortable="true" data-switchable="true"><%= nameTitle %></th>
+            <th class="text-center" data-field="logo" data-formatter="logoFormatter" data-align="center" data-sortable="true" data-switchable="true"><%= LogoTitle %></th>
+            <th class="text-center" data-field="verification_type" data-formatter="VerificationTypeFormatter" data-align="center" data-sortable="true" data-switchable="true"><%= verificationTitle %></th>
+            <th class="text-center" data-field="free_count" data-align="center" data-sortable="true" data-switchable="true"><%= NoFreeCountTitle %></th>
+            <th class="text-center" data-field="time_zone" data-align="center" data-sortable="true" data-switchable="true"><%= timeZoneTitle %></th>
+            <th class="text-center" data-field="plus_days_adjust" data-align="center" data-sortable="true" data-switchable="true"><%= daysAfterArrivalTitle %></th>
+            <th class="text-center" data-field="minus_days_adjust" data-align="center" data-sortable="true" data-switchable="true"><%= daysBeforeDepartureTitle %></th>
+            <th class="text-center" data-field="created_at" data-formatter="createdFormatter" data-align="center" data-sortable="true" data-switchable="true"><%= createdTitle %></th>
+            <th class="text-center" data-field="updated_at" data-formatter="updatedFormatter" data-align="center" data-sortable="true" data-switchable="true"><%= lastUpdateTitle %></th>
+            <th class="text-center" data-align="center" data-formatter="actionsFormatter"></th>
+        </tr>
+    </thead>
+</table>
+
+
+
+<div id="add_new_hotel_modal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog tw-border-none" role="document">
+    <div class="modal-content dark:tw-bg-darkmodeModalBg dark:tw-text-white tw-px-2 tw-py-1 tw-my-1">
+      <div class="modal-header tw-border-b-2 tw-border-b-gray-500">
+        <h5 class="modal-title "><%= userModalTitle %></h5>
+      </div>
+      <div class="modal-body">
+        <label for="displayName" class="tw-block tw-mb-1 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">displayNameTitle</label>
+        <div class="tw-flex">
+          <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-300 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
+            <i class="fa-solid fa-id-card tw-text-white tw-scale-150"></i>
+          </span>
+          <input value="displayName " type="text" id="displayName" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="displayNameTitle">
+        </div>
+        <label for="email" class="tw-pt-2 tw-block tw-mb-1 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">emailTitle</label>
+        <div class="tw-flex">
+          <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-300 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
+            <i class="fa-solid fa-envelope tw-text-white tw-scale-150"></i>
+          </span>
+          <input value=" email " type="text" id="email" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="emailTitle">
+        </div>
+        <label for="phone" class="tw-pt-2 tw-block tw-mb-1 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">phoneTitle</label>
+        <div class="tw-flex">
+          <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-300 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
+            <i class="fa-solid fa-mobile-button tw-text-white tw-scale-150"></i>
+          </span>
+          <input value=" phone " type="text" id="phone" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="phoneTitle">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="save_changes" type="button" class="tw-text-white tw-bg-gray-800 hover:tw-bg-gray-900 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-gray-300 tw-font-medium tw-rounded-sm tw-text-sm tw-px-5 tw-py-2.5 me-2 tw-mb-2 dark:tw-bg-gray-950 dark:hover:tw-bg-gray-700 dark:focus:tw-ring-gray-700 dark:tw-border-gray-700">
+          <div id="userSaveLoader">
+            <%= saveChanges %>
+          </div>
+          <div style="display: none;" id="userSaveNotLoader" class="spinner-border spinner-border-sm" role="status"></div>   
+        </button>
+        <button type="button" data-bs-dismiss="modal" class="tw-text-white tw-bg-gray-800 hover:tw-bg-gray-900 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-gray-300 tw-font-medium tw-rounded-sm tw-text-sm tw-px-5 tw-py-2.5 me-2 tw-mb-2 dark:tw-bg-gray-950 dark:hover:tw-bg-gray-700 dark:focus:tw-ring-gray-700 dark:tw-border-gray-700"><%= close %></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<style>
+  .table-striped>tbody>tr:nth-child(odd)>td,
+  .table-striped>tbody>tr:nth-child(odd)>th {background-color: #E6F3FF;}
+  .tw-dark .pagination-info{color: white;}
+  .tw-dark .page-list{color: white;}
+</style>
+
+<script>
+
+    function rowStyle(row, index) {
+        return {
+            classes: "tw-font-medium tw-p-0 tw-m-0",
+        }
+    }
+
+    if (document.documentElement.classList.contains('tw-dark')) {
+      let icon = $('button[name="btnToggleDarkMode"]').find('i') 
+      $('#hotels_table').addClass('table-dark')
+      $('button[name="btnToggleDarkMode"]').find('i')   
+      icon.removeClass('fa-sun').addClass('fa-moon');
+    } else {
+      let icon = $('button[name="btnToggleDarkMode"]').find('i') 
+      $('#hotels_table').removeClass('table-dark')
+      $('button[name="btnToggleDarkMode"]').find('i')   
+      icon.removeClass('fa-moon').addClass('fa-sun');
+    }
+
+    function actionsFormatter(row,data){
+      let escapedData = JSON.stringify(data).replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+      return `
+      <div class="btn-group">
+        <button onclick="actionTrigger('${escapedData}')" class="tw-px-3 tw-py-3 tw-bg-blue-600 hover:tw-bg-blue-400 tw-text-white tw-rounded tw-flex tw-items-center tw-justify-center">
+            <i style="scale: 1.3;" class="fas fa-edit"></i>
+        </button>    
+        <div class="horizontalgap" style="width:10px"></div> 
+        <button onclick="actionTrigger('${escapedData}')" class="tw-px-3 tw-py-3 tw-bg-red-600 hover:tw-bg-red-400 tw-text-white tw-rounded tw-flex tw-items-center tw-justify-center">
+            <i style="scale: 1.3;" class="fas fa-trash"></i>
+        </button>    
+        <div class="horizontalgap" style="width:10px"></div> 
+      </div>`
+    }
+
+
+    function actionTrigger(data){
+       console.log(data)
+    }
+
+    function createdFormatter(data, row){
+      return `
+       <div class=" tw-inline-block tw-justify-center tw-align-center">
+              <div>${row['created_by']??'---'}</div>
+              <hr class="tw-h-[0.025vh] tw-my-1 tw-border-t-0 tw-bg-black tw-py-0"/>
+              ${row['created_at'] === null ? '---' : 
+              `<div>
+                ${new Date(row['created_at']).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'UTC'
+                })}
+              </div>`}
+        </div>
+      `
+    }
+
+    function updatedFormatter(data, row){
+      return `
+          <div class="tw-inline-block tw-justify-center tw-align-center">
+              <div>${row['updated_by']??'---'}</div>
+              <hr class=" tw-h-[0.025vh] tw-my-1 tw-border-t-0 tw-bg-black tw-py-0"/>
+              ${row['updated_at'] === null ? '---' : 
+              `<div>
+                ${new Date(row['updated_at']).toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'UTC'
+                })}
+              </div>`}
+          </div>
+      `
+    }
+
+    function VerificationTypeFormatter(data, row){
+      return data === 0 ? `${row['verification_text']} <i class="fa-solid fa-cake-candles px-1"></i>` : `${row['verification_text']} <i class="fa-solid px-1 fa-plane-departure"></i>`
+    }
+
+    function logoFormatter(data){
+      if(data === null) return '';
+      const uint8Array = new Uint8Array(data.data);
+      let binaryString = '';
+      uint8Array.forEach(byte => {binaryString += String.fromCharCode(byte);});
+      const base64String = btoa(binaryString);
+      return `<div class="container-fluid tw-flex tw-justify-center tw-p-0 tw-m-0 tw-items-center"><img class="tw-max-h-[5vh]" src="data:image/jpeg;base64,${base64String}"></div>`
+    }
+
+    function buttons () {
+        return {
+            btnToggleDarkMode: {
+                text: 'Highlight Users',
+                icon: 'fa-sun',
+                event: function () {
+                  let button = document.querySelector('button[name="btnToggleDarkMode"]');
+                  let icon = button.querySelector('i');
+                  let hotelsTable = document.getElementById('hotels_table');
+
+                  if (hotelsTable.classList.contains('table-dark')) {
+                      icon.classList.remove('fa-sun');
+                      icon.classList.add('fa-moon');
+                      hotelsTable.classList.remove('table-dark');
+                  } else {
+                      icon.classList.remove('fa-moon');
+                      icon.classList.add('fa-sun');
+                      hotelsTable.classList.add('table-dark');
+                  }
+                },
+                attributes: {
+                title: 'Search all users which has logged in the last week'
+                }
+            },
+        }
+    }
+
+
+  function ajaxRequest(params) {
+    console.log('here')
+    var url = '/api/v1/gethotels'
+    $.get(url).then(function (res) {
+      params.success(res)
+    })
+  }
+  $('#hotels_table').bootstrapTable({ iconsPrefix: 'fa' })
+</script>

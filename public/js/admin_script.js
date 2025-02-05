@@ -2,8 +2,14 @@ var loginButton = false;
 var errorTimeout;
 var saveChangeUserBool = false;
 var staticsPageBool = false;
+var hotelsPageBool = false;
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 console.log(csrfToken);
+
+function loadingTemplate(loadingMessage) {
+    return '<div class="spinner-grow table-dark" role="status"></div><div class="spinner-grow" role="status"></div><div class="spinner-grow" role="status"></div>'
+}
+
 
 (async function(){
     fetch('/api/v1/adminstate',{headers:{'X-CSRF-Token': csrfToken}})
@@ -140,19 +146,19 @@ const fetchDashboard = async ()=>{
     });
 }
 
+const ToggleSideBar = ()=>{
+    if($('#sidebar').width() <= 0){
+        $('#sidebar').css('width', 'calc(10vw + 20vh)');
+    }else{
+        $('#sidebar').css('width', '0px');
+    }
+}
+
 const activateDynamicsForDashboardFunctions =() => {
     darkModeFunctions();
-    $('#navToggle').on('click',()=>{
-        const sidebar = document.getElementById("sidebar");
-        if (sidebar.classList.contains("tw-w-56")) {
-          sidebar.classList.remove("tw-w-56");
-          sidebar.classList.add("tw-w-0");
-        } else {
-          sidebar.classList.remove("tw-w-0");
-          sidebar.classList.add("tw-w-56");
-        }
-    })
-
+    $(document).ready(function () {
+    $('#navToggle').on('click',()=>{ToggleSideBar();})})
+   
     const LoaderForDashBoard = ()=>{
         $('#main_content_dashboard').empty();
         $('#main_content_dashboard').append(`
@@ -202,12 +208,21 @@ const activateDynamicsForDashboardFunctions =() => {
     $('#save_changes').on('click',()=> saveChagesToUser());
     $('#statics_page').on('click',()=> {
         if(!staticsPageBool){
+            ToggleSideBar();
             staticsPageBool = true;
             LoaderForDashBoard();
             fetchStatics();
         }
     })
-    $('#hotels_table').bootstrapTable().bootstrapTable()
+    $('#hotels_page').on('click',()=> {
+        if(!hotelsPageBool){
+            ToggleSideBar();
+            hotelsPageBool = true;
+            LoaderForDashBoard();
+            fetchHotels();
+        }
+    })
+    
     let sidebarOpen = true;
     $('toggle-sidebar').on("click", () => {
       sidebarOpen = !sidebarOpen;
@@ -242,4 +257,23 @@ const fetchStatics = async ()=>{
 
 const activateDynamicsForStaticsFunctions = ()=>{
     staticsPageBool = false;
+}
+
+const fetchHotels = async ()=>{
+    fetch('/de-admin/hotels',{headers:{'X-CSRF-Token': csrfToken}})
+    .then(async response => {
+        if (!response.ok) {throw (await response.json());}
+        return response.text();
+    }).then(async result => {
+        $('#main_content_dashboard').empty();
+        $('#main_content_dashboard').append(result);
+        activateDynamicsForHotelsFunctions();
+    }).catch(error => {
+        hotelsPageBool = false;
+        showError(error);
+    });
+}
+
+const activateDynamicsForHotelsFunctions = ()=>{
+    hotelsPageBool = false;
 }
