@@ -1,0 +1,65 @@
+{
+    "codeTitle": "Code",
+    "nameTitle": "Name",
+    "LogoTitle": "Logo",
+    "verificationTitle": "Verification",
+    "NoFreeCountTitle": "N. Free Count",
+    "timeZoneTitle": "Time Zone",
+    "daysAfterArrivalTitle": "Days After Arrival",
+    "daysBeforeDepartureTitle": "Days Before Departure",
+    "activeTitle": "Active",
+    "createdTitle": "Created",
+    "lastUpdateTitle": "Updated",
+    "birthDay": "Birth Day",
+    "departureDate": "Departure Date",
+    "addNew": "Add New Hotel",
+    "close": "Close",
+    "saveChanges": "Save Changes",
+    "add": "Add",
+
+    "validation": {
+        "name": {
+            "string": "Oops! Hotel name should be at least 1 character long.",
+            "min": "Hotel name should be atleaset 1 character",
+            "max": "Hotel name is too long. Please keep it under 100 characters.",
+            "required": "Hotel name is required to proceed. Please fill this in."
+        },
+        "logo": {
+            "string": "Logo must be a valid string.",
+            "pattern": "Logo does not match the required pattern."
+        },
+        "verification": {
+            "number": "Verification must be a valid number.",
+            "integer": "Verification must be an integer.",
+            "min": "Verification must be at least the minimum required value.",
+            "required": "Verification is required."
+        },
+        "free_count": {
+            "number": "Free count must be a valid number.",
+            "integer": "Free count must be an integer.",
+            "min": "Free count must be at least the minimum required value.",
+            "required": "Free count is required."
+        },
+        "time_zone": {
+            "string": "Time zone must be a valid string.",
+            "pattern": "Time zone does not match the required pattern.",
+            "required": "Time zone is required."
+        },
+        "plus_days_adjust": {
+            "number": "Days After Arrival must be a valid number.",
+            "integer": "Days After Arrival must be an integer.",
+            "min": "Days After Arrival must be at least the minimum required value.",
+            "required": "Days After Arrival is required."
+        },
+        "minus_days_adjust": {
+            "number": "Days Before Departure must be a valid number.",
+            "integer": "Days Before Departure must be an integer.",
+            "min": "Days Before Departure must be at least the minimum required value.",
+            "required": "Days Before Departure is required."
+        },
+        "active": {
+            "boolean": "Active must be a boolean value.",
+            "required": "Active status is required."
+        }
+    }    
+}

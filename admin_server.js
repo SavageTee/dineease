@@ -54,8 +54,10 @@ const express_session_1 = __importDefault(require("express-session"));
 const logger_1 = __importDefault(require("./providers/logger/logger"));
 const i18n_1 = require("./providers/i18n/i18n");
 const mysqlProvider_1 = require("./providers/mysqlProvider/mysqlProvider");
-const herlpers_1 = require("./helpers/herlpers");
+const admin_herlpers_1 = require("./helpers/admin_herlpers");
 exports.admin = (0, express_1.default)();
+exports.admin.use(express_1.default.json({ limit: '5mb' }));
+exports.admin.use((err, req, res, next) => (0, admin_herlpers_1.RequestLargeError)(err, res, next));
 const AdminMySQLStore = (0, express_mysql_session_1.default)(expressSession);
 const AdminsessionStore = new AdminMySQLStore({
     schema: {
@@ -73,6 +75,12 @@ exports.admin.use((0, express_session_1.default)({
         sameSite: true
     }
 }));
+const admin_1 = __importDefault(require("./page/admin/admin"));
+exports.admin.use('/:lng/de-admin', admin_1.default);
+const api_1 = __importDefault(require("./api/admin/v1/api"));
+exports.admin.use('/api/v1', api_1.default);
+const hotels_1 = __importDefault(require("./api/admin/v1/hotels"));
+exports.admin.use('/api/v1/hotels', hotels_1.default);
 exports.admin.set('view engine', 'ejs');
 exports.admin.set('views', path_1.default.join(__dirname, 'page/admin'));
 exports.admin.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
@@ -86,11 +94,7 @@ exports.admin.use((req, res, next) => {
     }
     next();
 });
-const admin_1 = __importDefault(require("./page/admin/admin"));
-exports.admin.use('/:lng/de-admin', admin_1.default);
-const api_1 = __importDefault(require("./api/admin/v1/api"));
-exports.admin.use('/api/v1', api_1.default);
-exports.admin.use((req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, herlpers_1.notFound)(req, res); }));
+exports.admin.use((req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, admin_herlpers_1.notFound)(req, res); }));
 const startAdminServer = () => {
     const server = exports.admin.listen(process.env.ADMIN_SERVER_PORT || 8001, () => __awaiter(void 0, void 0, void 0, function* () {
         yield (0, logger_1.default)({

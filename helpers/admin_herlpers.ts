@@ -1,9 +1,10 @@
 import newLog from "../providers/logger/logger"
-import {Response, Request,} from "express"
+import {Response, Request, NextFunction} from "express"
+import Joi from "joi"
 import i18next from "../providers/i18n/i18n"
 
-export const validateContentType = (req: Request, res: Response) => {
-    if (req.headers['content-type'] !== "application/json") {
+export const validateContentType = (req: Request, res: Response, contentType:string) => {
+    if (!req.headers['content-type']?.includes(contentType) ) {
         res.status(400).jsonp({ status: 'error', origin: 'server', errorText: "Bad Request" });
         return false;
     }
@@ -61,6 +62,39 @@ export const ReportErrorAndRespondErrorPage  = async (message: string, metadata:
     });
     return errorPage(req, res, i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID}) , i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID }) );
 }
+
+export const RequestLargeError = (err:any, res:Response, next:NextFunction):any => {
+    if (err.type === 'entity.too.large') {
+        return res.status(413).json({
+          status: 'error',
+          errorText: 'Request Entity Too Large'
+        });
+    }
+    next(err);
+}
+
+export const validateRequestBody = (req: Request, res: Response, generateSchema: (lng: string) => Joi.ObjectSchema<any>, language: string, body: any) => {
+    const result = generateSchema(language).validate(body);
+    if (result.error) {
+        const uniqueErrors = result.error.details.reduce((acc: any[], current) => {
+            const isDuplicate = acc.some(error => 
+                //error.message === current.message && 
+                JSON.stringify(error.path) === JSON.stringify(current.path)
+            );
+            if (!isDuplicate) {
+                acc.push({ message: current.message, path: current.path });
+            }
+            return acc;
+        }, []);
+        res.status(202).json({
+            status: 'error',
+            origin: 'fields',
+            errorText: uniqueErrors
+        });
+        return false;
+    }
+    return true;
+};
 
 export const reportErrorAndRespond = async (message: string, metadata: any, req: Request, res: Response) => {
     let generatedUUID = await newLog({

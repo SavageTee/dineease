@@ -1,6 +1,7 @@
 import newLog from "../providers/logger/logger"
-import {Response, Request,} from "express"
+import {Response, Request,NextFunction} from "express"
 import i18next from "../providers/i18n/i18n"
+import * as Joi from "joi"
 
 export const validateContentType = (req: Request, res: Response) => {
     if (req.headers['content-type'] !== "application/json") {
@@ -94,6 +95,7 @@ export const logErrorAndRespond = async (message: string, metadata: any, req: Re
         return errorPage(req, res, i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID}) , i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID }) );
     }
 };
+
 
 
 export const goBack = (res:Response) =>{return res.send(`<script>window.history.back();</script>`);}

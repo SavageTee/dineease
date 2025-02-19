@@ -27,7 +27,7 @@
     >
     <thead>
         <tr>    
-            <th class="tw-font-extrabold tw-text-xl" colspan="11" data-align="center">Hotels</th>
+            <th class="tw-font-extrabold tw-text-xl" colspan="12" data-align="center">Hotels</th>
         </tr>
         <tr>
             <th class="text-center" data-field="hotel_id" data-sortable="true" data-switchable="true"><%= codeTitle %></th>
@@ -38,6 +38,7 @@
             <th class="text-center" data-field="time_zone" data-align="center" data-sortable="true" data-switchable="true"><%= timeZoneTitle %></th>
             <th class="text-center" data-field="plus_days_adjust" data-align="center" data-sortable="true" data-switchable="true"><%= daysAfterArrivalTitle %></th>
             <th class="text-center" data-field="minus_days_adjust" data-align="center" data-sortable="true" data-switchable="true"><%= daysBeforeDepartureTitle %></th>
+            <th class="text-center" data-field="active" data-align="center" data-formatter="activeFormatter" data-sortable="true" data-switchable="true"><%= activeTitle %></th>
             <th class="text-center" data-field="created_at" data-formatter="createdFormatter" data-align="center" data-sortable="true" data-switchable="true"><%= createdTitle %></th>
             <th class="text-center" data-field="updated_at" data-formatter="updatedFormatter" data-align="center" data-sortable="true" data-switchable="true"><%= lastUpdateTitle %></th>
             <th class="text-center" data-align="center" data-formatter="actionsFormatter"></th>
@@ -54,36 +55,98 @@
         <h5 class="modal-title "><%= userModalTitle %></h5>
       </div>
       <div class="modal-body">
-        <label for="displayName" class="tw-block tw-mb-1 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">displayNameTitle</label>
-        <div class="tw-flex">
-          <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-300 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
-            <i class="fa-solid fa-id-card tw-text-white tw-scale-150"></i>
-          </span>
-          <input value="displayName " type="text" id="displayName" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="displayNameTitle">
-        </div>
-        <label for="email" class="tw-pt-2 tw-block tw-mb-1 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">emailTitle</label>
-        <div class="tw-flex">
-          <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-300 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
-            <i class="fa-solid fa-envelope tw-text-white tw-scale-150"></i>
-          </span>
-          <input value=" email " type="text" id="email" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="emailTitle">
-        </div>
-        <label for="phone" class="tw-pt-2 tw-block tw-mb-1 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">phoneTitle</label>
-        <div class="tw-flex">
-          <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-300 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
-            <i class="fa-solid fa-mobile-button tw-text-white tw-scale-150"></i>
-          </span>
-          <input value=" phone " type="text" id="phone" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="phoneTitle">
-        </div>
+        <form id="add_new_hotel_form" action="/newhotel" method="POST" enctype="multipart/form-data">
+
+          <label for="name" class="tw-block tw-mb-0.5 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= nameTitle %></label>
+          <div class="tw-flex">
+            <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-400 border-e-0 rounded-s-md  dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
+              <i class="fa-solid fa-id-card dark:tw-text-white tw-text-black tw-scale-150"></i>
+            </span>
+            <input required type="text" id="name" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-border-gray-400 tw-rounded-none tw-bg-gray-200  tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="<%= nameTitle %>">
+          </div> 
+          <div id="name_error" class="tw-text-red-500 tw-text-sm tw-mt-1 tw-hidden"></div>
+          
+          <label for="logo" class="tw-block tw-pt-3 tw-mb-0.5 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= LogoTitle %></label>
+          <div class="tw-flex">
+            <input type="file" accept="image/*" name="hotelImage" id="logo" class="tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-border-gray-400 tw-rounded-none tw-bg-gray-200  tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="<%= nameTitle %>">
+          </div>    
+          <div id="logo_error" class="tw-text-red-500 tw-text-sm tw-mt-1 tw-hidden"></div>  
+
+          <label for="verification" class="tw-block tw-pt-3 tw-mb-0.5 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white">
+            <%= verificationTitle %>
+          </label>
+          <div id="verification" class="tw-flex tw-items-center tw-border-gray-400 tw-space-x-4 tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500  tw-rounded-none tw-bg-gray-200 tw-text-gray-900 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 tw-m-0 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white">
+            <div class="tw-flex tw-items-center">
+              <input checked type="radio" name="verification_val" value="0" class="tw-form-radio tw-text-blue-600">
+              <label for="inlineRadio1" class="tw-ml-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= birthDay %></label>
+            </div>
+            <div class="tw-flex tw-items-center">
+              <input type="radio" name="verification_val" value="1" class="tw-form-radio tw-text-blue-600">
+              <label for="inlineRadio2" class="tw-ml-2 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= departureDate %></label>
+            </div>
+          </div>
+          <div id="verification_error" class="tw-text-red-500 tw-text-sm tw-mt-1 tw-hidden"></div>  
+
+
+          <label for="free_count" class="tw-block tw-pt-2 tw-mb-0.5 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= NoFreeCountTitle %></label>
+          <div class="tw-flex">
+            <span class="tw-inline-flex tw-border-gray-400  tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
+              <i class="fa-solid fa-sack-xmark dark:tw-text-white tw-text-black tw-scale-150"></i>
+            </span>
+            <input required min="0" placeholder="<%= NoFreeCountTitle %>" type="number" id="free_count" name="free count" class="tw-bg-gray-200 tw-border-gray-400  tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white">
+          </div>
+          <div id="free_count_error" class="tw-text-red-500 tw-text-sm tw-mt-1 tw-hidden"></div>  
+
+
+          <label for="time_zone" class="tw-block tw-pt-2 tw-mb-0.5 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= timeZoneTitle %></label>
+          <div class="tw-flex">
+            <span class="tw-inline-flex  tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-400 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
+              <i class="fa-solid fa-earth-africa dark:tw-text-white tw-text-black tw-scale-150"></i>
+            </span>
+            <input required type="text" id="time_zone" class="tw-bg-gray-200 tw-border-gray-400  tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white" placeholder="<%= timeZoneTitle %>">
+          </div>
+          <div id="time_zone_error" class="tw-text-red-500 tw-text-sm tw-mt-1 tw-hidden"></div>  
+
+
+          <label for="plus_days_adjust" class="tw-block tw-pt-2 tw-mb-0.5 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= daysAfterArrivalTitle %></label>
+          <div class="tw-flex">
+            <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-400 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
+              <i class="fa-solid fa-plane-arrival dark:tw-text-white tw-text-black tw-scale-150"></i>
+            </span>
+            <input required min="0" placeholder="<%= daysAfterArrivalTitle %>" type="number" id="plus_days_adjust" name="free count" class="tw-bg-gray-200 tw-border-gray-400  tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none  tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white">
+          </div>
+          <div id="plus_days_adjust_error" class="tw-text-red-500 tw-text-sm tw-mt-1 tw-hidden"></div>  
+
+
+          <label for="minus_days_adjust" class="tw-block tw-pt-2 tw-mb-0.5 tw-text-sm tw-font-medium tw-text-gray-900 dark:tw-text-white"><%= daysBeforeDepartureTitle %></label>
+          <div class="tw-flex">
+            <span class="tw-inline-flex tw-items-center tw-px-3 tw-text-sm tw-text-gray-900 tw-bg-gray-200 tw-border rounded-e-0 tw-border-gray-400 border-e-0 rounded-s-md dark:tw-bg-gray-500 dark:tw-text-gray-400 dark:tw-border-gray-600">
+              <i class="fa-solid fa-plane-departure dark:tw-text-white tw-text-black tw-scale-150"></i>
+            </span>
+            <input required min="0" placeholder="<%= daysBeforeDepartureTitle %>" type="number" id="minus_days_adjust" name="free count" class=" tw-border-gray-400  tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500 tw-rounded-none tw-bg-gray-100 tw-text-gray-900 tw-block tw-flex-1 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white">
+          </div>
+          <div id="minus_days_adjust_error" class="tw-text-red-500 tw-text-sm tw-mt-1 tw-hidden"></div>  
+
+
+          <div class="tw-flex tw-mt-6 tw-items-center tw-border-gray-400 tw-space-x-4 tw-font-bold tw-outline-none tw-border focus:tw-border-blue-500 dark:focus:tw-border-blue-500  tw-rounded-none tw-bg-gray-200 tw-text-gray-900 tw-min-w-0 tw-w-full tw-text-sm tw-p-2.5 tw-m-0 dark:tw-bg-gray-500 dark:tw-border-gray-600 dark:tw-placeholder-gray-400 dark:tw-text-white">
+            <div class="tw-flex tw-items-center">
+              <label class="tw-px-2" for="active"><%= activeTitle %></label>
+              <input style="scale: 1.5;" type="checkbox" id="active" checked>
+            </div>
+          </div>
+          <div id="active_error" class="tw-text-red-500 tw-text-sm tw-mt-1 tw-hidden"></div>  
+
+
+        </form>
       </div>
       <div class="modal-footer">
-        <button id="save_changes" type="button" class="tw-text-white tw-bg-gray-800 hover:tw-bg-gray-900 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-gray-300 tw-font-medium tw-rounded-sm tw-text-sm tw-px-5 tw-py-2.5 me-2 tw-mb-2 dark:tw-bg-gray-950 dark:hover:tw-bg-gray-700 dark:focus:tw-ring-gray-700 dark:tw-border-gray-700">
-          <div id="userSaveLoader">
-            <%= saveChanges %>
+        <button id="add_new_hotel" type="submit" form="add_new_hotel_form" class="tw-text-white tw-bg-gray-800 hover:tw-bg-gray-900 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-gray-400 tw-font-medium tw-rounded-sm tw-text-sm tw-px-5 tw-py-2.5 me-2 tw-mb-2 dark:tw-bg-gray-950 dark:hover:tw-bg-gray-700 dark:focus:tw-ring-gray-700 dark:tw-border-gray-700">
+          <div id="add_not_spinner">
+            <%= add %>
           </div>
-          <div style="display: none;" id="userSaveNotLoader" class="spinner-border spinner-border-sm" role="status"></div>   
+          <div style="display: none;" id="add_spinner" class="spinner-border spinner-border-sm" role="status"></div>   
         </button>
-        <button type="button" data-bs-dismiss="modal" class="tw-text-white tw-bg-gray-800 hover:tw-bg-gray-900 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-gray-300 tw-font-medium tw-rounded-sm tw-text-sm tw-px-5 tw-py-2.5 me-2 tw-mb-2 dark:tw-bg-gray-950 dark:hover:tw-bg-gray-700 dark:focus:tw-ring-gray-700 dark:tw-border-gray-700"><%= close %></button>
+        <button type="button" data-bs-dismiss="modal" class="tw-text-white tw-bg-gray-800 hover:tw-bg-gray-900 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-gray-400 tw-font-medium tw-rounded-sm tw-text-sm tw-px-5 tw-py-2.5 me-2 tw-mb-2 dark:tw-bg-gray-950 dark:hover:tw-bg-gray-700 dark:focus:tw-ring-gray-700 dark:tw-border-gray-700"><%= close %></button>
       </div>
     </div>
   </div>
@@ -118,6 +181,14 @@
       icon.removeClass('fa-moon').addClass('fa-sun');
     }
 
+    $("#time_zone").on("input", function () {
+        let value = $(this).val();
+        const regex = /^[-+]?\d{0,2}:?\d{0,2}$/;
+        if (!regex.test(value)) {$(this).val('');}
+        if (value.length === 1 && !/^[-+]$/.test(value)) {$(this).val('');}
+        if (value.length === 3 && value[2] !== ":") {$(this).val(value.slice(0, 3));}
+    });
+
     function actionsFormatter(row,data){
       let escapedData = JSON.stringify(data).replace(/'/g, '&apos;').replace(/"/g, '&quot;');
       return `
@@ -136,6 +207,10 @@
 
     function actionTrigger(data){
        console.log(data)
+    }
+
+    function activeFormatter(data, row){
+      return data === 0 ? `<i style="scale: 1.3;" class="fa-solid tw-text-red-400 fa-xmark"></i>` : `<i style="scale: 1.3;" class="fa-solid tw-text-green-400 fa-check"></i>`
     }
 
     function createdFormatter(data, row){

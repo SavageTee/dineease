@@ -3,6 +3,7 @@ var errorTimeout;
 var saveChangeUserBool = false;
 var staticsPageBool = false;
 var hotelsPageBool = false;
+var addNewHotelBool = false;
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 console.log(csrfToken);
 
@@ -17,7 +18,6 @@ function loadingTemplate(loadingMessage) {
         if (!response.ok) {throw (await response.json());}
         return response.json();
     }).then(result => {
-        console.log(result)
         if(result['state'] === 'login') fetchLogin();
         if(result['state'] === 'dashboard') fetchDashboard();
     }).catch(error => {
@@ -108,7 +108,6 @@ const activateDynamicsForLoginFunctions =() => {
                 if (!response.ok) {throw (await response.json());}
                 return response.json(); 
             }).then(result => {
-                console.log(result)
                 if(result["status"] === "error") {
                     showError(result);
                 }
@@ -171,7 +170,6 @@ const activateDynamicsForDashboardFunctions =() => {
     }
 
     const saveChagesToUser = ()=>{
-        console.log('heere')
         if(!saveChangeUserBool){
             saveChangeUserBool = true;
             $('#userSaveNotLoader').show()
@@ -192,7 +190,6 @@ const activateDynamicsForDashboardFunctions =() => {
                     $('#email').val(result['data'][0][0]['email'])
                     $('#phone').val(result['data'][0][0]['phone'])
                 }
-                console.log('her')
                 $('#userSaveLoader').show();
                 $('#userSaveNotLoader').hide()
                 saveChangeUserBool = false;
@@ -276,4 +273,132 @@ const fetchHotels = async ()=>{
 
 const activateDynamicsForHotelsFunctions = ()=>{
     hotelsPageBool = false;
+
+    async function getImage(file){
+        return new Promise( async (resolve, reject) => {
+            fileData = await new Blob([file]).arrayBuffer();
+            imageBytes = new Uint8Array(fileData).toString();
+            resolve(imageBytes);
+        })
+    }
+
+    $('#add_new_hotel_form').on('submit',(event)=> addNewHotel(event));
+    const addNewHotel = async (event)=>{
+        event.preventDefault(); 
+        if(!addNewHotelBool){
+            addNewHotelBool = true;
+            $('#add_spinner').show()
+            $('#add_not_spinner').hide()
+            hideError();
+            $('#name_error').hide()
+            $('#logo_error').hide()
+            $('#verification_error').hide()
+            $('#free_count_error').hide()
+            $('#time_zone_error').hide()
+            $('#plus_days_adjust_error').hide()
+            $('#minus_days_adjust_error').hide()
+            $('#active_error').hide()
+            const formData = new FormData();
+            var checkedValue = $("input[name='verification_val']:checked").val();
+            const fileInput = $('#logo')[0]; 
+            const file = fileInput.files[0];
+            formData.append('name', $('#name').val());
+            formData.append('verification', Number(checkedValue));
+            formData.append('free_count', Number($('#free_count').val()));
+            formData.append('time_zone', $('#time_zone').val());
+            formData.append('plus_days_adjust', Number($('#plus_days_adjust').val()));
+            formData.append('minus_days_adjust', Number($('#minus_days_adjust').val()));
+            formData.append('active', $('#active').is(':checked') === true ? 1 : 0);
+            file ? formData.append('logo',file) : null;
+            fetch(`/api/v1/hotels/addnewhotel`, {
+                method: 'POST',
+                headers: {'Cache-Control': 'no-cache','X-CSRF-Token': csrfToken},
+                body: formData
+                }).then(async response => {
+                    if (!response.ok) {throw (await response.json());}
+                    return response.json(); 
+                }).then(result => {
+                    if(result['status'] && result['status'] === 'error' && result['origin'] === 'fields'){
+                        result['errorText'].forEach((error)=>{
+                            switch(error['path'][0]){
+                                case 'name':
+                                    $('#name_error').text(error['message'])
+                                    $('#name_error').show()
+                                break; 
+                                case 'logo':
+                                    console.log('here')
+                                    $('#logo_error').text(error['message'])
+                                    $('#logo_error').show()
+                                break; 
+                                case 'verification':
+                                    $('#verification_error').text(error['message'])
+                                    $('#verification_error').show()
+                                break; 
+                                case 'free_count':
+                                    $('#free_count_error').text(error['message'])
+                                    $('#free_count_error').show()
+                                break; 
+                                case 'time_zone':
+                                    $('#time_zone_error').text(error['message'])
+                                    $('#time_zone_error').show()
+                                break; 
+                                case 'plus_days_adjust':
+                                    $('#plus_days_adjust_error').text(error['message'])
+                                    $('#plus_days_adjust_error').show()
+                                break; 
+                                case 'minus_days_adjust':
+                                    $('#minus_days_adjust_error').text(error['message'])
+                                    $('#minus_days_adjust_error').show()
+                                break; 
+                                case 'active':
+                                    $('#active_error').text(error['message'])
+                                    $('#active_error').show()
+                                break;    
+                            }
+                        })         
+                    }
+                    addNewHotelBool = false;
+                    $('#add_spinner').hide()
+                    $('#add_not_spinner').show()
+                    console.log(result)
+                }).catch(error => {
+                    addNewHotelBool = false;
+                    $('#add_spinner').hide()
+                    $('#add_not_spinner').show()
+                    showError(error);
+                })
+        }
+        /*if(!saveChangeUserBool){
+            saveChangeUserBool = true;
+            $('#userSaveNotLoader').show()
+            $('#userSaveLoader').hide()
+            fetch(`/api/v1/saveuserchanges`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache','X-CSRF-Token': csrfToken},
+                body: JSON.stringify({'displayName':$('#displayName').val(), 'email': $('#email').val(), 'phone': $('#phone').val(),})
+            }).then(async response => {
+                if (!response.ok) {throw (await response.json());}
+                return response.json(); 
+            }).then(result => {
+                if(result["status"] === "error") {
+                    showError(result);
+                }
+                if(result['status'] === "success"){             
+                    $('#displayName').val(result['data'][0][0]['display_name'])
+                    $('#email').val(result['data'][0][0]['email'])
+                    $('#phone').val(result['data'][0][0]['phone'])
+                }
+                console.log('her')
+                $('#userSaveLoader').show();
+                $('#userSaveNotLoader').hide()
+                saveChangeUserBool = false;
+            })
+            .catch(error => {
+                $('#userSaveLoader').show();
+                $('#userSaveNotLoader').hide()
+                saveChangeUserBool = false;
+                showError(error);
+            });
+        }*/
+    }
 }

@@ -111,20 +111,23 @@ admin.get('/statics', csrfProtection, async (req:Request, res:Response, next:Nex
 admin.get('/hotels', csrfProtection, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     return res.render('routes/hotels',{
-      codeTitle: i18next.t('codeTitle',{ ns:'hotels_page', lng:req.language }),
-      nameTitle: i18next.t('nameTitle',{ ns:'hotels_page', lng:req.language }),
-      LogoTitle: i18next.t('LogoTitle',{ ns:'hotels_page', lng:req.language }),
-      verificationTitle: i18next.t('verificationTitle',{ ns:'hotels_page', lng:req.language }),
-      NoFreeCountTitle: i18next.t('NoFreeCountTitle',{ ns:'hotels_page', lng:req.language }),
-      timeZoneTitle: i18next.t('timeZoneTitle',{ ns:'hotels_page', lng:req.language }),
-      daysAfterArrivalTitle: i18next.t('daysAfterArrivalTitle',{ ns:'hotels_page', lng:req.language }),
-      daysBeforeDepartureTitle: i18next.t('daysBeforeDepartureTitle',{ ns:'hotels_page', lng:req.language }),
-      createdTitle: i18next.t('createdTitle',{ ns:'hotels_page', lng:req.language }),
-      lastUpdateTitle: i18next.t('lastUpdateTitle',{ ns:'hotels_page', lng:req.language }), 
-      addNew: i18next.t('addNew',{ ns:'hotels_page', lng:req.language }),
-      userModalTitle: i18next.t('addNew',{ ns:'hotels_page', lng:req.language }),
-      close: i18next.t('close',{ ns:'hotels_page', lng:req.language }),
-      saveChanges: i18next.t('saveChanges',{ ns:'hotels_page', lng:req.language }),
+      codeTitle: i18next.t('codeTitle',{ ns:'admin_hotels_page', lng:req.language }),
+      nameTitle: i18next.t('nameTitle',{ ns:'admin_hotels_page', lng:req.language }),
+      LogoTitle: i18next.t('LogoTitle',{ ns:'admin_hotels_page', lng:req.language }),
+      verificationTitle: i18next.t('verificationTitle',{ ns:'admin_hotels_page', lng:req.language }),
+      NoFreeCountTitle: i18next.t('NoFreeCountTitle',{ ns:'admin_hotels_page', lng:req.language }),
+      timeZoneTitle: i18next.t('timeZoneTitle',{ ns:'admin_hotels_page', lng:req.language }),
+      daysAfterArrivalTitle: i18next.t('daysAfterArrivalTitle',{ ns:'admin_hotels_page', lng:req.language }),
+      daysBeforeDepartureTitle: i18next.t('daysBeforeDepartureTitle',{ ns:'admin_hotels_page', lng:req.language }),
+      lastUpdateTitle: i18next.t('lastUpdateTitle',{ ns:'admin_hotels_page', lng:req.language }), 
+      createdTitle: i18next.t('createdTitle',{ ns:'admin_hotels_page', lng:req.language }),
+      activeTitle: i18next.t('activeTitle',{ ns:'admin_hotels_page', lng:req.language }), 
+      addNew: i18next.t('addNew',{ ns:'admin_hotels_page', lng:req.language }),
+      userModalTitle: i18next.t('addNew',{ ns:'admin_hotels_page', lng:req.language }),
+      close: i18next.t('close',{ ns:'admin_hotels_page', lng:req.language }),
+      add: i18next.t('add',{ ns:'admin_hotels_page', lng:req.language }),
+      birthDay: i18next.t('birthDay',{ ns:'admin_hotels_page', lng:req.language }),
+      departureDate: i18next.t('departureDate',{ ns:'admin_hotels_page', lng:req.language }),   
     },(error, html)=>{if(error)throw error.toString();res.send(html)});
   }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of admin.get('/statics', csrfProtection, (req,res)=>{})", {script: "admin.ts", scope: "login.get('/statics', csrfProtection, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })

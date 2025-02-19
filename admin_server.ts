@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import * as i18nextMiddleware from 'i18next-http-middleware';
 import { Request, Response } from 'express';
 import path from "path";
@@ -10,9 +10,11 @@ import i18next from './providers/i18n/i18n';
 import newLog from "./providers/logger/logger";
 import { locales } from "./providers/i18n/i18n";
 import { pool } from "./providers/mysqlProvider/mysqlProvider";
-import { errorPage, notFound } from "./helpers/herlpers";
+import { errorPage, notFound, RequestLargeError  } from "./helpers/admin_herlpers";
 
 export const admin = express();
+admin.use(express.json({limit: '5mb'}));
+admin.use((err:any, req:Request, res:Response, next:NextFunction) => RequestLargeError(err, res, next));
 
 const AdminMySQLStore = expressMySqlSession(expressSession);
 const AdminsessionStore = new AdminMySQLStore({
@@ -33,6 +35,15 @@ admin.use(session({
   }
 }));
 
+import adminScript from "./page/admin/admin";
+admin.use('/:lng/de-admin', adminScript);
+
+import api from "./api/admin/v1/api"
+admin.use('/api/v1', api);
+
+import adminHotelsApi from "./api/admin/v1/hotels"
+admin.use('/api/v1/hotels', adminHotelsApi);
+
 admin.set('view engine', 'ejs');
 admin.set('views', path.join(__dirname, 'page/admin'));
 admin.use(express.static(path.join(__dirname, 'public')));
@@ -47,11 +58,6 @@ admin.use((req, res, next) => {
   next();
 });
 
-import adminScript from "./page/admin/admin";
-admin.use('/:lng/de-admin', adminScript);
-
-import api from "./api/admin/v1/api"
-admin.use('/api/v1', api);
 
 admin.use(async (req: Request, res: Response): Promise<any> => notFound(req, res));
 

@@ -122,11 +122,9 @@ adminApi.get('/gethotels', csrfProtection, (req, res, next) => __awaiter(void 0,
         let result = yield (0, mysqlProvider_1.executeQuery)('CALL get_hotels(?)', [(_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.companyID]);
         if (!result || !result[0][0])
             return res.status(202).jsonp({ status: "error", errorText: i18n_1.default.t('updateUnsuccessfull', { ns: 'admin_page', lng: req.language }) });
-        console.log(result);
         const updatedData = result[0].map((item) => {
-            return Object.assign(Object.assign({}, item), { verification_text: item.verification_type === 0 ? i18n_1.default.t('birthDay', { ns: 'hotels_page', lng: req.language }) : i18n_1.default.t('departureDate', { ns: 'hotels_page', lng: req.language }) });
+            return Object.assign(Object.assign({}, item), { verification_text: item.verification_type === 0 ? i18n_1.default.t('birthDay', { ns: 'admin_hotels_page', lng: req.language }) : i18n_1.default.t('departureDate', { ns: 'admin_hotels_page', lng: req.language }) });
         });
-        console.log(updatedData);
         return res.status(200).jsonp(updatedData);
     }
     catch (error) {
