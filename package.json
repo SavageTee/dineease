@@ -15,6 +15,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/express-mysql-session": "^3.0.6",
     "@types/express-session": "^1.18.1",
+    "@types/joi": "^17.2.3",
     "@types/multer": "^1.4.12",
     "@types/mysql": "^2.15.26",
     "bcrypt": "^5.1.1",

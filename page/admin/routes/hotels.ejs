@@ -1,10 +1,9 @@
-
-
 <div id="toolbar">
   <button onclick="$('#add_new_hotel_modal').modal('show')" type="button" class="tw-text-white tw-flex tw-items-center tw-justify-center tw-bg-gray-800 hover:tw-bg-gray-900 focus:tw-outline-none focus:tw-ring-4 focus:tw-ring-gray-300 tw-font-medium tw-rounded-md tw-text-sm tw-px-5 tw-py-2.5 me-2 tw-mb-2 dark:tw-bg-gray-950 dark:hover:tw-bg-gray-700 dark:focus:tw-ring-gray-700 dark:tw-border-gray-700"> <div class="tw-px-1"><%= addNew %></div>  <i class="fa-solid tw-scale-110 fa-circle-plus"></i> </button>
 </div>
 
-<table class="table tw-border-2 table-bordered table-striped table-condensed" 
+<div class="tw-w-full tw-overflow-x-scroll tw-pb-80">
+<table class="table table-sm tw-border-2 table-bordered table-striped table-condensed" 
     id='hotels_table'
     data-toggle="table"
     data-ajax="ajaxRequest"
@@ -45,8 +44,7 @@
         </tr>
     </thead>
 </table>
-
-
+</div>
 
 <div id="add_new_hotel_modal" class="modal" tabindex="-1" role="dialog">
   <div class="modal-dialog tw-border-none" role="document">

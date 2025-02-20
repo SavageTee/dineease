@@ -739,6 +739,9 @@ video {
 .tw-overflow-y-hidden {
   overflow-y: hidden;
 }
+.tw-overflow-x-scroll {
+  overflow-x: scroll;
+}
 .tw-whitespace-nowrap {
   white-space: nowrap;
 }
@@ -963,9 +966,6 @@ video {
 .tw-p-4 {
   padding: 1rem;
 }
-.tw-p-5 {
-  padding: 1.25rem;
-}
 .tw-p-6 {
   padding: 1.5rem;
 }
@@ -1025,12 +1025,19 @@ video {
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
+.tw-py-5 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
 .tw-py-8 {
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
 .tw-pb-2 {
   padding-bottom: 0.5rem;
+}
+.tw-pb-80 {
+  padding-bottom: 20rem;
 }
 .tw-pl-3 {
   padding-left: 0.75rem;
@@ -1131,6 +1138,10 @@ video {
 .tw-text-blue-800 {
   --tw-text-opacity: 1;
   color: rgb(30 64 175 / var(--tw-text-opacity, 1));
+}
+.tw-text-darkModeBais {
+  --tw-text-opacity: 1;
+  color: rgb(30 30 30 / var(--tw-text-opacity, 1));
 }
 .tw-text-gray-500 {
   --tw-text-opacity: 1;
