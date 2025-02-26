@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,9 +45,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.goBack = exports.logErrorAndRespond = exports.reportErrorAndRespond = exports.ReportErrorAndRespondErrorPage = exports.ReportErrorAndRespondJsonGet = exports.errorPage = exports.notFound = exports.validateRequestBodyKeys = exports.validateContentType = void 0;
+exports.goBack = exports.logErrorAndRespond = exports.reportErrorAndRespond = exports.ReportErrorAndRespondErrorPage = exports.ReportErrorAndRespondJsonGet = exports.errorPage = exports.notFound = exports.validateRequestBodyKeys = exports.validateContentType = exports.getLanguage = void 0;
 const logger_1 = __importDefault(require("../providers/logger/logger"));
-const i18n_1 = __importDefault(require("../providers/i18n/i18n"));
+const i18n_1 = __importStar(require("../providers/i18n/i18n"));
+const getLanguage = (req) => {
+    var _a;
+    console.log((_a = req.headers['accept-language']) === null || _a === void 0 ? void 0 : _a.split(',')[0].split('-')[0]);
+    if (req.headers['accept-language'] && req.headers['accept-language'].split(',')[0].split('-')[0] && i18n_1.locales.includes(req.headers['accept-language'].split(',')[0].split('-')[0])) {
+        i18n_1.default.changeLanguage(req.headers['accept-language'].split(',')[0].split('-')[0]);
+        return req.headers['accept-language'].split(',')[0].split('-')[0];
+    }
+    else {
+        i18n_1.default.changeLanguage('en');
+        return 'en';
+    }
+};
+exports.getLanguage = getLanguage;
 const validateContentType = (req, res) => {
     if (req.headers['content-type'] !== "application/json") {
         res.status(400).jsonp({ status: 'error', origin: 'server', errorText: "Bad Request" });
@@ -43,7 +89,6 @@ const errorPage = (req, res, title, errorHeader, errorBody, copyError, goBack, s
     var _a;
     try {
         let uuid = (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID;
-        console.log(uuid);
         req.session.destroy(() => { });
         return res.render('error/index', {
             title: title,

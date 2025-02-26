@@ -5,7 +5,7 @@ import csrf from 'csurf';
 import cookieParser from 'cookie-parser';
 import i18next from "../../../providers/i18n/i18n"
 import {executeQuery} from "../../../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond, notFound, errorPage, validateContentType, validateRequestBodyKeys, reportErrorAndRespond, ReportErrorAndRespondJsonGet } from "../../../helpers/herlpers"
+import { logErrorAndRespond, validateContentType, validateRequestBodyKeys, reportErrorAndRespond, ReportErrorAndRespondJsonGet } from "../../../helpers/herlpers"
 
 const adminApi = express.Router()
 adminApi.use(express.json({limit: '1mb'}))
@@ -35,11 +35,14 @@ adminApi.post('/login', csrfProtection, async (req:Request, res:Response, next:N
     if (!validateContentType(req, res)) return;
     if (!validateRequestBodyKeys(req, res, ["username", "password"])) return;
     let result = await executeQuery('CALL admin_login(?, ?)',[req.body.username, req.session.adminData?.companyID]);
+    console.log(result)
     if(!(result as any) || !(result as any)[0][0]) return res.status(202).jsonp({status: "error", errorText: i18next.t('invalidCredentials',{ ns:'admin_login', lng:req.language })});
     let isMatch = await bcrypt.compare(req.body.password, (result as any)[0][0]['password']);
     if(isMatch){
-       req.session.adminData!['adminUser'] = (result as any)[0][0]['admin_users_id'];
-       return res.status(200).jsonp({status: "success"});}
+      req.session.adminData!['adminUser'] = (result as any)[0][0]['admin_users_id'];
+      req.session.adminData!.adminPermissions = {hotelsTab: (result as any)[0][0]['hotels_tab'] === 1 ? true : false};
+      return res.status(200).jsonp({status: "success"});
+    }
     return res.status(202).jsonp({status: "error", errorText: i18next.t('invalidCredentials',{ ns:'admin_login', lng:req.language })})
   }catch(error){logErrorAndRespond("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${error}`},req,res);}
 })

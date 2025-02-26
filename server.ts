@@ -8,7 +8,6 @@ import path from "path"
 import * as expressSession from "express-session";
 import expressMySqlSession from 'express-mysql-session'; 
 import session from 'express-session';
-
 import i18next from './providers/i18n/i18n';
 import newLog from "./providers/logger/logger"
 import {locales} from "./providers/i18n/i18n"
@@ -45,7 +44,7 @@ app.set('views', path.join(__dirname, 'page'))
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
     //return errorPage(req, res, 'this is the title','error header', "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum","COPY ERROR","GO BACK");
     if(req.method === 'POST' || req.url.includes('/api') || req.url.includes('favicon.ico')) return next();
     const urlParts = req.url.split('/');
@@ -54,16 +53,12 @@ app.use((req, res, next) => {
       return res.redirect(301, `/en${req.url}`); 
     }
     next();
-});
+});*/
 
-import language from "./pages/language/language"
-app.use('/:lng/language',language);
 
-/*import reservation from "./pages/reservation/reservation"
-app.use('/:lng/reservation', reservation);*/
 
 import reservation from "./page/reservation"
-app.use('/:lng/reservation', reservation);
+app.use('/reservation', reservation);
 
 import api from "./api/users/v1/api"
 app.use('/api/v1', api);

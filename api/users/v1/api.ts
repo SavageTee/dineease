@@ -116,7 +116,7 @@ api.post('/verifyroom', async (req:Request, res:Response, next:NextFunction):Pro
 function handleCancel(req:Request, res:Response){
     let apiUrl = req.session.data?.companyUUID === undefined ? '' : req.session.data?.companyUUID;
     req.session.destroy((_) =>{});
-    return res.redirect(`/en/reservation?id=${apiUrl}`)
+    return res.redirect(`/reservation?id=${apiUrl}`)
 }
 
 api.get('/cancelreservation',async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
@@ -156,7 +156,6 @@ api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunctio
       if((rows_names as any)[0][0] != undefined){
           let names:string[] = (rows_names as any)[0][0]['names'].split(' |-| ');
           const rows = await executeQuery('CALL get_available_date(?, ?, ?, ?)',[req.session.data?.restaurantID, req.session.data?.hotelID, req.body.desiredDate, req.session.data?.companyID]);
-          console.log((rows as any)[0])
           return res.status(200).jsonp({
             status: 'success',
             data: (rows as any)[0],
@@ -216,7 +215,6 @@ api.post('/validate', async (req:Request, res:Response, next:NextFunction):Promi
     if(req.session.data?.paid){
       if(userSelect['per_person'] === 1){
         totalAmount = Number(req.body.selectedNames.length) * Number(userSelect['price']);
-        console.log(totalAmount)
       }else{
         totalAmount = Number(((rows_get_available_dates as any)[0])['price'])
       }
@@ -240,7 +238,6 @@ api.post('/validate', async (req:Request, res:Response, next:NextFunction):Promi
         req.session.data?.paid 
       ]
     );
-    console.log((insert as any))
     if((insert as any)[0][0]['result'] === "alreadyReserved") return res.status(200).jsonp({ status: "alreadyReserved", errorText:  i18next.t('alreadyReserved',{ns: 'time', lng: req.language })})
     req.session.data!.qrCode = (insert as any)[0][0]['result'];
     return res.status(200).jsonp({ status: "success" })

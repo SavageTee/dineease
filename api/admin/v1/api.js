@@ -87,11 +87,13 @@ adminApi.post('/login', csrfProtection, (req, res, next) => __awaiter(void 0, vo
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["username", "password"]))
             return;
         let result = yield (0, mysqlProvider_1.executeQuery)('CALL admin_login(?, ?)', [req.body.username, (_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.companyID]);
+        console.log(result);
         if (!result || !result[0][0])
             return res.status(202).jsonp({ status: "error", errorText: i18n_1.default.t('invalidCredentials', { ns: 'admin_login', lng: req.language }) });
         let isMatch = yield bcrypt_1.default.compare(req.body.password, result[0][0]['password']);
         if (isMatch) {
             req.session.adminData['adminUser'] = result[0][0]['admin_users_id'];
+            req.session.adminData.adminPermissions = { hotelsTab: result[0][0]['hotels_tab'] === 1 ? true : false };
             return res.status(200).jsonp({ status: "success" });
         }
         return res.status(202).jsonp({ status: "error", errorText: i18n_1.default.t('invalidCredentials', { ns: 'admin_login', lng: req.language }) });

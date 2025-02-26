@@ -1,4 +1,13 @@
-<nav class="tw-w-full tw-z-20">
+<nav class="tw-bg-gray-100  dark:tw-bg-black tw-w-full tw-z-20 tw-top-0 tw-start-0 container-fluid">
+  <div class="tw-flex tw-py-2 tw-flex-nowrap tw-items-center tw-justify-end">
+      <button id="theme-toggle" class="tw-px-3 tw-py-3 tw-bg-gray-800 tw-text-white tw-rounded tw-flex tw-items-center tw-justify-center">
+        <i style="display: none;scale: 1.3;" id="sun-icon" class="fas fa-sun"></i>
+        <i style="display: none;scale: 1.3;" id="moon-icon" class="fas fa-moon"></i>
+      </button>
+  </div>
+</nav>
+
+<nav class="tw-w-full sticky-top tw-z-20 tw-border tw-border-black dark:tw-border-white">
     <ul style="height: 30px; text-align: center;" class="progress tw-w-full tw-flex tw-flex-nowrap">
       <li class="active activate"><span>HOTEL</span></li>
       <li class="active activate"><span>ROOM</span></li>
@@ -7,18 +16,20 @@
       <li class=""><span>CONFIRM</span></li>
     </ul>
 </nav>
-<div id="alert-border-1" class=" tw-mt-2 tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-blue-800 tw-border-t-4 tw-border-b-2 tw-border-blue-300 tw-bg-blue-50 dark:tw-text-blue-400 dark:tw-bg-gray-800 dark:tw-border-blue-800" role="alert">
-    <i class="fa-solid fa-circle-info"></i>
-    <div id="alert-text" class="tw-ms-3 tw-text-sm tw-font-medium">
-      <%= alertText %>
-    </div>
+
+<div id="alert-border-1" class=" tw-mt-2 tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-blue-800 tw-border-t-4 tw-border-b-2 tw-border-blue-300 tw-bg-blue-50 dark:tw-text-blue-800 dark:tw-bg-blue-100 dark:tw-border-blue-500" role="alert">
+  <i class="fa-solid fa-circle-info tw-scale-125"></i>
+  <div class="tw-ms-3 tw-text-sm tw-font-medium">
+    <%= alertText %>
+  </div>
 </div>
+
 <div id="restaurants-container" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-6 tw-p-4 tw-place-content-center tw-place-items-center">
     <% restaurants.forEach(restaurant => { %>   
       <% if (restaurant.isSelected === true) { %>
-      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800 selected-restaurant">
+      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto dark:tw-bg-black tw-bg-gray-400 tw-rounded-lg tw-shadow tw-border dark:tw-border-gray-300 tw-border-black selected-restaurant">
       <% } else { %>
-      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-rounded-lg tw-shadow tw-dark:bg-gray-800">
+      <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto dark:tw-bg-black tw-bg-gray-400 tw-rounded-lg tw-border dark:tw-border-gray-300 tw-border-black tw-shadow">
       <% } %>  
         <div className="tw-flex tw-flex-column tw-justify-center tw-items-center">
           <% if (!restaurant.photo) { %>
@@ -33,45 +44,58 @@
               alt="restaurant image">
           <% } %> 
         </div>
-        <div class="tw-p-2 tw-rounded-b-md tw-bg-gray-800 tw-text-center">
+        <div class="tw-p-2 tw-rounded-b-md tw-bg-gray-800 dark:tw-bg-slate-950 tw-text-center">
             <p class="tw-mb-1 tw-font-bold tw-text-xl tw-text-white tw-dark:text-gray-400"><%= restaurant.name %></p>
         </div>
-        <div class="tw-p-2 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-flex-nowrap tw-rounded-b-md tw-bg-gray-800 tw-justify-center tw-text-center tw-items-center">
+        <div class="tw-p-2 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-flex-nowrap tw-rounded-b-md tw-bg-gray-800 dark:tw-bg-slate-950 tw-justify-center tw-text-center tw-items-center">
           <%= restaurant.about %>
         </div>
-        <div class="tw-pt-2 tw-px-0 tw-mx-0 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-items-baseline tw-justify-evenly tw-rounded-b-md tw-bg-gray-800">
-          <div class="tw-inline-flex tw-items-baseline">
+        <div class="tw-border-t tw-py-2 tw-border-gray-300 tw-text-white tw-flex tw-items-center tw-justify-evenly tw-rounded-b-md tw-bg-gray-800 dark:tw-bg-slate-950">
+          <div class="tw-inline-flex tw-items-center tw-justify-center tw-align-middle">
             <i class="tw-text-green-500 fa-solid fa-user-group tw-text-lg"></i>
-            <p class="tw-font-bold tw-text-green-500 tw-text-lg"><%= restaurant.capacity %></p>     
+            <span class="tw-font-bold tw-text-green-500 tw-text-lg"><%= restaurant.capacity %></span>     
           </div>
-          <div class="tw-inline-flex tw-items-baseline">
-            <p class="tw-font-bold tw-text-green-500 tw-text-lg">#<%= restaurant.country %></p>     
-          </div>
-          <div class="tw-inline-flex tw-items-baseline">
-            <button onclick="viewMenu('<%= restaurant.restaurantID %>')" class="tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
-              <div id="view_menu_<%= restaurant.restaurantID %>">
-                <i class="tw-text-2xl fa-solid tw-px-1 fa-utensils"></i>
-                <span class="tw-px-2">View Menu</span>
-              </div>
-              <div style="display: none;" id="loader_modal_<%= restaurant.restaurantID %>" class="spinner-border spinner-border-sm  text-light" role="status"></div>
-            </button>
+          <div class="tw-inline-flex tw-items-center">
+            <span class="tw-font-bold tw-text-green-500 tw-text-lg">#<%= restaurant.country %></span>     
           </div>
         </div>
+        <div class="tw-p-2 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-flex-nowrap tw-rounded-b-md tw-bg-gray-800 dark:tw-bg-slate-950 tw-justify-center tw-text-center tw-items-center">
+            <% if (restaurant.menu_selection) { %>
+                  <button onclick="viewMenu('<%= restaurant.restaurantID %>')" class=" tw-w-full tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
+                    <div id="view_menu_<%= restaurant.restaurantID %>">
+                      <i class="tw-text-2xl fa-solid tw-px-1 fa-utensils"></i>
+                      <span class="tw-px-2"><%= orederBeforeBooking %></span>
+                    </div>
+                    <div style="display: none;" id="loader_modal_<%= restaurant.restaurantID %>" class="spinner-border spinner-border-sm  text-light" role="status"></div>
+                  </button>
+            <% } else { %>      
+                  <button onclick="viewMenu('<%= restaurant.restaurantID %>')" class=" tw-w-full tw-justify-center tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
+                    <div id="view_menu_<%= restaurant.restaurantID %>">
+                      <i class="tw-text-2xl fa-solid tw-px-1 fa-utensils"></i>
+                      <span class="tw-px-2"><%= viewMenu %></span>
+                    </div>
+                    <div style="display: none;" id="loader_modal_<%= restaurant.restaurantID %>" class="spinner-border spinner-border-sm  text-light" role="status"></div>
+                  </button>
+            <% } %>             
+        </div>
       </div>
+      
     <% }); %>
     </div>
     <br/>
     <br/>
     <br/>
 </div>
-<div class="tw-fixed tw-bg-white tw-bottom-0 tw-w-full tw-p-4 tw-shadow-lg tw-z-10">
-    <div id="selectError" style="display: none;" class="tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-red-blue-300 tw-bg-red-200 dark:tw-text-red-400 dark:tw-bg-gray-800 dark:tw-red-blue-800" role="alert">
-      <i class="fa-solid fa-circle-question"></i>
-      <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium">
-        <%= error %>
-      </div>
-    </div>
-    <div class="tw-w-full tw-flex tw-flex-nowrap tw-justify-around">
+
+<br/><br/><br/><br/>
+
+<div id="selectError" style="display: none;" class="tw-fixed tw-bottom-[calc(4rem+16px)] tw-left-0 tw-w-full tw-flex tw-items-center tw-p-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-border-red-300 tw-bg-red-200 tw-z-20" role="alert">
+  <i class="fa-solid fa-circle-question"></i>
+  <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium"></div>
+</div>  
+
+<div class="tw-fixed dark:tw-bg-gray-950 tw-bg-white tw-border-t tw-border-t-black dark:tw-border-t-gray-300 tw-bottom-0 tw-w-full tw-p-2 tw-shadow-lg tw-z-10">
+     <div class="tw-w-full tw-flex tw-flex-nowrap tw-justify-around">
       <button onclick="window.location.href='/api/v1/cancelreservation';" class="tw-p-3 tw-bg-red-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
         <div class="tw-flex tw-items-center tw-justify-center">
           <span class="tw-mr-2"><%= buttonTextExit %></span> 
@@ -87,6 +111,8 @@
       </button>
     </div>
 </div>
+
+
 <div class="modal fade tw-p-0 tw-m-0" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
       <div class="modal-content tw-p-0 tw-m-0">

@@ -16,7 +16,7 @@ i18next
     },
     ns: ['hotel', '404', 'server', 'room', 'restaurant', 'time', 'language', 'admin_login', 'confirm', 'admin_page', 'admin_hotels_page'],
     detection: {
-      order: ['path', 'header'], 
+      order: ['localStorage'], 
       caches: [],
       lookupFromPathIndex: 0,  
     },

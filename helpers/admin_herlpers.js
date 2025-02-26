@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.goBack = exports.logErrorAndRespond = exports.reportErrorAndRespond = exports.validateRequestBody = exports.RequestLargeError = exports.ReportErrorAndRespondErrorPage = exports.ReportErrorAndRespondJsonGet = exports.errorPage = exports.notFound = exports.validateRequestBodyKeys = exports.validateContentType = void 0;
+exports.goBack = exports.logErrorAndRespond = exports.reportErrorAndRespond = exports.validateRequestBody = exports.LimitFileSize = exports.RequestLargeError = exports.ReportErrorAndRespondErrorPage = exports.ReportErrorAndRespondJsonGet = exports.errorPage = exports.notFound = exports.validateRequestBodyKeys = exports.validateContentType = void 0;
 const logger_1 = __importDefault(require("../providers/logger/logger"));
 const i18n_1 = __importDefault(require("../providers/i18n/i18n"));
 const validateContentType = (req, res, contentType) => {
@@ -92,6 +92,17 @@ const RequestLargeError = (err, res, next) => {
     next(err);
 };
 exports.RequestLargeError = RequestLargeError;
+const LimitFileSize = (err, req, res, next, path) => {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(202).json({
+            status: 'error',
+            origin: 'fields',
+            errorText: [{ path: [path], message: 'Request Entity Too Large' }]
+        });
+    }
+    next(err);
+};
+exports.LimitFileSize = LimitFileSize;
 const validateRequestBody = (req, res, generateSchema, language, body) => {
     const result = generateSchema(language).validate(body);
     if (result.error) {

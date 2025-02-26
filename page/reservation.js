@@ -61,7 +61,8 @@ const checkIdParam = (req, res, next) => {
 };
 reservation.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return res.render('index', { title: i18n_1.default.t('title', { ns: 'language', lng: req.language }), }, (error, html) => { if (error)
+        let lng = (0, herlpers_1.getLanguage)(req);
+        return res.render('index', { title: i18n_1.default.t('title', { ns: 'language', lng: lng }), }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }
     catch (error) {
@@ -70,6 +71,7 @@ reservation.get('/', checkIdParam, (req, res, next) => __awaiter(void 0, void 0,
 }));
 reservation.get('/language', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    console.log(req.originalUrl);
     try {
         let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID]);
         if (rows[0][0] === undefined || rows[0][0] === null)
@@ -93,9 +95,10 @@ reservation.get('/language', (req, res, next) => __awaiter(void 0, void 0, void 
 }));
 reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_hotels(?)', [req.session.data.companyID]);
+        let lng = (0, herlpers_1.getLanguage)(req);
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_hotels(?, ?)', [req.session.data.companyID, 1]);
         if (rows[0][0] === undefined || rows[0][0] === null)
-            return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'hotel', lng: req.language }), i18n_1.default.t('errorBodyNoHotel', { ns: 'hotel', lng: req.language }));
+            return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'hotel', lng: lng }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'hotel', lng: lng }), i18n_1.default.t('errorBodyNoHotel', { ns: 'hotel', lng: lng }));
         const hotels = rows[0].map((row) => {
             var _a;
             return ({
@@ -107,11 +110,11 @@ reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, 
             });
         });
         return res.render('routes/hotel', {
-            alertText: i18n_1.default.t('alertText', { ns: 'hotel', lng: req.language }),
-            buttonText: i18n_1.default.t('buttonText', { ns: 'hotel', lng: req.language }),
+            alertText: i18n_1.default.t('alertText', { ns: 'hotel', lng: lng }),
+            buttonText: i18n_1.default.t('buttonText', { ns: 'hotel', lng: lng }),
             hotels: hotels,
-            error: i18n_1.default.t('noHotelSelectedError', { ns: 'hotel', lng: req.language }),
-            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'hotel', lng: req.language }),
+            error: i18n_1.default.t('noHotelSelectedError', { ns: 'hotel', lng: lng }),
+            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'hotel', lng: lng }),
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }
@@ -121,13 +124,14 @@ reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, 
 }));
 reservation.get('/room', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         return res.render('routes/room', {
-            title: i18n_1.default.t('title', { ns: 'room', lng: req.language }),
-            alertText: i18n_1.default.t('alertText', { ns: 'room', lng: req.language }),
-            buttonText: i18n_1.default.t('buttonText', { ns: 'room', lng: req.language }),
-            error: i18n_1.default.t('noHotelSelectedError', { ns: 'room', lng: req.language }),
-            confirmButton: i18n_1.default.t('confirmButton', { ns: 'room', lng: req.language }),
-            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'room', lng: req.language }),
+            title: i18n_1.default.t('title', { ns: 'room', lng: lng }),
+            alertText: i18n_1.default.t('alertText', { ns: 'room', lng: lng }),
+            buttonText: i18n_1.default.t('buttonText', { ns: 'room', lng: lng }),
+            error: i18n_1.default.t('noHotelSelectedError', { ns: 'room', lng: lng }),
+            confirmButton: i18n_1.default.t('confirmButton', { ns: 'room', lng: lng }),
+            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'room', lng: lng }),
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }
@@ -137,26 +141,30 @@ reservation.get('/room', (req, res, next) => __awaiter(void 0, void 0, void 0, f
 }));
 reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_restaurants(?)', [req.session.data.companyID]);
+        let lng = (0, herlpers_1.getLanguage)(req);
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_restaurants(?, ?, ?)', [req.session.data.companyID, 1, lng]);
         const restaurants = rows[0].map((row) => {
-            var _a;
+            var _a, _b, _c, _d, _e, _f;
             return ({
-                restaurantID: row['restaurants_id'].toString(),
-                name: row['name'].toString(),
-                country: row['country'].toString(),
+                restaurantID: (_a = row['restaurants_id']) !== null && _a !== void 0 ? _a : ''.toString(),
+                name: (_b = row['name']) !== null && _b !== void 0 ? _b : ''.toString(),
+                country: (_c = row['cuisine']) !== null && _c !== void 0 ? _c : ''.toString(),
                 photo: row['photo'] ? `data:image/jpeg;base64,${Buffer.from(row['photo'], 'utf-8').toString('base64')}` : null,
-                about: row['about'].toString(),
-                capacity: Number(row['capacity']),
-                isSelected: row['restaurants_id'].toString() === ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID),
+                about: (_d = row['about']) !== null && _d !== void 0 ? _d : ''.toString(),
+                capacity: Number((_e = row['capacity']) !== null && _e !== void 0 ? _e : '1'),
+                isSelected: row['restaurants_id'].toString() === ((_f = req.session.data) === null || _f === void 0 ? void 0 : _f.restaurantID),
+                menu_selection: row['menu_selection'] === 0 ? false : true,
             });
         });
         return res.render('routes/restaurant', {
-            title: i18n_1.default.t('title', { ns: 'restaurant', lng: req.language }),
-            alertText: i18n_1.default.t('alertText', { ns: 'restaurant', lng: req.language }),
-            buttonText: i18n_1.default.t('buttonText', { ns: 'restaurant', lng: req.language }),
-            error: i18n_1.default.t('noSelectedRestaurant', { ns: 'restaurant', lng: req.language }),
-            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'restaurant', lng: req.language }),
+            title: i18n_1.default.t('title', { ns: 'restaurant', lng: lng }),
+            alertText: i18n_1.default.t('alertText', { ns: 'restaurant', lng: lng }),
+            buttonText: i18n_1.default.t('buttonText', { ns: 'restaurant', lng: lng }),
+            error: i18n_1.default.t('noSelectedRestaurant', { ns: 'restaurant', lng: lng }),
+            buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'restaurant', lng: lng }),
             restaurants: restaurants,
+            viewMenu: i18n_1.default.t('viewMenu', { ns: 'restaurant', lng: lng }),
+            orederBeforeBooking: i18n_1.default.t('orederBeforeBooking', { ns: 'restaurant', lng: lng }),
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }
@@ -167,26 +175,27 @@ reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, voi
 reservation.get('/time', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         const rows_arrival_departure = yield (0, mysqlProvider_1.executeQuery)('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
         let dates = rows_arrival_departure[0][0];
         const start_date = new Date(dates['start_date']);
         const end_date = new Date(dates['end_date']);
         if (start_date > end_date) {
-            return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }), i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: req.language }), i18n_1.default.t('errorDepartureBody', { ns: 'time', lng: req.language }), i18n_1.default.t('copyError', { ns: 'time', lng: req.language }), i18n_1.default.t('goBack', { ns: 'time', lng: req.language }), true);
+            return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: lng }), i18n_1.default.t('errorDepartureHead', { ns: 'time', lng: lng }), i18n_1.default.t('errorDepartureBody', { ns: 'time', lng: lng }), i18n_1.default.t('copyError', { ns: 'time', lng: lng }), i18n_1.default.t('goBack', { ns: 'time', lng: lng }), true);
         }
         else {
             return res.render('routes/time', {
-                title: i18n_1.default.t('title', { ns: 'time', lng: req.language }),
-                alertText: i18n_1.default.t('alertText', { ns: 'time', lng: req.language }),
-                buttonText: i18n_1.default.t('buttonText', { ns: 'time', lng: req.language }),
-                error: i18n_1.default.t('noSelectedRestaurant', { ns: 'time', lng: req.language }),
-                buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'time', lng: req.language }),
+                title: i18n_1.default.t('title', { ns: 'time', lng: lng }),
+                alertText: i18n_1.default.t('alertText', { ns: 'time', lng: lng }),
+                buttonText: i18n_1.default.t('buttonText', { ns: 'time', lng: lng }),
+                error: i18n_1.default.t('noSelectedRestaurant', { ns: 'time', lng: lng }),
+                buttonTextExit: i18n_1.default.t('buttonTextExit', { ns: 'time', lng: lng }),
                 startDate: dates['start_date'],
                 endDate: dates['end_date'],
                 paid: (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.paid,
-                tableHeader: `${i18n_1.default.t('tableHeader', { ns: 'time', lng: req.language })} ${dates['tz']}`,
+                tableHeader: `${i18n_1.default.t('tableHeader', { ns: 'time', lng: lng })} ${dates['tz']}`,
                 roomNumber: req.session.data.roomNumber,
-                selectYourDate: i18n_1.default.t('selectYourDate', { ns: 'time', lng: req.language }),
+                selectYourDate: i18n_1.default.t('selectYourDate', { ns: 'time', lng: lng }),
             }, (error, html) => { if (error)
                 throw error.toString(); res.send(html); });
         }
@@ -198,6 +207,7 @@ reservation.get('/time', (req, res, next) => __awaiter(void 0, void 0, void 0, f
 reservation.get('/confirm', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_confirm_qr(?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.qrCode]);
         if (rows[0][0] === undefined || rows[0][0] === null)
             return (0, herlpers_1.notFound)(req, res);
@@ -218,33 +228,32 @@ reservation.get('/confirm', (req, res, next) => __awaiter(void 0, void 0, void 0
             logo: rows[0][0]['logo'],
             tz: rows[0][0]['tz'],
         };
-        console.log(confirmResult);
         return res.render('routes/confirm', {
-            title: i18n_1.default.t('title', { ns: 'restaurant', lng: req.language }),
+            title: i18n_1.default.t('title', { ns: 'restaurant', lng: lng }),
             companyName: confirmResult.companyName,
             companyLogo: `data:image/jpeg;base64,${Buffer.from(confirmResult.logo, 'utf-8').toString('base64')}`,
             qrCOde: (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.qrCode,
-            hotelHeader: i18n_1.default.t('hotelHeader', { ns: 'confirm', lng: req.language }),
-            paxHeader: i18n_1.default.t('paxHeader', { ns: 'confirm', lng: req.language }),
-            roomNumberHeader: i18n_1.default.t('roomNumberHeader', { ns: 'confirm', lng: req.language }),
+            hotelHeader: i18n_1.default.t('hotelHeader', { ns: 'confirm', lng: lng }),
+            paxHeader: i18n_1.default.t('paxHeader', { ns: 'confirm', lng: lng }),
+            roomNumberHeader: i18n_1.default.t('roomNumberHeader', { ns: 'confirm', lng: lng }),
             hotel: confirmResult.hotelName,
             roomNumber: confirmResult.roomNumber,
             pax: confirmResult.pax,
-            restaurantHeader: i18n_1.default.t('restaurantHeader', { ns: 'confirm', lng: req.language }),
-            dateHeader: i18n_1.default.t('dateHeader', { ns: 'confirm', lng: req.language }),
-            timeHeader: i18n_1.default.t('timeHeader', { ns: 'confirm', lng: req.language }),
+            restaurantHeader: i18n_1.default.t('restaurantHeader', { ns: 'confirm', lng: lng }),
+            dateHeader: i18n_1.default.t('dateHeader', { ns: 'confirm', lng: lng }),
+            timeHeader: i18n_1.default.t('timeHeader', { ns: 'confirm', lng: lng }),
             restaurant: confirmResult.restaurant,
             date: confirmResult.day,
             time: confirmResult.time,
-            guestsHeader: i18n_1.default.t('guestsHeader', { ns: 'confirm', lng: req.language }),
+            guestsHeader: i18n_1.default.t('guestsHeader', { ns: 'confirm', lng: lng }),
             guests: confirmResult.names.split(' |-| '),
             createdAt: confirmResult.createdAt,
-            paymentHeader: i18n_1.default.t('paymentHeader', { ns: 'confirm', lng: req.language }),
-            freeHeader: i18n_1.default.t('freeHeader', { ns: 'confirm', lng: req.language }),
+            paymentHeader: i18n_1.default.t('paymentHeader', { ns: 'confirm', lng: lng }),
+            freeHeader: i18n_1.default.t('freeHeader', { ns: 'confirm', lng: lng }),
             paid: confirmResult.paid === 1 ? true : false,
             totalAmmount: confirmResult.totalAmmount,
             currency: confirmResult.currency,
-            timeZone: `${i18n_1.default.t('timeZoneMessage', { ns: 'confirm', lng: req.language })}${confirmResult.tz}`
+            timeZone: `${i18n_1.default.t('timeZoneMessage', { ns: 'confirm', lng: lng })}${confirmResult.tz}`
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }

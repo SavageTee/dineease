@@ -187,7 +187,7 @@ function handleCancel(req, res) {
     var _a, _b;
     let apiUrl = ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID) === undefined ? '' : (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyUUID;
     req.session.destroy((_) => { });
-    return res.redirect(`/en/reservation?id=${apiUrl}`);
+    return res.redirect(`/reservation?id=${apiUrl}`);
 }
 api.get('/cancelreservation', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -237,7 +237,6 @@ api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void
         if (rows_names[0][0] != undefined) {
             let names = rows_names[0][0]['names'].split(' |-| ');
             const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_available_date(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.desiredDate, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID]);
-            console.log(rows[0]);
             return res.status(200).jsonp({
                 status: 'success',
                 data: rows[0],
@@ -311,7 +310,6 @@ api.post('/validate', (req, res, next) => __awaiter(void 0, void 0, void 0, func
         if ((_o = req.session.data) === null || _o === void 0 ? void 0 : _o.paid) {
             if (userSelect['per_person'] === 1) {
                 totalAmount = Number(req.body.selectedNames.length) * Number(userSelect['price']);
-                console.log(totalAmount);
             }
             else {
                 totalAmount = Number((rows_get_available_dates[0])['price']);
@@ -334,7 +332,6 @@ api.post('/validate', (req, res, next) => __awaiter(void 0, void 0, void 0, func
             ((_v = req.session.data) === null || _v === void 0 ? void 0 : _v.paid) ? userSelect['exchange_rate'] : null,
             (_w = req.session.data) === null || _w === void 0 ? void 0 : _w.paid
         ]);
-        console.log(insert);
         if (insert[0][0]['result'] === "alreadyReserved")
             return res.status(200).jsonp({ status: "alreadyReserved", errorText: i18n_1.default.t('alreadyReserved', { ns: 'time', lng: req.language }) });
         req.session.data.qrCode = insert[0][0]['result'];

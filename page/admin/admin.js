@@ -102,7 +102,7 @@ admin.get('/login', csrfProtection, (req, res, next) => __awaiter(void 0, void 0
     }
 }));
 admin.get('/dashboard', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [(_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.companyUUID]);
         if (rows[0][0] === undefined || rows[0][0] === null)
@@ -144,6 +144,7 @@ admin.get('/dashboard', csrfProtection, (req, res, next) => __awaiter(void 0, vo
             isAdminTitle: i18n_1.default.t('isAdminTitle', { ns: 'admin_page', lng: req.language }),
             hotels: i18n_1.default.t('hotels', { ns: 'admin_page', lng: req.language }),
             statics: i18n_1.default.t('statics', { ns: 'admin_page', lng: req.language }),
+            permissions: (_c = req.session.adminData) === null || _c === void 0 ? void 0 : _c.adminPermissions
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }

@@ -91,6 +91,7 @@ admin.get('/dashboard', csrfProtection, async (req:Request, res:Response, next:N
         isAdminTitle: i18next.t('isAdminTitle',{ ns:'admin_page', lng:req.language }),
         hotels: i18next.t('hotels',{ ns:'admin_page', lng:req.language }),
         statics: i18next.t('statics',{ ns:'admin_page', lng:req.language }),
+        permissions: req.session.adminData?.adminPermissions  
       },(error, html)=>{if(error)throw error.toString();res.send(html)})
     }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of admin.get('/dashboard', csrfProtection, (req,res)=>{})", {script: "admin.ts", scope: "admin.get('/dashboard', csrfProtection, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
@@ -127,7 +128,7 @@ admin.get('/hotels', csrfProtection, async (req:Request, res:Response, next:Next
       close: i18next.t('close',{ ns:'admin_hotels_page', lng:req.language }),
       add: i18next.t('add',{ ns:'admin_hotels_page', lng:req.language }),
       birthDay: i18next.t('birthDay',{ ns:'admin_hotels_page', lng:req.language }),
-      departureDate: i18next.t('departureDate',{ ns:'admin_hotels_page', lng:req.language }),   
+      departureDate: i18next.t('departureDate',{ ns:'admin_hotels_page', lng:req.language }),  
     },(error, html)=>{if(error)throw error.toString();res.send(html)});
   }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of admin.get('/statics', csrfProtection, (req,res)=>{})", {script: "admin.ts", scope: "login.get('/statics', csrfProtection, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })

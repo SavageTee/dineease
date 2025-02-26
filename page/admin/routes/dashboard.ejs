@@ -40,10 +40,12 @@
     <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium"></div>
   </div>
 
+  
+
   <div class="tw-flex tw-h-screen tw-pt-0 tw-mt-0">
     <!-- Sidebar -->
     <aside id="sidebar" class="tw-border-r-gray-400 tw-overflow-hidden dark:tw-bg-darkModeBais tw-w-0 tw-transition-all tw-duration-500 tw-bg-gray-100 tw-border-gray-200 dark:tw-border-gray-700">
-     
+
       <div class="tw-p-2 tw-flex tw-justify-center tw-items-center">
           <button id="statics_page" class="tw-w-full tw-flex tw-items-center tw-p-2 tw-text-gray-900 tw-rounded-lg dark:tw-text-white hover:tw-bg-gray-100 dark:hover:tw-bg-gray-800 tw-transition tw-duration-300 tw-ease-in-out">
             <i class="fas fa-chart-line tw-w-5 tw-h-5 tw-text-gray-500 tw-transition tw-duration-75 dark:tw-text-gray-400 group-hover:tw-text-gray-900 dark:group-hover:tw-text-white"></i>
@@ -51,13 +53,16 @@
           </button>
        </div>
 
-      <div class="tw-p-1 tw-flex tw-justify-center tw-items-center">
-        <button id="hotels_page" class="tw-w-full tw-flex tw-items-center tw-p-2 tw-text-gray-900 tw-rounded-lg dark:tw-text-white hover:tw-bg-gray-100 dark:hover:tw-bg-gray-800 tw-transition tw-duration-300 tw-ease-in-out">
-          <i class="fas fa-hotel tw-w-5 tw-h-5 tw-text-gray-500 tw-transition tw-duration-75 dark:tw-text-gray-400 group-hover:tw-text-gray-900 dark:group-hover:tw-text-white"></i>
-          <span class="tw-ml-3 tw-font-medium"><%= hotels %></span>
-        </button>
-     </div>
-     
+
+      <% if (permissions['hotelsTab'] === true) { %>
+        <div class="tw-p-1 tw-flex tw-justify-center tw-items-center">
+          <button id="hotels_page" class="tw-w-full tw-flex tw-items-center tw-p-2 tw-text-gray-900 tw-rounded-lg dark:tw-text-white hover:tw-bg-gray-100 dark:hover:tw-bg-gray-800 tw-transition tw-duration-300 tw-ease-in-out">
+            <i class="fas fa-hotel tw-w-5 tw-h-5 tw-text-gray-500 tw-transition tw-duration-75 dark:tw-text-gray-400 group-hover:tw-text-gray-900 dark:group-hover:tw-text-white"></i>
+            <span class="tw-ml-3 tw-font-medium"><%= hotels %></span>
+          </button>
+       </div>
+      <% } %> 
+
     </aside>
     <!-- Main Content -->
     <div id="main_content_dashboard" class="tw-w-full tw-mx-0 tw-py-5 tw-overflow-auto tw-items-center tw-bg-gray-200 dark:tw-bg-darkmodeBg">

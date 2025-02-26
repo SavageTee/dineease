@@ -1,7 +1,18 @@
 import newLog from "../providers/logger/logger"
 import {Response, Request,NextFunction} from "express"
-import i18next from "../providers/i18n/i18n"
+import i18next, {locales} from "../providers/i18n/i18n"
 import * as Joi from "joi"
+
+export const getLanguage = (req: Request) => { 
+    console.log(req.headers['accept-language']?.split(',')[0].split('-')[0])
+    if( req.headers['accept-language'] && req.headers['accept-language'].split(',')[0].split('-')[0] && locales.includes(req.headers['accept-language'].split(',')[0].split('-')[0]) ){
+        i18next.changeLanguage(req.headers['accept-language'].split(',')[0].split('-')[0]);
+        return req.headers['accept-language'].split(',')[0].split('-')[0]
+    }else{
+        i18next.changeLanguage('en');
+        return 'en';
+    }
+}
 
 export const validateContentType = (req: Request, res: Response) => {
     if (req.headers['content-type'] !== "application/json") {
@@ -25,11 +36,9 @@ export const notFound = async (req:Request, res:Response) => res.render('404/ind
     errorBody: i18next.t('errorBody',{ns: '404', lng: req.language }),
 })
 
-
 export const errorPage = (req:Request, res:Response, title:string, errorHeader:string, errorBody:string, copyError?:string, goBack?:string, showErrorScript?:boolean) =>{
     try{
         let uuid = req.session.data?.companyUUID;
-        console.log(uuid)
         req.session.destroy(()=>{});
         return res.render('error/index',{
             title: title,

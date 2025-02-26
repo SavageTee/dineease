@@ -459,6 +459,9 @@ video {
 .tw-bottom-0 {
   bottom: 0px;
 }
+.tw-bottom-\[calc\(4rem\+16px\)\] {
+  bottom: calc(4rem + 16px);
+}
 .tw-left-0 {
   left: 0px;
 }
@@ -591,6 +594,9 @@ video {
 .tw-h-\[0\.025vh\] {
   height: 0.025vh;
 }
+.tw-h-\[12\.5vh\] {
+  height: 12.5vh;
+}
 .tw-h-full {
   height: 100%;
 }
@@ -693,9 +699,6 @@ video {
 .tw-items-center {
   align-items: center;
 }
-.tw-items-baseline {
-  align-items: baseline;
-}
 .tw-justify-start {
   justify-content: flex-start;
 }
@@ -774,6 +777,9 @@ video {
 .tw-border {
   border-width: 1px;
 }
+.tw-border-0 {
+  border-width: 0px;
+}
 .tw-border-2 {
   border-width: 2px;
 }
@@ -826,6 +832,10 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(17 24 39 / var(--tw-border-opacity, 1));
 }
+.tw-border-red-300 {
+  --tw-border-opacity: 1;
+  border-color: rgb(252 165 165 / var(--tw-border-opacity, 1));
+}
 .tw-border-red-500 {
   --tw-border-opacity: 1;
   border-color: rgb(239 68 68 / var(--tw-border-opacity, 1));
@@ -849,6 +859,10 @@ video {
 .tw-border-r-gray-400 {
   --tw-border-opacity: 1;
   border-right-color: rgb(156 163 175 / var(--tw-border-opacity, 1));
+}
+.tw-border-t-black {
+  --tw-border-opacity: 1;
+  border-top-color: rgb(0 0 0 / var(--tw-border-opacity, 1));
 }
 .tw-bg-black {
   --tw-bg-opacity: 1;
@@ -943,10 +957,6 @@ video {
 .tw-object-cover {
   -o-object-fit: cover;
      object-fit: cover;
-}
-.tw-object-fill {
-  -o-object-fit: fill;
-     object-fit: fill;
 }
 .tw-p-0 {
   padding: 0px;
@@ -1080,6 +1090,10 @@ video {
   font-size: 1.875rem;
   line-height: 2.25rem;
 }
+.tw-text-4xl {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+}
 .tw-text-7xl {
   font-size: 4.5rem;
   line-height: 1;
@@ -1195,6 +1209,10 @@ video {
   --tw-text-opacity: 1;
   color: rgb(30 41 59 / var(--tw-text-opacity, 1));
 }
+.tw-text-slate-900 {
+  --tw-text-opacity: 1;
+  color: rgb(15 23 42 / var(--tw-text-opacity, 1));
+}
 .tw-text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
@@ -1278,7 +1296,7 @@ html.tw-dark body::after {
   background-blend-mode: darken;
   background: url('/images/texture.png') repeat;
   background-size:auto;
-  opacity: 0.3;
+  opacity: 0.2;
   top: 0;
   left: 0;
   bottom: 0;
@@ -1297,7 +1315,7 @@ html.tw-dark body::after {
 }
 
 .selected_restaurant {
-  border: 3px solid green;
+  border-color: green;
   box-shadow: 0 0 10px green;
 }
 .selected_restaurant #name_holder {
@@ -2036,6 +2054,16 @@ ul.progress li.active:after {
   border-color: rgb(30 64 175 / var(--tw-border-opacity, 1));
 }
   
+  .dark\:tw-border-gray-300:is(.tw-dark *) {
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
+}
+  
+  .dark\:tw-border-gray-400:is(.tw-dark *) {
+  --tw-border-opacity: 1;
+  border-color: rgb(156 163 175 / var(--tw-border-opacity, 1));
+}
+  
   .dark\:tw-border-gray-600:is(.tw-dark *) {
   --tw-border-opacity: 1;
   border-color: rgb(75 85 99 / var(--tw-border-opacity, 1));
@@ -2054,6 +2082,11 @@ ul.progress li.active:after {
   .dark\:tw-border-white:is(.tw-dark *) {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
+}
+  
+  .dark\:tw-border-t-gray-300:is(.tw-dark *) {
+  --tw-border-opacity: 1;
+  border-top-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
 }
   
   .dark\:tw-border-t-gray-950:is(.tw-dark *) {
@@ -2109,6 +2142,11 @@ ul.progress li.active:after {
   .dark\:tw-bg-gray-950:is(.tw-dark *) {
   --tw-bg-opacity: 1;
   background-color: rgb(3 7 18 / var(--tw-bg-opacity, 1));
+}
+  
+  .dark\:tw-bg-slate-950:is(.tw-dark *) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(2 6 23 / var(--tw-bg-opacity, 1));
 }
   
   .dark\:tw-text-blue-400:is(.tw-dark *) {

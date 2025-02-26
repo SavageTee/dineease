@@ -1,0 +1,10 @@
+{
+    "titleNoHotel": "لم يتم العثور على شيء",
+    "errorHeaderNoHotel": "حدث خطأ",
+    "errorBodyNoHotel": "لم يتم العثور على أي فنادق في هذه اللحظة",
+    "title": "اختر فندقًا",
+    "alertText": "يرجى اختيار الفندق الذي تقيم فيه، ثم الضغط على 'متابعة' للمتابعة.",
+    "buttonText": "متابعة",
+    "noHotelSelectedError": "يرجى اختيار فندق أولاً للمتابعة",
+    "buttonTextExit": "إلغاء الحجز"
+ }

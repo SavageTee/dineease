@@ -27,9 +27,10 @@ declare global {
     type restaurant = {
         restaurantID: string,
         name: string,
-        country:string;
+        cuisine:string;
         photo: any | undefined,
         about: string,
+        menu_selection:boolean;
         capacity:number,
     }
 
@@ -59,6 +60,10 @@ declare global {
         logo:any|undefined,
         tz:string;
     }
+
+    type adminPermissions = {
+        hotelsTab: boolean; 
+    }
 }
 
 declare module 'express-session' {
@@ -80,6 +85,7 @@ declare module 'express-session' {
             companyUUID?: string;
             companyID?: string;
             adminUser?: string;
+            adminPermissions?: adminPermissions;
             [key: string]: any; 
         };
     }

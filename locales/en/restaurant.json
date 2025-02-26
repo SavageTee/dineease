@@ -3,5 +3,7 @@
     "alertText": "Choose Your Dining Experience! then press 'Continue' to proceed.",
     "buttonText": "Continue",
     "buttonTextExit": "Cancel reservation",
-    "noSelectedRestaurant": "please select a restaurant first, to continue."
+    "noSelectedRestaurant": "please select a restaurant first, to continue.",
+    "viewMenu": "View Menu",
+    "orederBeforeBooking": "Order Before Booking From Menu, Take a look now and after confirming the boking you will choose your items"
 }

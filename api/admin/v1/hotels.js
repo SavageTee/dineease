@@ -63,7 +63,7 @@ const storage = multer_1.default.diskStorage({
 });
 const upload = (0, multer_1.default)({
     storage: storage,
-    limits: { fileSize: 7 * 1024 * 1024 },
+    limits: { fileSize: Number(process.env.MULTER_HOTEL_LOGO_FILE_SIZE_MB) * 1024 * 1024 },
 });
 const readFileAsync = (0, util_1.promisify)(fs_1.default.readFile);
 adminHotelsApi.post('/addnewhotel', csrfProtection, upload.single('logo'), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -78,8 +78,8 @@ adminHotelsApi.post('/addnewhotel', csrfProtection, upload.single('logo'), (req,
         let buffer = null;
         if (req.file) {
             buffer = yield readFileAsync(req.file.path);
-            fs_1.default.unlink(req.file.path, (err) => { if (err)
-                console.error('Error deleting file:', err); });
+            console.log(req.file.path);
+            fs_1.default.promises.unlink(req.file.path);
         }
         let result = yield (0, mysqlProvider_1.executeQuery)('CALL create_hotel(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [req.body.name, buffer, req.body.verification, req.body.free_count, req.body.time_zone, req.body.plus_days_adjust, req.body.minus_days_adjust, req.body.active, (_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.companyID, (_b = req.session.adminData) === null || _b === void 0 ? void 0 : _b.adminUser]);
         if (!result || !result[0][0])
@@ -90,4 +90,5 @@ adminHotelsApi.post('/addnewhotel', csrfProtection, upload.single('logo'), (req,
         (0, admin_herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH adminApi.post('/addnewhotel', (req,res)=>{})", { script: "api.ts", scope: "adminApi.post('/addnewhotel', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
+adminHotelsApi.use((err, req, res, next) => (0, admin_herlpers_1.LimitFileSize)(err, req, res, next, 'logo'));
 exports.default = adminHotelsApi;

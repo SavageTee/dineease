@@ -56,7 +56,6 @@ const express_mysql_session_1 = __importDefault(require("express-mysql-session")
 const express_session_1 = __importDefault(require("express-session"));
 const i18n_1 = __importDefault(require("./providers/i18n/i18n"));
 const logger_1 = __importDefault(require("./providers/logger/logger"));
-const i18n_2 = require("./providers/i18n/i18n");
 const mysqlProvider_1 = require("./providers/mysqlProvider/mysqlProvider");
 const herlpers_1 = require("./helpers/herlpers");
 const admin_server_1 = require("./admin_server");
@@ -83,23 +82,18 @@ app.use((0, express_session_1.default)({
 app.set('view engine', 'ejs');
 app.set('views', path_1.default.join(__dirname, 'page'));
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
     //return errorPage(req, res, 'this is the title','error header', "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum","COPY ERROR","GO BACK");
-    if (req.method === 'POST' || req.url.includes('/api') || req.url.includes('favicon.ico'))
-        return next();
+    if(req.method === 'POST' || req.url.includes('/api') || req.url.includes('favicon.ico')) return next();
     const urlParts = req.url.split('/');
     const language = urlParts[1];
-    if (!language || !i18n_2.locales.includes(language)) {
-        return res.redirect(301, `/en${req.url}`);
+    if (!language || !locales.includes(language)) {
+      return res.redirect(301, `/en${req.url}`);
     }
     next();
-});
-const language_1 = __importDefault(require("./pages/language/language"));
-app.use('/:lng/language', language_1.default);
-/*import reservation from "./pages/reservation/reservation"
-app.use('/:lng/reservation', reservation);*/
+});*/
 const reservation_1 = __importDefault(require("./page/reservation"));
-app.use('/:lng/reservation', reservation_1.default);
+app.use('/reservation', reservation_1.default);
 const api_1 = __importDefault(require("./api/users/v1/api"));
 app.use('/api/v1', api_1.default);
 app.use((req, res) => __awaiter(void 0, void 0, void 0, function* () { return (0, herlpers_1.notFound)(req, res); }));

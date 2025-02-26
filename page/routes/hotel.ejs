@@ -1,4 +1,4 @@
-<nav class="tw-bg-gray-100 dark:tw-bg-black tw-w-full tw-z-20 tw-top-0 tw-start-0 container-fluid">
+<nav class="tw-bg-gray-100  dark:tw-bg-black tw-w-full tw-z-20 tw-top-0 tw-start-0 container-fluid">
   <div class="tw-flex tw-py-2 tw-flex-nowrap tw-items-center tw-justify-end">
       <button id="theme-toggle" class="tw-px-3 tw-py-3 tw-bg-gray-800 tw-text-white tw-rounded tw-flex tw-items-center tw-justify-center">
         <i style="display: none;scale: 1.3;" id="sun-icon" class="fas fa-sun"></i>
@@ -6,7 +6,7 @@
       </button>
   </div>
 </nav>
-<nav class="tw-w-full tw-z-20 tw-border tw-border-black dark:tw-border-white">
+<nav class="tw-w-full sticky-top tw-z-20 tw-border tw-border-black dark:tw-border-white">
     <ul style="height: 30px; text-align: center;" class="progress tw-w-full tw-flex tw-flex-nowrap">
       <li class="active"><span>HOTEL</span></li>
       <li class=""><span>ROOM</span></li>
@@ -25,24 +25,24 @@
 <div id="hotels-container" class="tw-grid tw-grid-cols-2 sm:tw-grid-cols-3 lg:tw-grid-cols-4 tw-gap-6 tw-p-4 tw-place-content-center tw-place-items-center">
   <% hotels.forEach(hotel => { %>   
     <% if (hotel.isSelected === true) { %>
-    <div id="<%= hotel.hotelID %>" onclick="selectHotel(this,'<%= hotel.hotelID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-border tw-border-black dark:tw-border-white tw-rounded-lg tw-shadow  selected_hotel">
+    <div id="<%= hotel.hotelID %>" onclick="selectHotel(this,'<%= hotel.hotelID %>')" class="rounded tw-w-full tw-mt-auto tw-bg-gray-400 tw-border tw-border-black dark:tw-border-gray-400 tw-rounded-lg tw-shadow selected_hotel">
     <% } else { %>
-    <div id="<%= hotel.hotelID %>" onclick="selectHotel(this,'<%= hotel.hotelID %>')" class="rounded tw-max-w-sm tw-mt-auto tw-bg-gray-400 tw-border tw-border-black dark:tw-border-white tw-rounded-lg tw-shadow">
+    <div id="<%= hotel.hotelID %>" onclick="selectHotel(this,'<%= hotel.hotelID %>')" class="rounded tw-w-full tw-mt-auto tw-bg-gray-400 tw-border tw-border-black dark:tw-border-gray-400 tw-rounded-lg tw-shadow">
     <% } %>  
-      <a class="tw-flex tw-justify-center tw-items-center">          
+      <div class="tw-flex tw-justify-center tw-h-[12.5vh] tw-overflow-hidden tw-items-center">          
         <% if (!hotel.logo) { %>
           <img 
-            class="tw-rounded-t-lg tw-object-fill" 
+            class="tw-rounded-t-lg object-fit-cover" 
             src="/images/noimage.jpg" 
             alt="no image">
         <% } else { %>
           <img 
-            class="tw-rounded-t-lg tw-object-fill" 
+            class="tw-rounded-t-lg object-fit-cover" 
             src="<%= hotel.logo %>" 
             alt="hotel image">
         <% } %>     
-      </a>
-      <div id="name_holder" class="tw-p-2 tw-rounded-b-md tw-text-black tw-bg-gray-100 dark:tw-bg-black dark:tw-text-white tw-text-center">
+      </div>
+      <div id="name_holder" class="tw-p-2 container-fluid tw-rounded-b-md tw-text-black tw-bg-gray-100 dark:tw-bg-slate-950 dark:tw-text-white tw-text-center">
         <p class="tw-mb-1 tw-font-medium">
           <%= hotel.name %> 
         </p>
@@ -52,11 +52,12 @@
 </div>
 </div>
 
-  <div class="tw-fixed tw-bottom-0 tw-w-full tw-p-4 tw-shadow-lg tw-z-10">
-    <div id="selectError" style="display: none;" class="tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-red-blue-300 tw-bg-red-200 dark:tw-text-red-400 dark:tw-bg-gray-800 dark:tw-red-blue-800" role="alert">
-      <i class="fa-solid fa-circle-question"></i>
-      <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium"></div>
-    </div>
+<br/><br/><br/><br/>
+<div id="selectError" style="display: none;" class="tw-fixed tw-bottom-[calc(4rem+16px)] tw-left-0 tw-w-full tw-flex tw-items-center tw-p-4 tw-text-red-800 tw-border-t-4 tw-border-b-2 tw-border-red-300 tw-bg-red-200 tw-z-20" role="alert">
+  <i class="fa-solid fa-circle-question"></i>
+  <div id="errorAlert" class="tw-ms-3 tw-text-sm tw-font-medium"></div>
+</div>  
+  <div class="tw-fixed dark:tw-bg-gray-950 tw-bg-white tw-border-t tw-border-t-black dark:tw-border-t-gray-300 tw-bottom-0 tw-w-full tw-p-2 tw-shadow-lg tw-z-10">
     <div class="tw-w-full tw-flex tw-flex-nowrap tw-justify-around">
       <button onclick="window.location.href='/api/v1/cancelreservation';" class=" tw-p-3 tw-bg-red-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
         <div class="tw-flex tw-items-center tw-justify-center">

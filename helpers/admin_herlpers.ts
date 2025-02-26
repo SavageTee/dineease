@@ -73,6 +73,17 @@ export const RequestLargeError = (err:any, res:Response, next:NextFunction):any 
     next(err);
 }
 
+export const LimitFileSize = (err:any, req:any, res:Response, next:NextFunction, path:string):any => {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(202).json({
+            status: 'error',
+            origin: 'fields',
+            errorText: [{path: [path], message: 'Request Entity Too Large'}]
+        });
+    }
+    next(err);
+}
+
 export const validateRequestBody = (req: Request, res: Response, generateSchema: (lng: string) => Joi.ObjectSchema<any>, language: string, body: any) => {
     const result = generateSchema(language).validate(body);
     if (result.error) {
@@ -127,6 +138,5 @@ export const logErrorAndRespond = async (message: string, metadata: any, req: Re
         return errorPage(req, res, i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID }), i18next.t('error', { ns: "server", lng: req.language, UUID: generatedUUID}) , i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID }) );
     }
 };
-
 
 export const goBack = (res:Response) =>{return res.send(`<script>window.history.back();</script>`);}

@@ -282,6 +282,27 @@ const activateDynamicsForHotelsFunctions = ()=>{
         })
     }
 
+    const clearFieldsErrors = ()=>{
+        $('#name_error').hide()
+        $('#logo_error').hide()
+        $('#verification_error').hide()
+        $('#free_count_error').hide()
+        $('#time_zone_error').hide()
+        $('#plus_days_adjust_error').hide()
+        $('#minus_days_adjust_error').hide()
+        $('#active_error').hide()
+    }
+
+    const clearFields = ()=>{
+        $('#name').val('')
+        $('#free_count').val('')
+        $('#plus_days_adjust').val('')
+        $('#minus_days_adjust').val('')
+        $('#time_zone').val('')
+        $('#active').prop('checked', true);
+        $('#verification input[type="radio"]:first').prop('checked', true);
+    }
+
     $('#add_new_hotel_form').on('submit',(event)=> addNewHotel(event));
     const addNewHotel = async (event)=>{
         event.preventDefault(); 
@@ -290,14 +311,7 @@ const activateDynamicsForHotelsFunctions = ()=>{
             $('#add_spinner').show()
             $('#add_not_spinner').hide()
             hideError();
-            $('#name_error').hide()
-            $('#logo_error').hide()
-            $('#verification_error').hide()
-            $('#free_count_error').hide()
-            $('#time_zone_error').hide()
-            $('#plus_days_adjust_error').hide()
-            $('#minus_days_adjust_error').hide()
-            $('#active_error').hide()
+            clearFieldsErrors();
             const formData = new FormData();
             var checkedValue = $("input[name='verification_val']:checked").val();
             const fileInput = $('#logo')[0]; 
@@ -325,8 +339,7 @@ const activateDynamicsForHotelsFunctions = ()=>{
                                     $('#name_error').text(error['message'])
                                     $('#name_error').show()
                                 break; 
-                                case 'logo':
-                                    console.log('here')
+                                case 'logo':                             
                                     $('#logo_error').text(error['message'])
                                     $('#logo_error').show()
                                 break; 
@@ -356,11 +369,15 @@ const activateDynamicsForHotelsFunctions = ()=>{
                                 break;    
                             }
                         })         
+                    }else{                     
+                        clearFieldsErrors();
+                        clearFields();                                     
+                        $('#add_new_hotel_modal').modal('hide')
+                        $('#hotels_table').bootstrapTable('refresh');
                     }
                     addNewHotelBool = false;
                     $('#add_spinner').hide()
                     $('#add_not_spinner').show()
-                    console.log(result)
                 }).catch(error => {
                     addNewHotelBool = false;
                     $('#add_spinner').hide()

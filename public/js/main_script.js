@@ -13,8 +13,11 @@ let confirmRestaurantClick = false;
 let timePageSearch = false;
 let timeConfirm = false;
 
+
+const getLanguage = ()=> {return localStorage.getItem('lng') || 'en';}
+
 (async function(){
-    fetch('/api/v1/state')
+    fetch('/api/v1/state',{headers: {'Accept-Language': getLanguage()}})
     .then(response => {
         if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
         return response.json();
@@ -62,10 +65,10 @@ const showError = (error) => {
     }else{
         fetch(`/api/v1/report`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache','Accept-Language': getLanguage()},
             body: JSON.stringify({'error':error.toString()})
-        }).then(response => {
-            if (!response.ok) {throw new Error(`HTTP error! Status: ${response.json()}`);}
+        }).then(async response => {
+            if (!response.ok) {throw (await response.json());}
             return response.json(); 
         }).then(result => {
             $('#errorAlert').text(result['errorText'])
@@ -80,7 +83,7 @@ const showError = (error) => {
 const hideError = ()=>{$('#errorAlert').text(); $('#selectError').fadeOut();}
 
 const fetchLanguage = async ()=>{
-    fetch('/reservation/language')
+    fetch('/reservation/language',{headers: {'Accept-Language': getLanguage()}})
     .then(async response => {
         if (!response.ok) {throw (await response.json());}
         return response.text();
@@ -96,23 +99,20 @@ const activateDynamicLanguageFunctions = () => {
     darkModeFunctions();
     function redirect(chosenLanguage){
         beginLoading();
-        const currentUrl = window.location.href;
-        const updatedUrl = currentUrl.replace(/\/[a-z]{2}\//, `/${chosenLanguage}/`)
-        const hotelUrl = updatedUrl.replace('/reservation','/reservation/hotel');
-        history.pushState(null, '', updatedUrl);
-        fetchHotel(hotelUrl)
+        localStorage.setItem('lng', chosenLanguage);
+        fetchHotel()
     }
     $('#en').on('click',()=>{redirect('en');})
     $('#ar').on('click',()=>{redirect('ar');})
     $('#de').on('click',()=>{redirect('de');})
     $('#fr').on('click',()=>{redirect('fr');})
-    $('#es').on('click',()=>{ redirect('es');})
+    $('#es').on('click',()=>{redirect('es');})
     $(document).ready(function(){releaseLoading();});
 }
 
 
-const fetchHotel = async (url)=>{
-    fetch('/reservation/hotel')
+const fetchHotel = async ()=>{
+    fetch('/reservation/hotel',{headers: {'Accept-Language': getLanguage()}})
     .then(async response => {
         if (!response.ok) {throw (await response.json());}
         return response.text();
@@ -134,7 +134,7 @@ const activateDynamicHotelFunctions = () => {
             $('#notloader').hide()
             fetch(`/api/v1/savehotel`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+                headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache','Accept-Language': getLanguage()},
                 body: JSON.stringify({'hotelID': selectedHotel})
             }).then(response => {
                 if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
@@ -161,7 +161,7 @@ function selectHotel(card,hotelID) {
 }
 
 const fetchRoom = async ()=>{
-    fetch('/reservation/room')
+    fetch('/reservation/room',{headers: {'Accept-Language': getLanguage()}})
     .then(async response => {
         if (!response.ok) {throw (await response.json());}
         return response.text();
@@ -182,7 +182,7 @@ function activateDynamicRoomFunctions(){
             let input = document.getElementById('code');
             fetch(`/api/v1/checkroom`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+                headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},
                 body: JSON.stringify({ 'roomNumber': input.value })
             }).then(response =>  {
                 if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
@@ -228,11 +228,11 @@ function activateDynamicRoomFunctions(){
         hideError();
         fetch(`/api/v1/verifyroom`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},
             body: JSON.stringify({ 'date': date, })
-        }).then(response =>  {
-            if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
-            return response.json();
+        }).then(async response =>  {
+            if (!response.ok) {throw (await response.json());}
+            return response.json(); 
         }).then(result => {
             if(result['status'] === 'success'){
                 hideError();
@@ -269,6 +269,8 @@ function activateDynamicRoomFunctions(){
                 $('#verification_modal').modal('hide');
                 $('#date_input').val('')
                 $('#code').val('')
+                $('#loader_text_modal').show()
+                $('#loader_modal').hide()
                 return;
             }
             $('#verification_modal').modal('hide')
@@ -303,7 +305,7 @@ function goToRestaurants(){
 }
 
 const fetchRestaurant = async ()=>{
-    fetch('/reservation/restaurant')
+    fetch('/reservation/restaurant',{headers: {'Accept-Language': getLanguage()}})
     .then(async response => {
         if (!response.ok) {throw (await response.json());}
         return response.text();
@@ -364,7 +366,7 @@ function viewMenu(restaurantID){
         $(`#view_menu_${restaurantID}`).hide()
         fetch(`/api/v1/menu`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},
             body: JSON.stringify({ 'restaurantID': restaurantID })
         }).then(async response =>  {
             if (!response.ok) {throw (await response.json());}
@@ -428,7 +430,7 @@ function ConfirmRestaurant(){
       beginLoading();
       fetch(`/api/v1/saverestaurant`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+        headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},
         body: JSON.stringify({'restaurantID': selectedRestaurant})
     }).then(async response => {
         if (!response.ok) {throw (await response.json());}
@@ -447,7 +449,7 @@ function ConfirmRestaurant(){
 }
 
 const fetchTime = async ()=>{
-    fetch('/reservation/time')
+    fetch('/reservation/time',{headers: {'Accept-Language': getLanguage()}})
     .then(async response => {
         if (!response.ok) {throw (await response.json());}
         return response.text();
@@ -595,7 +597,7 @@ function searchDate(){
         $('#step_two').hide();
         fetch(`/api/v1/getavailabledate`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},
             body: JSON.stringify({ 'desiredDate': desiredDate })
         }).then(async response =>  {
             if (!response.ok) {throw (await response.json());}
@@ -662,7 +664,7 @@ function confirmTime(){
         }
         fetch(`/api/v1/validate`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache'},
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},
             body: JSON.stringify({ 'selectedTime':selectedRow[0]['restaurant_pricing_times_id'], "selectedNames":selectedNames, "desiredDate":desiredDate })
         }).then(async response =>  {
             if (!response.ok) {throw (await response.json());}
@@ -686,7 +688,7 @@ function confirmTime(){
 }
 
 const fetchConfirm = async ()=>{
-    fetch('/reservation/confirm')
+    fetch('/reservation/confirm',{headers: {'Accept-Language': getLanguage()}})
     .then(async response => {
         if (!response.ok) {throw (await response.json());}
         return response.text();
