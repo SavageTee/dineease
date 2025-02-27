@@ -100,6 +100,7 @@ reservation.get('/restaurant', async (req:Request, res:Response, next:NextFuncti
       restaurants: restaurants,
       viewMenu: i18next.t('viewMenu',{ns: 'restaurant', lng: lng }),
       orederBeforeBooking: i18next.t('orederBeforeBooking',{ns: 'restaurant', lng: lng }), 
+      orederBeforeBookingAlert: i18next.t('orederBeforeBookingAlert',{ns: 'restaurant', lng: lng }), 
     },(error, html)=>{if(error)throw error.toString();res.send(html)});
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})",{script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request:req , error:`${error}`}, req, res );}
 })

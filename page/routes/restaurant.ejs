@@ -61,13 +61,13 @@
         </div>
         <div class="tw-p-2 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-flex-nowrap tw-rounded-b-md tw-bg-gray-800 dark:tw-bg-slate-950 tw-justify-center tw-text-center tw-items-center">
             <% if (restaurant.menu_selection) { %>
-                  <button onclick="viewMenu('<%= restaurant.restaurantID %>')" class=" tw-w-full tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
-                    <div id="view_menu_<%= restaurant.restaurantID %>">
-                      <i class="tw-text-2xl fa-solid tw-px-1 fa-utensils"></i>
-                      <span class="tw-px-2"><%= orederBeforeBooking %></span>
-                    </div>
-                    <div style="display: none;" id="loader_modal_<%= restaurant.restaurantID %>" class="spinner-border spinner-border-sm  text-light" role="status"></div>
-                  </button>
+                  <div class="tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-sm tw-text-yellow-800 tw-rounded-lg tw-bg-yellow-50" role="alert">
+                      <i class="fa-solid fa-circle-info tw-scale-125"></i>
+                      <div>
+                        <span class="tw-font-medium"><%= orederBeforeBookingAlert %></span>
+                      </div>
+                  </div>
+                 
             <% } else { %>      
                   <button onclick="viewMenu('<%= restaurant.restaurantID %>')" class=" tw-w-full tw-justify-center tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
                     <div id="view_menu_<%= restaurant.restaurantID %>">

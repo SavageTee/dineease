@@ -5,5 +5,6 @@
     "buttonTextExit": "Cancel reservation",
     "noSelectedRestaurant": "please select a restaurant first, to continue.",
     "viewMenu": "View Menu",
-    "orederBeforeBooking": "Order Before Booking From Menu, Take a look now and after confirming the boking you will choose your items"
+    "orederBeforeBooking": "Order Before Booking From Menu",
+    "orederBeforeBookingAlert": "Take a look now and after confirming the boking you will choose your items"
 }

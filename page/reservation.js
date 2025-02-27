@@ -165,6 +165,7 @@ reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, voi
             restaurants: restaurants,
             viewMenu: i18n_1.default.t('viewMenu', { ns: 'restaurant', lng: lng }),
             orederBeforeBooking: i18n_1.default.t('orederBeforeBooking', { ns: 'restaurant', lng: lng }),
+            orederBeforeBookingAlert: i18n_1.default.t('orederBeforeBookingAlert', { ns: 'restaurant', lng: lng }),
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }
