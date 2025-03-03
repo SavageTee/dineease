@@ -8,6 +8,7 @@ let zoomScale = 1;
 let renderTask = null; 
 let selectedRestaurant = undefined;
 let viewMenuClick = false;
+let viewMenuModalClick = false;
 let confirmRestaurantClick = false;
 
 let timePageSearch = false;
@@ -22,7 +23,6 @@ const getLanguage = ()=> {return localStorage.getItem('lng') || 'en';}
         if (!response.ok) {throw new Error(`HTTP error! Status: ${response.status}`);}
         return response.json();
     }).then(result => {
-        console.log(result)
         if(result['state'] === 'language') fetchLanguage();
         if(result['state'] === 'hotel') fetchHotel();
         if(result['state'] === 'room') fetchRoom();
@@ -318,6 +318,27 @@ const fetchRestaurant = async ()=>{
     });
 }
 
+function actionsFormatter(row, data){
+    return `
+    <button onclick="viewMenu('${data['ref']}')" class=" tw-w-full tw-justify-center tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
+        <div id="view_menu__${data['ref']}">
+            <i class="tw-text-2xl fa-solid tw-px-1 fa-utensils"></i>
+            <span class="tw-px-2">${data['viewMenuTranslation']}</span>
+        </div>
+        <div style="display: none;" id="loader_modal__${data['ref']}" class="spinner-border spinner-border-sm  text-light" role="status"></div>
+    </button>
+    `
+}
+
+function dateTimeFormatter(row, data){
+    return `
+    <div class="tw-block">
+        <div>${row}</div>
+        <div>${data['time']}</div>
+    </div>
+     `
+}
+
 function activateDynamicRestaurantFunctions(){
     darkModeFunctions();
     $('#zoom_percent').text(`${zoomScale * 100}%`)
@@ -351,7 +372,37 @@ function activateDynamicRestaurantFunctions(){
     releaseLoading();
 }
 
-function viewMenu(restaurantID){
+function menuSelection(restaurantID){
+    if(!viewMenuModalClick){
+        viewMenuModalClick = true;
+        $(`#loader_modal_${restaurantID}`).show()
+        $(`#view_menu_${restaurantID}`).hide()
+        fetch(`/api/v1/menuselection`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},
+            body: JSON.stringify({ 'restaurantID': restaurantID })
+        }).then(async response =>  {
+            if (!response.ok) {throw (await response.json());}
+            return response.json();
+        }).then(async (result)=>{
+            result['data'].map(item=> {item['viewMenuTranslation'] = result['viewMenuTranslation']});
+            $('#menu_table').bootstrapTable().bootstrapTable('load',result['data'])
+            $('#viewMenuModal').modal('show')
+            viewMenuModalClick = false;
+            $(`#loader_modal_${restaurantID}`).hide()
+            $(`#view_menu_${restaurantID}`).show()
+        })
+        .catch(error => {
+            showError(error)
+            $(`#loader_modal_${restaurantID}`).hide()
+            $(`#view_menu_${restaurantID}`).show()
+            viewMenuModalClick = false;
+        });
+        
+    }
+}
+
+function viewMenu(referenceID){
     pdfDoc = null;
     currentPage = 1;
     pageCount = 0;
@@ -362,26 +413,28 @@ function viewMenu(restaurantID){
     context.clearRect(0, 0, canvas.width, canvas.height);
     if(!viewMenuClick){
         viewMenuClick = true;
-        $(`#loader_modal_${restaurantID}`).show()
-        $(`#view_menu_${restaurantID}`).hide()
+        $(`#loader_modal__${referenceID}`).show()
+        $(`#view_menu__${referenceID}`).hide()
         fetch(`/api/v1/menu`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},
-            body: JSON.stringify({ 'restaurantID': restaurantID })
+            body: JSON.stringify({ 'referenceID': referenceID })
         }).then(async response =>  {
             if (!response.ok) {throw (await response.json());}
             return response.json();
         }).then(async (result)=>{
-            loadPDF(result['menu']['menu_pdf'].data);
-            $('#pdfModal').modal('show')
-            $(`#loader_modal_${restaurantID}`).hide()
-            $(`#view_menu_${restaurantID}`).show()
+            if(result['status'] === "success" && result['menu']){
+                loadPDF(result['menu']);
+                $('#pdfModal').modal('show')
+            }
+            $(`#loader_modal__${referenceID}`).hide()
+            $(`#view_menu__${referenceID}`).show()
             viewMenuClick = false;
         })
         .catch(error => {
             showError(error)
-            $(`#loader_modal_${restaurantID}`).hide()
-            $(`#view_menu_${restaurantID}`).show()
+            $(`#loader_modal__${referenceID}`).hide()
+            $(`#view_menu__${referenceID}`).show()
             viewMenuClick = false;
         });
     }
@@ -407,7 +460,8 @@ async function renderPage(pageNum) {
 
 async function loadPDF(pdfData) {
   try {
-    const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+    console.log(pdfData)
+    const pdf = await pdfjsLib.getDocument({data: atob(pdfData.split(',')[1])}).promise;
     pdfDoc = pdf;
     pageCount = pdf.numPages;
     document.getElementById('pageCount').textContent = pageCount;
@@ -477,47 +531,46 @@ function activateDynamicTimeFunctions(){
                 <hr class="py-0 mb-3" /> 
                 <div class="tw-flex tw-py-0 pb-0">
                     <i class="fa-solid fa-2x fa-2 tw-px-4 tw-text-red-600"></i>
-                    <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white tw-inline-flex">${row['RoomBasedReservation']}<p class="tw-text-red-600 tw-px-2"> (${row['roomNumber']}) </p></h6>
+                    <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 tw-inline-flex">${row['RoomBasedReservation']}<p class="tw-text-red-600 tw-px-2"> (${row['roomNumber']}) </p></h6>
                 </div>
             `)
             $('#step_two').append(`
-                <ul id="names_list" class="tw-items-center tw-w-full tw-text-sm tw-font-medium tw-text-gray-900 tw-bg-gray-300 tw-border tw-border-gray-200 tw-rounded-lg sm:tw-flex tw-dark:bg-gray-700 tw-dark:border-gray-600 tw-dark:text-white">
+                <div id="names_list" class="tw-items-center tw-w-full tw-text-sm tw-font-medium tw-text-gray-900 tw-bg-gray-300 tw-border tw-border-gray-200 tw-rounded-lg sm:tw-flex">
                   ${row['names'].map((name) => `
-                    <li class="tw-w-full tw-px-2 tw-border-b tw-border-gray-200 sm:tw-border-b-0 sm:tw-border-r tw-dark:border-gray-600">
+                    <div class="tw-w-full tw-px-2 tw-border-b tw-border-gray-200 sm:tw-border-b-0 sm:tw-border-r">
                       <div class="tw-flex tw-items-center tw-ps-3"> 
                         <i class="fa-solid fa-1.5x fa-user"></i> 
-                        <label for="${name}" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900 tw-dark:text-gray-300">${name}</label>                    
-                        <input onchange="UpdateTotal()" hidden checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 tw-dark:focus:tw-ring-blue-600 tw-dark:tw-ring-offset-gray-700 tw-dark:focus:tw-ring-offset-gray-700 focus:tw-ring-2 tw-dark:bg-gray-600 tw-dark:border-gray-500"> 
+                        <label for="${name}" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900">${name}</label>                    
+                        <input onchange="UpdateTotal()" hidden checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 focus:tw-ring-2"> 
                       </div>
-                    </li>
+                    </div>
                   `).join('')}
-                </ul>
+                </div>
             `);
         }else{
             $('#step_two').append(`
                 <hr class="py-0 mb-3" /> 
                 <div class="tw-flex tw-py-2 pb-0">
                     <i class="fa-solid fa-2x fa-2 tw-px-4 tw-text-red-600"></i>
-                    <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 dark:text-white tw-inline-flex">${row['paxBasedReservation']}<p class="tw-text-red-600 tw-px-2"> (${row['roomNumber']}) </p></h6>
+                    <h6 class="tw-mb-4 tw-font-semibold tw-text-gray-900 tw-inline-flex">${row['paxBasedReservation']}<p class="tw-text-red-600 tw-px-2"> (${row['roomNumber']}) </p></h6>
                 </div>
             `)
             $('#step_two').append(`
-                <ul id="names_list" class="tw-items-center tw-w-full tw-text-sm tw-font-medium tw-text-gray-900 tw-bg-gray-300 tw-border tw-border-gray-200 tw-rounded-lg sm:tw-flex tw-dark:bg-gray-700 tw-dark:border-gray-600 tw-dark:text-white">
+                <div id="names_list" class="tw-items-center tw-w-full tw-text-sm tw-font-medium tw-text-gray-900 tw-bg-gray-300 tw-border tw-border-gray-200 tw-rounded-lg sm:tw-flex">
                   ${row['names'].map((name) => `
-                    <li class="tw-w-full tw-px-2 tw-border-b tw-border-gray-200 sm:tw-border-b-0 sm:tw-border-r tw-dark:border-gray-600">
+                    <div class="tw-w-full tw-px-2 tw-border-b tw-border-gray-200 sm:tw-border-b-0 sm:tw-border-r">
                       <div class="tw-flex tw-items-center tw-ps-3"> 
                         <i class="fa-solid fa-1.5x fa-user"></i> 
-                        <label for="${name}" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900 tw-dark:text-gray-300">${name}</label>                    
-                        <input onchange="UpdateTotal()" checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 tw-dark:focus:tw-ring-blue-600 tw-dark:tw-ring-offset-gray-700 tw-dark:focus:tw-ring-offset-gray-700 focus:tw-ring-2 tw-dark:bg-gray-600 tw-dark:border-gray-500"> 
+                        <label for="${name}" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900">${name}</label>                    
+                        <input onchange="UpdateTotal()" checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 focus:tw-ring-2"> 
                       </div>
-                    </li>
+                    </div>
                   `).join('')}
-                </ul>
+                </div>
             `);
         }
         UpdateTotal();
         $('#step_two').show()
-        console.log('Row selected:', row);
     });  
 }
 
@@ -584,10 +637,9 @@ function perPersonFormatter(data,row){
     }
 }
 
-
-
 function searchDate(){
     if(!timePageSearch){
+        $('#totalAmmount').text('')
         timePageSearch = true;
         $('#search_spinner').show();
         $('#search_normal').hide();
@@ -616,7 +668,6 @@ function searchDate(){
                     })
                 });
                 $('#table_show_hide').show();
-                console.log(result['data'])
             }else{     
                 showError({errorText: result['errorRestaurantNotAvailable']})    
                 $('#table_show_hide').hide();

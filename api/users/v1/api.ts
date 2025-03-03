@@ -3,7 +3,7 @@ import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../../providers/i18n/i18n"
 import {executeQuery} from "../../../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond, notFound, errorPage, validateContentType, validateRequestBodyKeys, reportErrorAndRespond, ReportErrorAndRespondJsonGet } from "../../../helpers/herlpers"
+import { logErrorAndRespond, notFound, errorPage, validateContentType, validateRequestBodyKeys, reportErrorAndRespond, ReportErrorAndRespondJsonGet, getLanguage, convertFileToBase64 } from "../../../helpers/herlpers"
 
 const api = express.Router()
 api.use(express.json({limit: '1mb'}))
@@ -55,6 +55,17 @@ api.post('/savehotel', async (req:Request, res:Response, next:NextFunction):Prom
     if (!validateRequestBodyKeys(req, res, ["hotelID"])) return;
     req.session.data!.hotelID = req.body.hotelID;
     return res.status(200).jsonp({status: 'success'})
+  }catch(error){logErrorAndRespond("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+})
+
+api.post('/menuselection', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    let lng:string = getLanguage(req);
+    if (!validateContentType(req, res)) return;
+    if (!validateRequestBodyKeys(req, res, ["restaurantID"])) return;
+    const rows_dates = await executeQuery('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.hotelID,req.session.data?.companyID]); 
+    const rows = await executeQuery('CALL get_menu_urls_period(?, ?, ?, ?, ?)',[(rows_dates as any)[0][0]['start_date'], (rows_dates as any)[0][0]['end_date'], req.body.restaurantID, req.session.data?.companyID, lng]); 
+    return res.status(200).jsonp({status: 'success', data: (rows as any)[0], viewMenuTranslation: i18next.t('viewMenu',{ns: 'restaurant', lng:req.language,returnObjects: true }),})
   }catch(error){logErrorAndRespond("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
@@ -128,11 +139,12 @@ api.get('/cancelreservation',async (req:Request, res:Response, next:NextFunction
 api.post('/menu', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     if (!validateContentType(req, res)) return;
-    if (!validateRequestBodyKeys(req, res, ["restaurantID"])) return;
-    const rows = await executeQuery('CALL get_pdf(?)',[req.body.restaurantID]);
+    if (!validateRequestBodyKeys(req, res, ["referenceID"])) return;
+    const rows = await executeQuery('CALL get_menu_pdf_url(?)',[req.body.referenceID]);
+    console.log((rows as any)[0][0]['menu_url'].toString())
     res.status(200).jsonp({
       status: "success",
-      menu: (rows as any)[0][0] 
+      menu: convertFileToBase64((rows as any)[0][0]['menu_url'].toString())
     })  
   }catch(error){
     logErrorAndRespond("error occured in catch block of api.post('/menu', (req,res)=>{})", {script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error:`${error}`}, req, res );

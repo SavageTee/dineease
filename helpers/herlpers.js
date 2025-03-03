@@ -45,12 +45,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.goBack = exports.logErrorAndRespond = exports.reportErrorAndRespond = exports.ReportErrorAndRespondErrorPage = exports.ReportErrorAndRespondJsonGet = exports.errorPage = exports.notFound = exports.validateRequestBodyKeys = exports.validateContentType = exports.getLanguage = void 0;
+exports.goBack = exports.logErrorAndRespond = exports.reportErrorAndRespond = exports.ReportErrorAndRespondErrorPage = exports.ReportErrorAndRespondJsonGet = exports.errorPage = exports.notFound = exports.validateRequestBodyKeys = exports.validateContentType = exports.convertFileToBase64 = exports.getLanguage = void 0;
 const logger_1 = __importDefault(require("../providers/logger/logger"));
 const i18n_1 = __importStar(require("../providers/i18n/i18n"));
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 const getLanguage = (req) => {
-    var _a;
-    console.log((_a = req.headers['accept-language']) === null || _a === void 0 ? void 0 : _a.split(',')[0].split('-')[0]);
     if (req.headers['accept-language'] && req.headers['accept-language'].split(',')[0].split('-')[0] && i18n_1.locales.includes(req.headers['accept-language'].split(',')[0].split('-')[0])) {
         i18n_1.default.changeLanguage(req.headers['accept-language'].split(',')[0].split('-')[0]);
         return req.headers['accept-language'].split(',')[0].split('-')[0];
@@ -61,6 +61,37 @@ const getLanguage = (req) => {
     }
 };
 exports.getLanguage = getLanguage;
+const convertFileToBase64 = (imagePath) => {
+    try {
+        const fullPath = path_1.default.join(__dirname, '..', imagePath);
+        const fileBuffer = fs_1.default.readFileSync(fullPath);
+        const base64File = fileBuffer.toString('base64');
+        const extname = path_1.default.extname(imagePath).toLowerCase();
+        let mimeType = '';
+        switch (extname) {
+            case '.jpg':
+            case '.jpeg':
+                mimeType = 'image/jpeg';
+                break;
+            case '.png':
+                mimeType = 'image/png';
+                break;
+            case '.gif':
+                mimeType = 'image/gif';
+                break;
+            case '.pdf':
+                mimeType = 'application/pdf';
+                break;
+            default:
+                return false;
+        }
+        return `data:${mimeType};base64,${base64File}`;
+    }
+    catch (error) {
+        return false;
+    }
+};
+exports.convertFileToBase64 = convertFileToBase64;
 const validateContentType = (req, res) => {
     if (req.headers['content-type'] !== "application/json") {
         res.status(400).jsonp({ status: 'error', origin: 'server', errorText: "Bad Request" });

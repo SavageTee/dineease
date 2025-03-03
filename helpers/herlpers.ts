@@ -2,9 +2,10 @@ import newLog from "../providers/logger/logger"
 import {Response, Request,NextFunction} from "express"
 import i18next, {locales} from "../providers/i18n/i18n"
 import * as Joi from "joi"
+import fs from "fs"
+import path from "path"
 
 export const getLanguage = (req: Request) => { 
-    console.log(req.headers['accept-language']?.split(',')[0].split('-')[0])
     if( req.headers['accept-language'] && req.headers['accept-language'].split(',')[0].split('-')[0] && locales.includes(req.headers['accept-language'].split(',')[0].split('-')[0]) ){
         i18next.changeLanguage(req.headers['accept-language'].split(',')[0].split('-')[0]);
         return req.headers['accept-language'].split(',')[0].split('-')[0]
@@ -12,6 +13,34 @@ export const getLanguage = (req: Request) => {
         i18next.changeLanguage('en');
         return 'en';
     }
+}
+
+export const convertFileToBase64 = (imagePath:string):string | false => {
+    try{
+        const fullPath = path.join(__dirname, '..', imagePath);   
+        const fileBuffer = fs.readFileSync(fullPath);
+        const base64File = fileBuffer.toString('base64');
+        const extname = path.extname(imagePath).toLowerCase();
+        let mimeType = '';
+        switch (extname) {
+            case '.jpg':
+            case '.jpeg':
+                mimeType = 'image/jpeg';
+                break;
+            case '.png':
+                mimeType = 'image/png';
+                break;
+            case '.gif':
+                mimeType = 'image/gif';
+                break;
+            case '.pdf':
+                mimeType = 'application/pdf';
+                break;    
+            default:
+                return false;
+        }
+        return `data:${mimeType};base64,${base64File}`;
+    }catch(error){return false;}
 }
 
 export const validateContentType = (req: Request, res: Response) => {

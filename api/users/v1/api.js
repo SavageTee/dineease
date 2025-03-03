@@ -108,6 +108,22 @@ api.post('/savehotel', (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/savehotel', (req,res)=>{})", { script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
+api.post('/menuselection', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
+    try {
+        let lng = (0, herlpers_1.getLanguage)(req);
+        if (!(0, herlpers_1.validateContentType)(req, res))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["restaurantID"]))
+            return;
+        const rows_dates = yield (0, mysqlProvider_1.executeQuery)('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menu_urls_period(?, ?, ?, ?, ?)', [rows_dates[0][0]['start_date'], rows_dates[0][0]['end_date'], req.body.restaurantID, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID, lng]);
+        return res.status(200).jsonp({ status: 'success', data: rows[0], viewMenuTranslation: i18n_1.default.t('viewMenu', { ns: 'restaurant', lng: req.language, returnObjects: true }), });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/savehotel', (req,res)=>{})", { script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
 const checkRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const rows = yield (0, mysqlProvider_1.executeQuery)('CALL check_room(?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
@@ -201,12 +217,13 @@ api.post('/menu', (req, res, next) => __awaiter(void 0, void 0, void 0, function
     try {
         if (!(0, herlpers_1.validateContentType)(req, res))
             return;
-        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["restaurantID"]))
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["referenceID"]))
             return;
-        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_pdf(?)', [req.body.restaurantID]);
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menu_pdf_url(?)', [req.body.referenceID]);
+        console.log(rows[0][0]['menu_url'].toString());
         res.status(200).jsonp({
             status: "success",
-            menu: rows[0][0]
+            menu: (0, herlpers_1.convertFileToBase64)(rows[0][0]['menu_url'].toString())
         });
     }
     catch (error) {

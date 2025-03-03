@@ -58,18 +58,21 @@
           <div class="tw-inline-flex tw-items-center">
             <span class="tw-font-bold tw-text-green-500 tw-text-lg">#<%= restaurant.country %></span>     
           </div>
+          <div class="tw-inline-flex tw-items-center">
+            <i class="fa-solid tw-scale-125 tw-text-green-600 tw-px-2 fa-location-dot"></i>
+            <span class="tw-font-bold tw-text-green-500 tw-text-sm"><%= restaurant.hotel_name %></span>     
+          </div>
         </div>
         <div class="tw-p-2 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-flex-nowrap tw-rounded-b-md tw-bg-gray-800 dark:tw-bg-slate-950 tw-justify-center tw-text-center tw-items-center">
             <% if (restaurant.menu_selection) { %>
-                  <div class="tw-flex tw-items-center tw-p-4 tw-mb-4 tw-text-sm tw-text-yellow-800 tw-rounded-lg tw-bg-yellow-50" role="alert">
+                  <div class="tw-flex tw-items-center tw-p-4 tw-text-sm tw-text-yellow-800 tw-rounded-lg tw-bg-yellow-50" role="alert">
                       <i class="fa-solid fa-circle-info tw-scale-125"></i>
                       <div>
                         <span class="tw-font-medium"><%= orederBeforeBookingAlert %></span>
                       </div>
-                  </div>
-                 
+                  </div>               
             <% } else { %>      
-                  <button onclick="viewMenu('<%= restaurant.restaurantID %>')" class=" tw-w-full tw-justify-center tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
+                  <button onclick="menuSelection('<%= restaurant.restaurantID %>')" class=" tw-w-full tw-justify-center tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
                     <div id="view_menu_<%= restaurant.restaurantID %>">
                       <i class="tw-text-2xl fa-solid tw-px-1 fa-utensils"></i>
                       <span class="tw-px-2"><%= viewMenu %></span>
@@ -113,7 +116,41 @@
 </div>
 
 
-<div class="modal fade tw-p-0 tw-m-0" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+<div id="viewMenuModal" class="modal modal-menu-close" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-fullscreen" role="document">
+    <div class="modal-content dark:tw-bg-darkmodeModalBg dark:tw-text-white tw-px-0 tw-mx-0 tw-py-1 tw-my-1">
+      <div class="modal-header tw-border-b-2 tw-border-b-gray-500">
+        <h5 class="modal-title"><%= menuModalTitle %></h5>
+      </div>
+      <div class="modal-body tw-p-0 tw-m-0 container-fluid">
+          <table class="container-fluid table tw-w-full tw-border-2 table-bordered table-striped" 
+              id='menu_table'
+              data-toggle="table"
+              data-id-field="ref"
+              >
+              <thead>
+                  <tr>    
+                      <th style="display: none;" class="tw-font-extrabold tw-text-xl" colspan="5" data-align="center"></th>
+                  </tr>
+                  <tr>
+                      <th class="text-center tw-font-semibold tw-text-sm" data-visible="false" data-field="ref"></th>
+                      <th class="text-center tw-font-semibold tw-text-sm" data-formatter="dateTimeFormatter" data-field="date"><%= dateTableTitle %> / <%= timeTableTitle %></th>                   
+                      <th class="text-center tw-font-semibold tw-text-sm" data-field="timezone"><%= timeZoneTableTitle %></th>
+                      <th class="text-center tw-font-semibold tw-text-sm" data-field="meal_type"><%= mealTypeTableTitle %></th>
+                      <th class="text-center tw-font-semibold tw-text-sm" data-align="center" data-formatter="actionsFormatter"></th>
+                  </tr>
+              </thead>
+          </table>
+      </div>
+      <div class="modal-footer">
+        <button data-bs-dismiss="modal" class="tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center"><%= close %></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal menu-modal fade tw-p-0 tw-m-0" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
       <div class="modal-content tw-p-0 tw-m-0">
         <div class="modal-header tw-flex tw-justify-between">
@@ -135,7 +172,17 @@
       </div>
     </div>
 </div>
+
 <style>
-.modal-content {background-color: #000000;}
-.modal-body {background-color: #000000;}
+.menu-modal .modal-content {background-color: #000000 !important;}
+.menu-modal .modal-body {background-color: #000000 !important;}
+.modal-menu-close .modal-body {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.modal-menu-close .modal-content {
+    padding: 0 !important;
+    margin: 0 !important;
+}
 </style>

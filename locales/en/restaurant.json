@@ -6,5 +6,11 @@
     "noSelectedRestaurant": "please select a restaurant first, to continue.",
     "viewMenu": "View Menu",
     "orederBeforeBooking": "Order Before Booking From Menu",
-    "orederBeforeBookingAlert": "Take a look now and after confirming the boking you will choose your items"
+    "orederBeforeBookingAlert": "Take a look now and after confirming the boking you will choose your items",
+    "menuModalTitle": "pick a date to view menu",
+    "close": "Close",
+    "dateTableTitle": "Date",
+    "timeTableTitle": "Time",
+    "timeZoneTableTitle": "TimeZone",
+    "mealTypeTableTitle": "Meal Type"
 }

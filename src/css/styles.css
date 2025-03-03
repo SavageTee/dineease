@@ -54,7 +54,7 @@ html.tw-dark body::after {
 }
 
 .selected_restaurant {
-  border-color: green;
+  border: solid 2px green !important;
   box-shadow: 0 0 10px green;
 }
 .selected_restaurant #name_holder {

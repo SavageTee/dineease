@@ -3,7 +3,7 @@ import {Response, Request, NextFunction} from "express"
 
 import i18next from "../providers/i18n/i18n"
 import { executeQuery } from "../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond, notFound, ReportErrorAndRespondJsonGet, errorPage, getLanguage } from "../helpers/herlpers"
+import { logErrorAndRespond, notFound, ReportErrorAndRespondJsonGet, errorPage, getLanguage, convertFileToBase64 } from "../helpers/herlpers"
 
 const reservation = express.Router()
 
@@ -23,20 +23,20 @@ reservation.get('/', checkIdParam, async (req:Request, res:Response, next:NextFu
 })
 
 reservation.get('/language', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
-    console.log(req.originalUrl)
     try{
       let rows = await executeQuery('CALL get_company(?)',[req.session.data?.companyUUID]);
       if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null) return notFound(req,res);
+      let logo_base64 = convertFileToBase64((rows as any)[0][0]['logo_url']);
       let companyInfo: companyInfo = {
         companyID: (rows as any)[0][0]['company_id'].toString(),
         companyName: (rows as any)[0][0]['company_name'],
-        companyLogo: (rows as any)[0][0]['logo'],
+        companyLogo: logo_base64,
       };
       req.session.data!.companyID = companyInfo.companyID;
       return res.render('routes/language',{
           companyID: companyInfo.companyID,
           companyName: companyInfo.companyName,
-          companyLogo: `data:image/jpeg;base64,${Buffer.from(companyInfo.companyLogo,'utf-8').toString('base64')}`,
+          companyLogo: companyInfo.companyLogo,
       },(error, html)=>{if(error)throw error.toString();res.send(html)});
     }catch(error){return ReportErrorAndRespondJsonGet("error occured in catch block of language.get('/language', (req,res)=>{})", {script: "language.ts", scope: "language.get('/language', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
@@ -49,7 +49,7 @@ reservation.get('/hotel', async (req:Request, res:Response, next:NextFunction):P
       const hotels:hotel[] = (rows as any)[0].map((row: any) => ({
         hotelID: row['hotel_id'].toString(),
         name: row['name'],
-        logo: row['logo'] ? `data:image/jpeg;base64,${Buffer.from(row['logo'],'utf-8').toString('base64')}` : null,
+        logo: convertFileToBase64(row['logo_url']),
         verificationType: row['verification_type'],
         isSelected: row['hotel_id'].toString() === req.session.data?.hotelID
       }));
@@ -80,16 +80,18 @@ reservation.get('/room', async (req:Request, res:Response, next:NextFunction):Pr
 reservation.get('/restaurant', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     let lng:string = getLanguage(req);
-    const rows = await executeQuery('CALL get_restaurants(?, ?, ?)',[req.session.data!.companyID, 1, lng]);  
+    const rows = await executeQuery('CALL get_restaurants(?, ?, ?, ?)',[req.session.data!.companyID, 1, lng, req.session.data?.hotelID]);  
     const restaurants:restaurant[] = (rows as any)[0].map((row: any) => ({
       restaurantID: row['restaurants_id']??''.toString(),
       name: row['name']??''.toString(),
       country: row['cuisine']??''.toString(),
-      photo: row['photo'] ? `data:image/jpeg;base64,${Buffer.from(row['photo'],'utf-8').toString('base64')}` : null,
+      photo: convertFileToBase64(row['logo_url']),
       about: row['about']??''.toString(),
       capacity: Number(row['capacity']??'1'),
       isSelected: row['restaurants_id'].toString() === req.session.data?.restaurantID,
       menu_selection: row['menu_selection'] === 0 ? false : true,
+      hotel_id: row['hotel_id']??''.toString(),
+      hotel_name:  row['hotel_name']??''.toString(),
     }))
     return res.render('routes/restaurant',{
       title: i18next.t('title',{ns: 'restaurant', lng: lng }),
@@ -101,6 +103,12 @@ reservation.get('/restaurant', async (req:Request, res:Response, next:NextFuncti
       viewMenu: i18next.t('viewMenu',{ns: 'restaurant', lng: lng }),
       orederBeforeBooking: i18next.t('orederBeforeBooking',{ns: 'restaurant', lng: lng }), 
       orederBeforeBookingAlert: i18next.t('orederBeforeBookingAlert',{ns: 'restaurant', lng: lng }), 
+      menuModalTitle: i18next.t('menuModalTitle',{ns: 'restaurant', lng: lng }),
+      close: i18next.t('close',{ns: 'restaurant', lng: lng }),
+      dateTableTitle: i18next.t('dateTableTitle',{ns: 'restaurant', lng: lng }),
+      timeTableTitle: i18next.t('timeTableTitle',{ns: 'restaurant', lng: lng }),
+      timeZoneTableTitle: i18next.t('timeZoneTableTitle',{ns: 'restaurant', lng: lng }),
+      mealTypeTableTitle: i18next.t('mealTypeTableTitle',{ns: 'restaurant', lng: lng }),
     },(error, html)=>{if(error)throw error.toString();res.send(html)});
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})",{script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request:req , error:`${error}`}, req, res );}
 })
@@ -132,8 +140,6 @@ reservation.get('/time', async (req:Request, res:Response, next:NextFunction):Pr
       }
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
-
-
 
 reservation.get('/confirm', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
@@ -186,6 +192,25 @@ reservation.get('/confirm', async (req:Request, res:Response, next:NextFunction)
         currency: confirmResult.currency,
         timeZone: `${i18next.t('timeZoneMessage',{ns: 'confirm', lng: lng })}${confirmResult.tz}`
 
+      },(error, html)=>{if(error)throw error.toString();res.send(html)});
+  }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+})
+
+
+
+const checkParamForMenu = (req: Request, res: Response, next: NextFunction):any=> {
+  const { menus_id, day } = req.query;
+  if (!menus_id || !day) return notFound(req, res);
+  next(); 
+};
+
+reservation.get('/menu', checkParamForMenu, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+      let lng:string = getLanguage(req);
+      const { menus_id, day } = req.query;
+      let rows = await executeQuery('CALL get_menu(?, ?, ?)',[lng, req.session.data?.companyID, menus_id]);
+      return res.render('routes/menu',{ 
+        data: (rows as any)
       },(error, html)=>{if(error)throw error.toString();res.send(html)});
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
