@@ -4,13 +4,13 @@
     "buttonText": "Continue",
     "buttonTextExit": "Cancel reservation",
     "noSelectedRestaurant": "please select a restaurant first, to continue.",
-    "viewMenu": "View Menu",
+    "viewMenu": "View Menus",
     "orederBeforeBooking": "Order Before Booking From Menu",
-    "orederBeforeBookingAlert": "Take a look now and after confirming the boking you will choose your items",
-    "menuModalTitle": "pick a date to view menu",
+    "orederBeforeBookingAlert": "Tap to Take a look and after confirming the boking you will choose items from menu",
+    "menuModalTitle": "Menus",
     "close": "Close",
     "dateTableTitle": "Date",
     "timeTableTitle": "Time",
-    "timeZoneTableTitle": "TimeZone",
+    "timeZoneTableTitle": "Time Zone",
     "mealTypeTableTitle": "Meal Type"
 }

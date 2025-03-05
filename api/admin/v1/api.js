@@ -51,21 +51,21 @@ const csurf_1 = __importDefault(require("csurf"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const i18n_1 = __importDefault(require("../../../providers/i18n/i18n"));
 const mysqlProvider_1 = require("../../../providers/mysqlProvider/mysqlProvider");
-const herlpers_1 = require("../../../helpers/herlpers");
+const admin_herlpers_1 = require("../../../helpers/admin_herlpers");
 const adminApi = express.Router();
 adminApi.use(express.json({ limit: '1mb' }));
 adminApi.use((0, cookie_parser_1.default)());
 const csrfProtection = (0, csurf_1.default)({ cookie: true });
 adminApi.post('/report', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, admin_herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
-        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["error"]))
+        if (!(0, admin_herlpers_1.validateRequestBodyKeys)(req, res, ["error"]))
             return;
-        (0, herlpers_1.reportErrorAndRespond)("USER ERROR REPORT INSIDE api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${req.body.error}` }, req, res);
+        (0, admin_herlpers_1.reportErrorAndRespond)("USER ERROR REPORT INSIDE api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${req.body.error}` }, req, res);
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, admin_herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 adminApi.get('/adminstate', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -76,15 +76,15 @@ adminApi.get('/adminstate', csrfProtection, (req, res, next) => __awaiter(void 0
         return res.status(200).jsonp({ state: 'login' });
     }
     catch (error) {
-        (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of api.get('/state')", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, admin_herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of api.get('/state')", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 adminApi.post('/login', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, admin_herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
-        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["username", "password"]))
+        if (!(0, admin_herlpers_1.validateRequestBodyKeys)(req, res, ["username", "password"]))
             return;
         let result = yield (0, mysqlProvider_1.executeQuery)('CALL admin_login(?, ?)', [req.body.username, (_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.companyID]);
         console.log(result);
@@ -99,15 +99,15 @@ adminApi.post('/login', csrfProtection, (req, res, next) => __awaiter(void 0, vo
         return res.status(202).jsonp({ status: "error", errorText: i18n_1.default.t('invalidCredentials', { ns: 'admin_login', lng: req.language }) });
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, admin_herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 adminApi.post('/saveuserchanges', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, admin_herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
-        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["displayName", "email", "phone"]))
+        if (!(0, admin_herlpers_1.validateRequestBodyKeys)(req, res, ["displayName", "email", "phone"]))
             return;
         let result = yield (0, mysqlProvider_1.executeQuery)('CALL save_user_changes(?, ?, ?, ?)', [req.body.displayName, req.body.phone, req.body.email, (_a = req.session.adminData) === null || _a === void 0 ? void 0 : _a.adminUser]);
         if (!result || !result[0][0])
@@ -115,7 +115,7 @@ adminApi.post('/saveuserchanges', csrfProtection, (req, res, next) => __awaiter(
         return res.status(200).jsonp({ status: "success", data: result });
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH adminApi.post('/saveuserchanges', (req,res)=>{})", { script: "api.ts", scope: "adminApi.post('/saveuserchanges', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, admin_herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH adminApi.post('/saveuserchanges', (req,res)=>{})", { script: "api.ts", scope: "adminApi.post('/saveuserchanges', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 adminApi.get('/gethotels', csrfProtection, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -130,7 +130,7 @@ adminApi.get('/gethotels', csrfProtection, (req, res, next) => __awaiter(void 0,
         return res.status(200).jsonp(updatedData);
     }
     catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH adminApi.post('/saveuserchanges', (req,res)=>{})", { script: "api.ts", scope: "adminApi.post('/saveuserchanges', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+        (0, admin_herlpers_1.logErrorAndRespond)("USER ERROR REPORT INSIDE CATCH adminApi.post('/saveuserchanges', (req,res)=>{})", { script: "api.ts", scope: "adminApi.post('/saveuserchanges', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
 function generateHash(password) {

@@ -28,6 +28,7 @@ const getLanguage = ()=> {return localStorage.getItem('lng') || 'en';}
         if(result['state'] === 'room') fetchRoom();
         if(result['state'] === 'time') fetchTime();
         if(result['state'] === 'qrcode') fetchConfirm();
+        if(result['state'] === 'restaurant') fetchRestaurant();
     }).catch(error => {
         console.error('Error fetching HTML:', error);
     });
@@ -319,8 +320,9 @@ const fetchRestaurant = async ()=>{
 }
 
 function actionsFormatter(row, data){
+    console.log(data)
     return `
-    <button onclick="viewMenu('${data['ref']}')" class=" tw-w-full tw-justify-center tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
+    <button ${data['is_menu_viewer'] === 1 ? `onclick="viewMenuViewer('${data['ref']}')"` : `onclick="viewMenu('${data['ref']}')"` }  class=" tw-w-full tw-justify-center tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
         <div id="view_menu__${data['ref']}">
             <i class="tw-text-2xl fa-solid tw-px-1 fa-utensils"></i>
             <span class="tw-px-2">${data['viewMenuTranslation']}</span>
@@ -399,6 +401,35 @@ function menuSelection(restaurantID){
             viewMenuModalClick = false;
         });
         
+    }
+}
+
+function viewMenuViewer(referenceID){
+    if(!viewMenuClick){
+        viewMenuClick = true;
+        $(`#loader_modal__${referenceID}`).show()
+        $(`#view_menu__${referenceID}`).hide()
+        fetch(`/api/v1/menuviewer`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},
+            body: JSON.stringify({ 'referenceID': referenceID })
+        }).then(async response =>  {
+            if (!response.ok) {throw (await response.json());}
+            return response.text();
+        }).then(async (result)=>{
+            $('#menuModalViewerBody').empty();
+            $('#menuModalViewerBody').append(result);
+            $('#menuModalViewer').modal('show')
+            $(`#loader_modal__${referenceID}`).hide()
+            $(`#view_menu__${referenceID}`).show()
+            viewMenuClick = false;
+        })
+        .catch(error => {
+            showError(error)
+            $(`#loader_modal__${referenceID}`).hide()
+            $(`#view_menu__${referenceID}`).show()
+            viewMenuClick = false;
+        });
     }
 }
 

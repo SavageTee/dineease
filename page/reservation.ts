@@ -89,7 +89,6 @@ reservation.get('/restaurant', async (req:Request, res:Response, next:NextFuncti
       about: row['about']??''.toString(),
       capacity: Number(row['capacity']??'1'),
       isSelected: row['restaurants_id'].toString() === req.session.data?.restaurantID,
-      menu_selection: row['menu_selection'] === 0 ? false : true,
       hotel_id: row['hotel_id']??''.toString(),
       hotel_name:  row['hotel_name']??''.toString(),
     }))

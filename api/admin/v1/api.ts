@@ -5,7 +5,7 @@ import csrf from 'csurf';
 import cookieParser from 'cookie-parser';
 import i18next from "../../../providers/i18n/i18n"
 import {executeQuery} from "../../../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond, validateContentType, validateRequestBodyKeys, reportErrorAndRespond, ReportErrorAndRespondJsonGet } from "../../../helpers/herlpers"
+import { logErrorAndRespond, validateContentType, validateRequestBodyKeys, reportErrorAndRespond, ReportErrorAndRespondJsonGet } from "../../../helpers/admin_herlpers"
 
 const adminApi = express.Router()
 adminApi.use(express.json({limit: '1mb'}))
@@ -14,7 +14,7 @@ const csrfProtection = csrf({ cookie: true });
 
 adminApi.post('/report', csrfProtection, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
     try{
-      if (!validateContentType(req, res)) return;
+      if (!validateContentType(req, res, 'application/json')) return;
       if (!validateRequestBodyKeys(req, res, ["error"])) return;
       reportErrorAndRespond("USER ERROR REPORT INSIDE api.post('/report', (req,res)=>{})", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${req.body.error}`},req,res);
     }catch(error){
@@ -32,7 +32,7 @@ adminApi.get('/adminstate', csrfProtection, async (req:Request, res:Response, ne
 
 adminApi.post('/login', csrfProtection, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["username", "password"])) return;
     let result = await executeQuery('CALL admin_login(?, ?)',[req.body.username, req.session.adminData?.companyID]);
     console.log(result)
@@ -49,7 +49,7 @@ adminApi.post('/login', csrfProtection, async (req:Request, res:Response, next:N
 
 adminApi.post('/saveuserchanges', csrfProtection, async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["displayName", "email", "phone"])) return;
     let result = await executeQuery('CALL save_user_changes(?, ?, ?, ?)',[req.body.displayName, req.body.phone, req.body.email, req.session.adminData?.adminUser]);
     if(!(result as any) || !(result as any)[0][0]) return res.status(202).jsonp({status: "error", errorText: i18next.t('updateUnsuccessfull',{ ns:'admin_page', lng:req.language })});

@@ -43,8 +43,8 @@ export const convertFileToBase64 = (imagePath:string):string | false => {
     }catch(error){return false;}
 }
 
-export const validateContentType = (req: Request, res: Response) => {
-    if (req.headers['content-type'] !== "application/json") {
+export const validateContentType = (req: Request, res: Response, contentType:string) => {
+    if (req.headers['content-type'] !== contentType) {
         res.status(400).jsonp({ status: 'error', origin: 'server', errorText: "Bad Request" });
         return false;
     }

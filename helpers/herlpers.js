@@ -92,8 +92,8 @@ const convertFileToBase64 = (imagePath) => {
     }
 };
 exports.convertFileToBase64 = convertFileToBase64;
-const validateContentType = (req, res) => {
-    if (req.headers['content-type'] !== "application/json") {
+const validateContentType = (req, res, contentType) => {
+    if (req.headers['content-type'] !== contentType) {
         res.status(400).jsonp({ status: 'error', origin: 'server', errorText: "Bad Request" });
         return false;
     }

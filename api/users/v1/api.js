@@ -54,7 +54,7 @@ const api = express.Router();
 api.use(express.json({ limit: '1mb' }));
 api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["error"]))
             return;
@@ -67,29 +67,30 @@ api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let data = req.session.data;
-        //return res.status(200).jsonp({ state: 'hotel' })
-        const states = [
-            { state: 'language', keys: ['companyUUID'] },
-            { state: 'language', keys: ['companyUUID', 'companyID'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification'] },
-            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification', 'paid'] },
-        ];
-        const matchedState = states.find(({ keys }) => keys.every(key => key in data && data[key] !== undefined && data[key] !== null) &&
-            Object.keys(data).length === keys.length);
-        if (matchedState) {
-            const keysToRemove = ['roomNumber', 'guest_reservation_id', 'verification', 'paid'];
-            keysToRemove.forEach(key => {
-                if (matchedState.keys.includes(key)) {
-                    delete data[key];
-                }
-            });
-            return res.status(200).jsonp({ state: matchedState.state });
-        }
-        if (true)
-            return res.status(200).jsonp({ state: 'room' });
+        return res.status(200).jsonp({ state: 'restaurant' });
+        /* const states = [
+           { state: 'language', keys: ['companyUUID'] },
+           { state: 'language', keys: ['companyUUID', 'companyID'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification'] },
+           { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID', 'roomNumber', 'guest_reservation_id', 'verification', 'paid'] },
+         ];
+         const matchedState = states.find(({ keys }) =>
+           keys.every(key => key in data && data[key] !== undefined && data[key] !== null) &&
+           Object.keys(data).length === keys.length
+         );
+         if (matchedState) {
+           const keysToRemove = ['roomNumber', 'guest_reservation_id', 'verification', 'paid'];
+           keysToRemove.forEach(key => {
+             if (matchedState.keys.includes(key)) {
+               delete data[key];
+             }
+           });
+           return res.status(200).jsonp({ state: matchedState.state });
+         }
+         if(true)return res.status(200).jsonp({ state: 'room'});*/
     }
     catch (error) {
         (0, herlpers_1.ReportErrorAndRespondJsonGet)("error occured in catch block of api.get('/state')", { script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error: `${error}` }, req, res);
@@ -97,7 +98,7 @@ api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function
 }));
 api.post('/savehotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["hotelID"]))
             return;
@@ -112,13 +113,59 @@ api.post('/menuselection', (req, res, next) => __awaiter(void 0, void 0, void 0,
     var _a, _b, _c;
     try {
         let lng = (0, herlpers_1.getLanguage)(req);
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["restaurantID"]))
             return;
         const rows_dates = yield (0, mysqlProvider_1.executeQuery)('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
-        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menu_urls_period(?, ?, ?, ?, ?)', [rows_dates[0][0]['start_date'], rows_dates[0][0]['end_date'], req.body.restaurantID, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID, lng]);
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menus_urls_or_viewer(?, ?, ?, ?, ?)', [rows_dates[0][0]['start_date'], rows_dates[0][0]['end_date'], req.body.restaurantID, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID, lng]);
         return res.status(200).jsonp({ status: 'success', data: rows[0], viewMenuTranslation: i18n_1.default.t('viewMenu', { ns: 'restaurant', lng: req.language, returnObjects: true }), });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/savehotel', (req,res)=>{})", { script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+api.post('/menu', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["referenceID"]))
+            return;
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menu_pdf_url(?)', [req.body.referenceID]);
+        return res.status(200).jsonp({
+            status: "success",
+            menu: (0, herlpers_1.convertFileToBase64)(rows[0][0]['menu_url'].toString())
+        });
+    }
+    catch (error) {
+        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/menu', (req,res)=>{})", { script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error: `${error}` }, req, res);
+    }
+}));
+api.post('/menuviewer', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        let lng = (0, herlpers_1.getLanguage)(req);
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
+            return;
+        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["referenceID"]))
+            return;
+        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menu(?, ?, ?)', [lng, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyID, req.body.referenceID]);
+        const groupedData = rows[0].reduce((acc, item) => {
+            const { category_name, subcategory_name } = item;
+            if (!acc[category_name]) {
+                acc[category_name] = {};
+            }
+            if (!acc[category_name][subcategory_name]) {
+                acc[category_name][subcategory_name] = [];
+            }
+            acc[category_name][subcategory_name].push(item);
+            return acc;
+        }, {});
+        console.log(groupedData);
+        return res.render('routes/menu', {
+            groupedData: groupedData
+        }, (error, html) => { if (error)
+            throw error.toString(); res.send(html); });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/savehotel', (req,res)=>{})", { script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error: `${error}` }, req, res);
@@ -138,7 +185,7 @@ const checkRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.checkRoom = checkRoom;
 api.post('/checkroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["roomNumber"]))
             return;
@@ -167,7 +214,7 @@ const verifyRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.verifyRoom = verifyRoom;
 api.post('/verifyroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["date"]))
             return;
@@ -213,26 +260,9 @@ api.get('/cancelreservation', (req, res, next) => __awaiter(void 0, void 0, void
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/cancelreservation', (req,res)=>{})", { script: "api.ts", scope: "api.post('/cancelreservation', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-api.post('/menu', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
-            return;
-        if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["referenceID"]))
-            return;
-        const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menu_pdf_url(?)', [req.body.referenceID]);
-        console.log(rows[0][0]['menu_url'].toString());
-        res.status(200).jsonp({
-            status: "success",
-            menu: (0, herlpers_1.convertFileToBase64)(rows[0][0]['menu_url'].toString())
-        });
-    }
-    catch (error) {
-        (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/menu', (req,res)=>{})", { script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error: `${error}` }, req, res);
-    }
-}));
 api.post('/saverestaurant', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["restaurantID"]))
             return;
@@ -246,7 +276,7 @@ api.post('/saverestaurant', (req, res, next) => __awaiter(void 0, void 0, void 0
 api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["desiredDate"]))
             return;
@@ -287,7 +317,7 @@ api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void
 api.post('/validate', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
     try {
-        if (!(0, herlpers_1.validateContentType)(req, res))
+        if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["selectedTime", "selectedNames", "desiredDate"]))
             return;

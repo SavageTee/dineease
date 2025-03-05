@@ -154,7 +154,6 @@ reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, voi
                 about: (_d = row['about']) !== null && _d !== void 0 ? _d : ''.toString(),
                 capacity: Number((_e = row['capacity']) !== null && _e !== void 0 ? _e : '1'),
                 isSelected: row['restaurants_id'].toString() === ((_f = req.session.data) === null || _f === void 0 ? void 0 : _f.restaurantID),
-                menu_selection: row['menu_selection'] === 0 ? false : true,
                 hotel_id: (_g = row['hotel_id']) !== null && _g !== void 0 ? _g : ''.toString(),
                 hotel_name: (_h = row['hotel_name']) !== null && _h !== void 0 ? _h : ''.toString(),
             });

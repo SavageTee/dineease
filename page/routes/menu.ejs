@@ -1,19 +1,38 @@
-<div class="container mt-5">
-    <div class="accordion" id="menuAccordion">
-      <% data[0].forEach((item, index) => { %>
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="heading<%= item.menus_items_id %>">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%= item.menus_items_id %>" aria-expanded="true" aria-controls="collapse<%= item.menus_items_id %>">
-              <%= item.item_name %> - <%= item.price %> <%= item.currency_code %>
-            </button>
-          </h2>
-          <div id="collapse<%= item.menus_items_id %>" class="accordion-collapse collapse" aria-labelledby="heading<%= item.menus_items_id %>" data-bs-parent="#menuAccordion">
-            <div class="accordion-body">
-              <strong>Description:</strong> <%= item.item_description %><br>
-              <strong>Category:</strong> <%= item.category_name %> - <%= item.subcategory_name %><br>
-            </div>
+<div class="container-fluid">
+  <div class="accordion" id="menuAccordion">
+    <% Object.keys(groupedData).forEach((category, categoryIndex) => { %>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingCategory<%= categoryIndex %>">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCategory<%= categoryIndex %>" aria-expanded="true" aria-controls="collapseCategory<%= categoryIndex %>">
+            <%= category %>
+          </button>
+        </h2>
+        <div id="collapseCategory<%= categoryIndex %>" class="accordion-collapse collapse" aria-labelledby="headingCategory<%= categoryIndex %>" data-bs-parent="#menuAccordion">
+          <div class="accordion-body">
+            <% Object.keys(groupedData[category]).forEach((subcategory, subcategoryIndex) => { %>
+              <div class="accordion" id="subcategoryAccordion<%= categoryIndex %>-<%= subcategoryIndex %>">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>" aria-expanded="true" aria-controls="collapseSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>">
+                      <%= subcategory %>
+                    </button>
+                  </h2>
+                  <div id="collapseSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>" class="accordion-collapse collapse" aria-labelledby="headingSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>" data-bs-parent="#subcategoryAccordion<%= categoryIndex %>-<%= subcategoryIndex %>">
+                    <div class="accordion-body">
+                      <% groupedData[category][subcategory].forEach((item) => { %>
+                        <div class="mb-3">
+                          <strong><%= item.item_name %> - <%= item.price %> <%= item.currency_code %></strong><br>
+                          <em><%= item.item_description %></em>
+                        </div>
+                      <% }); %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
           </div>
         </div>
-      <% }); %>
-    </div>
+      </div>
+    <% }); %>
+  </div>
 </div>

@@ -951,10 +951,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(254 249 195 / var(--tw-bg-opacity, 1));
 }
-.tw-bg-yellow-50 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 252 232 / var(--tw-bg-opacity, 1));
-}
 .tw-bg-opacity-80 {
   --tw-bg-opacity: 0.8;
 }

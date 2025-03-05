@@ -11,7 +11,7 @@ api.use(express.json({limit: '1mb'}))
 
 api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["error"])) return;
     reportErrorAndRespond("USER ERROR REPORT INSIDE api.post('/report', (req,res)=>{})", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${req.body.error}`},req,res);
   }catch(error){
@@ -22,8 +22,8 @@ api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise
 api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     let data = req.session.data!;
-    //return res.status(200).jsonp({ state: 'hotel' })
-    const states = [
+    return res.status(200).jsonp({ state: 'restaurant' })
+   /* const states = [
       { state: 'language', keys: ['companyUUID'] },
       { state: 'language', keys: ['companyUUID', 'companyID'] },
       { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
@@ -45,13 +45,13 @@ api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<a
       });
       return res.status(200).jsonp({ state: matchedState.state });
     }
-    if(true)return res.status(200).jsonp({ state: 'room'});
+    if(true)return res.status(200).jsonp({ state: 'room'});*/
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of api.get('/state')", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${error}`},req,res)}
 })
 
 api.post('/savehotel', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["hotelID"])) return;
     req.session.data!.hotelID = req.body.hotelID;
     return res.status(200).jsonp({status: 'success'})
@@ -61,13 +61,57 @@ api.post('/savehotel', async (req:Request, res:Response, next:NextFunction):Prom
 api.post('/menuselection', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     let lng:string = getLanguage(req);
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["restaurantID"])) return;
     const rows_dates = await executeQuery('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.hotelID,req.session.data?.companyID]); 
-    const rows = await executeQuery('CALL get_menu_urls_period(?, ?, ?, ?, ?)',[(rows_dates as any)[0][0]['start_date'], (rows_dates as any)[0][0]['end_date'], req.body.restaurantID, req.session.data?.companyID, lng]); 
+    const rows = await executeQuery('CALL get_menus_urls_or_viewer(?, ?, ?, ?, ?)',[(rows_dates as any)[0][0]['start_date'], (rows_dates as any)[0][0]['end_date'], req.body.restaurantID, req.session.data?.companyID, lng]); 
     return res.status(200).jsonp({status: 'success', data: (rows as any)[0], viewMenuTranslation: i18next.t('viewMenu',{ns: 'restaurant', lng:req.language,returnObjects: true }),})
   }catch(error){logErrorAndRespond("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
+
+api.post('/menu', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    if (!validateContentType(req, res, 'application/json')) return;
+    if (!validateRequestBodyKeys(req, res, ["referenceID"])) return;
+    const rows = await executeQuery('CALL get_menu_pdf_url(?)',[req.body.referenceID]);
+    return res.status(200).jsonp({
+      status: "success",
+      menu: convertFileToBase64((rows as any)[0][0]['menu_url'].toString())
+    })  
+  }catch(error){
+    logErrorAndRespond("error occured in catch block of api.post('/menu', (req,res)=>{})", {script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error:`${error}`}, req, res );
+  }
+})
+
+api.post('/menuviewer', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
+  try{
+    let lng:string = getLanguage(req);
+    if (!validateContentType(req, res, 'application/json')) return;
+    if (!validateRequestBodyKeys(req, res, ["referenceID"])) return;
+    const rows = await executeQuery('CALL get_menu(?, ?, ?)',[lng, req.session.data?.companyID, req.body.referenceID]);
+   
+    const groupedData = (rows as any)[0].reduce((acc:any, item:any) => {
+      const { category_name, subcategory_name } = item;
+    
+      if (!acc[category_name]) {
+        acc[category_name] = {};
+      }
+    
+      if (!acc[category_name][subcategory_name]) {
+        acc[category_name][subcategory_name] = [];
+      }
+    
+      acc[category_name][subcategory_name].push(item);
+    
+      return acc;
+    }, {});
+    console.log(groupedData)
+    return res.render('routes/menu',{
+      groupedData: groupedData
+    },(error, html)=>{if(error)throw error.toString();res.send(html)});
+  }catch(error){logErrorAndRespond("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+})
+
 
 export const checkRoom = async (req:Request, res:Response):Promise<any> => {
   const rows = await executeQuery('CALL check_room(?, ?, ?)',[req.body.roomNumber, req.session.data?.hotelID ,req.session.data?.companyID,]);
@@ -79,7 +123,7 @@ export const checkRoom = async (req:Request, res:Response):Promise<any> => {
 
 api.post('/checkroom', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["roomNumber"])) return;
     let checkResult = await checkRoom(req, res); if(!checkResult) return;
     req.session.data!.roomNumber = req.body.roomNumber;
@@ -102,7 +146,7 @@ export const verifyRoom = async (req:Request, res:Response):Promise<any> => {
 
 api.post('/verifyroom', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["date"])) return;
     let result = await verifyRoom(req,res);
     if( result['result'] && result['result'] === 'noReservation') return res.status(200).jsonp({ status: 'error', errorText: i18next.t('invalidRoom',{ns: 'room', lng: req.language }) })
@@ -136,24 +180,11 @@ api.get('/cancelreservation',async (req:Request, res:Response, next:NextFunction
   }catch(error){logErrorAndRespond("error occured in catch block of api.post('/cancelreservation', (req,res)=>{})", {script: "api.ts", scope: "api.post('/cancelreservation', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
-api.post('/menu', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
-  try{
-    if (!validateContentType(req, res)) return;
-    if (!validateRequestBodyKeys(req, res, ["referenceID"])) return;
-    const rows = await executeQuery('CALL get_menu_pdf_url(?)',[req.body.referenceID]);
-    console.log((rows as any)[0][0]['menu_url'].toString())
-    res.status(200).jsonp({
-      status: "success",
-      menu: convertFileToBase64((rows as any)[0][0]['menu_url'].toString())
-    })  
-  }catch(error){
-    logErrorAndRespond("error occured in catch block of api.post('/menu', (req,res)=>{})", {script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error:`${error}`}, req, res );
-  }
-})
+
 
 api.post('/saverestaurant', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["restaurantID"])) return;
     req.session.data!.restaurantID = req.body.restaurantID;
     return res.status(200).jsonp({status: 'success'})
@@ -162,7 +193,7 @@ api.post('/saverestaurant', async (req:Request, res:Response, next:NextFunction)
 
 api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["desiredDate"])) return;
       const rows_names =  await executeQuery('CALL get_names(?)',[req.session.data!.guest_reservation_id]); 
       if((rows_names as any)[0][0] != undefined){
@@ -199,7 +230,7 @@ api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunctio
 
 api.post('/validate', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
-    if (!validateContentType(req, res)) return;
+    if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["selectedTime", "selectedNames", "desiredDate"])) return;
     const rows_check_room = await executeQuery('CALL check_room(?, ?, ?)',[req.session.data?.roomNumber, req.session.data?.hotelID  ,req.session.data?.companyID,]);  
     if(!(rows_check_room as any)[0][0]) return res.status(202).jsonp( { status: "error" } )
