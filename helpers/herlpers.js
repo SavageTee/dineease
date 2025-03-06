@@ -62,34 +62,43 @@ const getLanguage = (req) => {
 };
 exports.getLanguage = getLanguage;
 const convertFileToBase64 = (imagePath) => {
-    try {
-        const fullPath = path_1.default.join(__dirname, '..', imagePath);
-        const fileBuffer = fs_1.default.readFileSync(fullPath);
-        const base64File = fileBuffer.toString('base64');
-        const extname = path_1.default.extname(imagePath).toLowerCase();
-        let mimeType = '';
-        switch (extname) {
-            case '.jpg':
-            case '.jpeg':
-                mimeType = 'image/jpeg';
-                break;
-            case '.png':
-                mimeType = 'image/png';
-                break;
-            case '.gif':
-                mimeType = 'image/gif';
-                break;
-            case '.pdf':
-                mimeType = 'application/pdf';
-                break;
-            default:
-                return false;
+    return new Promise((resolve, reject) => {
+        try {
+            const fullPath = path_1.default.join(__dirname, '..', imagePath);
+            fs_1.default.readFile(fullPath, (err, fileBuffer) => {
+                if (err) {
+                    resolve(false);
+                    return;
+                }
+                const base64File = fileBuffer.toString('base64');
+                const extname = path_1.default.extname(imagePath).toLowerCase();
+                let mimeType = '';
+                switch (extname) {
+                    case '.jpg':
+                    case '.jpeg':
+                        mimeType = 'image/jpeg';
+                        break;
+                    case '.png':
+                        mimeType = 'image/png';
+                        break;
+                    case '.gif':
+                        mimeType = 'image/gif';
+                        break;
+                    case '.pdf':
+                        mimeType = 'application/pdf';
+                        break;
+                    default:
+                        // If the file type is unsupported, resolve with `false`
+                        resolve(false);
+                        return;
+                }
+                resolve(`data:${mimeType};base64,${base64File}`);
+            });
         }
-        return `data:${mimeType};base64,${base64File}`;
-    }
-    catch (error) {
-        return false;
-    }
+        catch (error) {
+            resolve(false);
+        }
+    });
 };
 exports.convertFileToBase64 = convertFileToBase64;
 const validateContentType = (req, res, contentType) => {

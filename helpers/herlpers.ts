@@ -15,33 +15,40 @@ export const getLanguage = (req: Request) => {
     }
 }
 
-export const convertFileToBase64 = (imagePath:string):string | false => {
-    try{
-        const fullPath = path.join(__dirname, '..', imagePath);   
-        const fileBuffer = fs.readFileSync(fullPath);
-        const base64File = fileBuffer.toString('base64');
-        const extname = path.extname(imagePath).toLowerCase();
-        let mimeType = '';
-        switch (extname) {
-            case '.jpg':
-            case '.jpeg':
+export const convertFileToBase64 = (imagePath: string): Promise<string | false> => {
+    return new Promise((resolve, reject) => {
+      try {
+        const fullPath = path.join(__dirname, '..', imagePath);
+        fs.readFile(fullPath, (err, fileBuffer) => {
+            if (err) {resolve(false); return;}
+            const base64File = fileBuffer.toString('base64');
+            const extname = path.extname(imagePath).toLowerCase();
+            let mimeType = '';
+            switch (extname) {
+                case '.jpg':
+                case '.jpeg':
                 mimeType = 'image/jpeg';
                 break;
-            case '.png':
+                case '.png':
                 mimeType = 'image/png';
                 break;
-            case '.gif':
+                case '.gif':
                 mimeType = 'image/gif';
                 break;
-            case '.pdf':
+                case '.pdf':
                 mimeType = 'application/pdf';
-                break;    
-            default:
-                return false;
-        }
-        return `data:${mimeType};base64,${base64File}`;
-    }catch(error){return false;}
-}
+                break;
+                default:
+                // If the file type is unsupported, resolve with `false`
+                resolve(false);
+                return;
+            }
+            resolve(`data:${mimeType};base64,${base64File}`);
+        });
+      } catch (error) {resolve(false);}
+    });
+};
+
 
 export const validateContentType = (req: Request, res: Response, contentType:string) => {
     if (req.headers['content-type'] !== contentType) {

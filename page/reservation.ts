@@ -26,7 +26,7 @@ reservation.get('/language', async (req:Request, res:Response, next:NextFunction
     try{
       let rows = await executeQuery('CALL get_company(?)',[req.session.data?.companyUUID]);
       if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null) return notFound(req,res);
-      let logo_base64 = convertFileToBase64((rows as any)[0][0]['logo_url']);
+      let logo_base64 = await convertFileToBase64((rows as any)[0][0]['logo_url']);
       let companyInfo: companyInfo = {
         companyID: (rows as any)[0][0]['company_id'].toString(),
         companyName: (rows as any)[0][0]['company_name'],
@@ -46,10 +46,10 @@ reservation.get('/hotel', async (req:Request, res:Response, next:NextFunction):P
       let lng:string = getLanguage(req);
       const rows = await executeQuery('CALL get_hotels(?, ?)', [req.session.data!.companyID, 1]);
       if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: lng}), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: lng}), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: lng}));
-      const hotels:hotel[] = (rows as any)[0].map((row: any) => ({
+      const hotels:hotel[] = (rows as any)[0].map(async (row: any) => ({
         hotelID: row['hotel_id'].toString(),
         name: row['name'],
-        logo: convertFileToBase64(row['logo_url']),
+        logo: await convertFileToBase64(row['logo_url']),
         verificationType: row['verification_type'],
         isSelected: row['hotel_id'].toString() === req.session.data?.hotelID
       }));
@@ -81,17 +81,19 @@ reservation.get('/restaurant', async (req:Request, res:Response, next:NextFuncti
   try{
     let lng:string = getLanguage(req);
     const rows = await executeQuery('CALL get_restaurants(?, ?, ?, ?)',[req.session.data!.companyID, 1, lng, req.session.data?.hotelID]);  
-    const restaurants:restaurant[] = (rows as any)[0].map((row: any) => ({
-      restaurantID: row['restaurants_id']??''.toString(),
-      name: row['name']??''.toString(),
-      country: row['cuisine']??''.toString(),
-      photo: convertFileToBase64(row['logo_url']),
-      about: row['about']??''.toString(),
-      capacity: Number(row['capacity']??'1'),
-      isSelected: row['restaurants_id'].toString() === req.session.data?.restaurantID,
-      hotel_id: row['hotel_id']??''.toString(),
-      hotel_name:  row['hotel_name']??''.toString(),
-    }))
+    const restaurants: restaurant[] = await Promise.all(
+      (rows as any)[0].map(async (row: any) => ({
+        restaurantID: row['restaurants_id']?.toString() ?? '',
+        name: row['name']?.toString() ?? '',
+        country: row['cuisine']?.toString() ?? '',
+        photo: await convertFileToBase64(row['logo_url']), // Await the Base64 conversion
+        about: row['about']?.toString() ?? '',
+        capacity: Number(row['capacity'] ?? '1'),
+        isSelected: row['restaurants_id'].toString() === req.session.data?.restaurantID,
+        hotel_id: row['hotel_id']?.toString() ?? '',
+        hotel_name: row['hotel_name']?.toString() ?? '',
+      }))
+    );
     return res.render('routes/restaurant',{
       title: i18next.t('title',{ns: 'restaurant', lng: lng }),
       alertText: i18next.t('alertText',{ns: 'restaurant', lng: lng }),

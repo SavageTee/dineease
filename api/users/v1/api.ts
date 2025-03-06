@@ -8,7 +8,6 @@ import { logErrorAndRespond, notFound, errorPage, validateContentType, validateR
 const api = express.Router()
 api.use(express.json({limit: '1mb'}))
 
-
 api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
     if (!validateContentType(req, res, 'application/json')) return;
@@ -23,7 +22,7 @@ api.get('/state', async (req:Request, res:Response, next:NextFunction):Promise<a
   try{
     let data = req.session.data!;
     return res.status(200).jsonp({ state: 'restaurant' })
-   /* const states = [
+   /*const states = [
       { state: 'language', keys: ['companyUUID'] },
       { state: 'language', keys: ['companyUUID', 'companyID'] },
       { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
@@ -76,12 +75,34 @@ api.post('/menu', async (req:Request, res:Response, next:NextFunction):Promise<a
     const rows = await executeQuery('CALL get_menu_pdf_url(?)',[req.body.referenceID]);
     return res.status(200).jsonp({
       status: "success",
-      menu: convertFileToBase64((rows as any)[0][0]['menu_url'].toString())
+      menu: await convertFileToBase64((rows as any)[0][0]['menu_url'].toString())
     })  
   }catch(error){
     logErrorAndRespond("error occured in catch block of api.post('/menu', (req,res)=>{})", {script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error:`${error}`}, req, res );
   }
 })
+
+
+const groupedData = async (rows: any[]) => {
+  const data = rows[0];
+  const acc: any = {};
+  for (const item of data) {
+    const { category_name, subcategory_name, menu_categories_background_url } = item;
+    if (!acc[category_name]) {acc[category_name] = {};}
+    if (!acc[category_name][subcategory_name]) {acc[category_name][subcategory_name] = [];}
+    if (menu_categories_background_url) {
+      try {
+        const base64Image = await convertFileToBase64(menu_categories_background_url);
+        item.menu_categories_background_url = base64Image; // Replace the URL with Base64
+      } catch (error) {
+        console.error(`Failed to convert ${menu_categories_background_url} to Base64:`, error);
+        // Optionally, you can keep the original URL or handle the error as needed
+      }
+    }
+    acc[category_name][subcategory_name].push(item);
+  }
+  return acc;
+};
 
 api.post('/menuviewer', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
@@ -89,29 +110,13 @@ api.post('/menuviewer', async (req:Request, res:Response, next:NextFunction):Pro
     if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["referenceID"])) return;
     const rows = await executeQuery('CALL get_menu(?, ?, ?)',[lng, req.session.data?.companyID, req.body.referenceID]);
-   
-    const groupedData = (rows as any)[0].reduce((acc:any, item:any) => {
-      const { category_name, subcategory_name } = item;
-    
-      if (!acc[category_name]) {
-        acc[category_name] = {};
-      }
-    
-      if (!acc[category_name][subcategory_name]) {
-        acc[category_name][subcategory_name] = [];
-      }
-    
-      acc[category_name][subcategory_name].push(item);
-    
-      return acc;
-    }, {});
-    console.log(groupedData)
+    let result = await groupedData((rows as any));
+    console.log(JSON.stringify(result))
     return res.render('routes/menu',{
-      groupedData: groupedData
+      groupedData: result
     },(error, html)=>{if(error)throw error.toString();res.send(html)});
   }catch(error){logErrorAndRespond("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
-
 
 export const checkRoom = async (req:Request, res:Response):Promise<any> => {
   const rows = await executeQuery('CALL check_room(?, ?, ?)',[req.body.roomNumber, req.session.data?.hotelID ,req.session.data?.companyID,]);

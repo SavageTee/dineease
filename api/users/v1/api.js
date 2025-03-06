@@ -68,7 +68,7 @@ api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function
     try {
         let data = req.session.data;
         return res.status(200).jsonp({ state: 'restaurant' });
-        /* const states = [
+        /*const states = [
            { state: 'language', keys: ['companyUUID'] },
            { state: 'language', keys: ['companyUUID', 'companyID'] },
            { state: 'room', keys: ['companyUUID', 'companyID', 'hotelID'] },
@@ -134,13 +134,38 @@ api.post('/menu', (req, res, next) => __awaiter(void 0, void 0, void 0, function
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menu_pdf_url(?)', [req.body.referenceID]);
         return res.status(200).jsonp({
             status: "success",
-            menu: (0, herlpers_1.convertFileToBase64)(rows[0][0]['menu_url'].toString())
+            menu: yield (0, herlpers_1.convertFileToBase64)(rows[0][0]['menu_url'].toString())
         });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/menu', (req,res)=>{})", { script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
+const groupedData = (rows) => __awaiter(void 0, void 0, void 0, function* () {
+    const data = rows[0];
+    const acc = {};
+    for (const item of data) {
+        const { category_name, subcategory_name, menu_categories_background_url } = item;
+        if (!acc[category_name]) {
+            acc[category_name] = {};
+        }
+        if (!acc[category_name][subcategory_name]) {
+            acc[category_name][subcategory_name] = [];
+        }
+        if (menu_categories_background_url) {
+            try {
+                const base64Image = yield (0, herlpers_1.convertFileToBase64)(menu_categories_background_url);
+                item.menu_categories_background_url = base64Image; // Replace the URL with Base64
+            }
+            catch (error) {
+                console.error(`Failed to convert ${menu_categories_background_url} to Base64:`, error);
+                // Optionally, you can keep the original URL or handle the error as needed
+            }
+        }
+        acc[category_name][subcategory_name].push(item);
+    }
+    return acc;
+});
 api.post('/menuviewer', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -150,20 +175,10 @@ api.post('/menuviewer', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["referenceID"]))
             return;
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menu(?, ?, ?)', [lng, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyID, req.body.referenceID]);
-        const groupedData = rows[0].reduce((acc, item) => {
-            const { category_name, subcategory_name } = item;
-            if (!acc[category_name]) {
-                acc[category_name] = {};
-            }
-            if (!acc[category_name][subcategory_name]) {
-                acc[category_name][subcategory_name] = [];
-            }
-            acc[category_name][subcategory_name].push(item);
-            return acc;
-        }, {});
-        console.log(groupedData);
+        let result = yield groupedData(rows);
+        console.log(JSON.stringify(result));
         return res.render('routes/menu', {
-            groupedData: groupedData
+            groupedData: result
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }

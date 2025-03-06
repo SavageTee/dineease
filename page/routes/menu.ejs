@@ -1,14 +1,18 @@
 <div class="container-fluid">
-  <div class="accordion" id="menuAccordion">
+  <div class="accordion rounded-none" id="menuAccordion">
     <% Object.keys(groupedData).forEach((category, categoryIndex) => { %>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="headingCategory<%= categoryIndex %>">
+      <div class="accordion-item rounded-none">
+        <h2 class="accordion-header rounded-none" id="headingCategory<%= categoryIndex %>">
           <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCategory<%= categoryIndex %>" aria-expanded="true" aria-controls="collapseCategory<%= categoryIndex %>">
             <%= category %>
+            <img 
+            class="tw-rounded-t-lg tw-w-96 tw-h-56 object-cover tw-border tw-border-gray-300" 
+            src="<%= groupedData[category][Object.keys(groupedData[category])[0]][0].menu_categories_background_url %>" 
+            alt="restaurant image">
           </button>
         </h2>
         <div id="collapseCategory<%= categoryIndex %>" class="accordion-collapse collapse" aria-labelledby="headingCategory<%= categoryIndex %>" data-bs-parent="#menuAccordion">
-          <div class="accordion-body">
+          <div class="accordion-body tw-bg-slate-950">
             <% Object.keys(groupedData[category]).forEach((subcategory, subcategoryIndex) => { %>
               <div class="accordion" id="subcategoryAccordion<%= categoryIndex %>-<%= subcategoryIndex %>">
                 <div class="accordion-item">

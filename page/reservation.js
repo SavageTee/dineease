@@ -75,7 +75,7 @@ reservation.get('/language', (req, res, next) => __awaiter(void 0, void 0, void 
         let rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_company(?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyUUID]);
         if (rows[0][0] === undefined || rows[0][0] === null)
             return (0, herlpers_1.notFound)(req, res);
-        let logo_base64 = (0, herlpers_1.convertFileToBase64)(rows[0][0]['logo_url']);
+        let logo_base64 = yield (0, herlpers_1.convertFileToBase64)(rows[0][0]['logo_url']);
         let companyInfo = {
             companyID: rows[0][0]['company_id'].toString(),
             companyName: rows[0][0]['company_name'],
@@ -99,16 +99,16 @@ reservation.get('/hotel', (req, res, next) => __awaiter(void 0, void 0, void 0, 
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_hotels(?, ?)', [req.session.data.companyID, 1]);
         if (rows[0][0] === undefined || rows[0][0] === null)
             return (0, herlpers_1.errorPage)(req, res, i18n_1.default.t('titleNoHotel', { ns: 'hotel', lng: lng }), i18n_1.default.t('errorHeaderNoHotel', { ns: 'hotel', lng: lng }), i18n_1.default.t('errorBodyNoHotel', { ns: 'hotel', lng: lng }));
-        const hotels = rows[0].map((row) => {
+        const hotels = rows[0].map((row) => __awaiter(void 0, void 0, void 0, function* () {
             var _a;
             return ({
                 hotelID: row['hotel_id'].toString(),
                 name: row['name'],
-                logo: (0, herlpers_1.convertFileToBase64)(row['logo_url']),
+                logo: yield (0, herlpers_1.convertFileToBase64)(row['logo_url']),
                 verificationType: row['verification_type'],
                 isSelected: row['hotel_id'].toString() === ((_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID)
             });
-        });
+        }));
         return res.render('routes/hotel', {
             alertText: i18n_1.default.t('alertText', { ns: 'hotel', lng: lng }),
             buttonText: i18n_1.default.t('buttonText', { ns: 'hotel', lng: lng }),
@@ -144,20 +144,20 @@ reservation.get('/restaurant', (req, res, next) => __awaiter(void 0, void 0, voi
     try {
         let lng = (0, herlpers_1.getLanguage)(req);
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_restaurants(?, ?, ?, ?)', [req.session.data.companyID, 1, lng, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID]);
-        const restaurants = rows[0].map((row) => {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
+        const restaurants = yield Promise.all(rows[0].map((row) => __awaiter(void 0, void 0, void 0, function* () {
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
             return ({
-                restaurantID: (_a = row['restaurants_id']) !== null && _a !== void 0 ? _a : ''.toString(),
-                name: (_b = row['name']) !== null && _b !== void 0 ? _b : ''.toString(),
-                country: (_c = row['cuisine']) !== null && _c !== void 0 ? _c : ''.toString(),
-                photo: (0, herlpers_1.convertFileToBase64)(row['logo_url']),
-                about: (_d = row['about']) !== null && _d !== void 0 ? _d : ''.toString(),
-                capacity: Number((_e = row['capacity']) !== null && _e !== void 0 ? _e : '1'),
-                isSelected: row['restaurants_id'].toString() === ((_f = req.session.data) === null || _f === void 0 ? void 0 : _f.restaurantID),
-                hotel_id: (_g = row['hotel_id']) !== null && _g !== void 0 ? _g : ''.toString(),
-                hotel_name: (_h = row['hotel_name']) !== null && _h !== void 0 ? _h : ''.toString(),
+                restaurantID: (_b = (_a = row['restaurants_id']) === null || _a === void 0 ? void 0 : _a.toString()) !== null && _b !== void 0 ? _b : '',
+                name: (_d = (_c = row['name']) === null || _c === void 0 ? void 0 : _c.toString()) !== null && _d !== void 0 ? _d : '',
+                country: (_f = (_e = row['cuisine']) === null || _e === void 0 ? void 0 : _e.toString()) !== null && _f !== void 0 ? _f : '',
+                photo: yield (0, herlpers_1.convertFileToBase64)(row['logo_url']), // Await the Base64 conversion
+                about: (_h = (_g = row['about']) === null || _g === void 0 ? void 0 : _g.toString()) !== null && _h !== void 0 ? _h : '',
+                capacity: Number((_j = row['capacity']) !== null && _j !== void 0 ? _j : '1'),
+                isSelected: row['restaurants_id'].toString() === ((_k = req.session.data) === null || _k === void 0 ? void 0 : _k.restaurantID),
+                hotel_id: (_m = (_l = row['hotel_id']) === null || _l === void 0 ? void 0 : _l.toString()) !== null && _m !== void 0 ? _m : '',
+                hotel_name: (_p = (_o = row['hotel_name']) === null || _o === void 0 ? void 0 : _o.toString()) !== null && _p !== void 0 ? _p : '',
             });
-        });
+        })));
         return res.render('routes/restaurant', {
             title: i18n_1.default.t('title', { ns: 'restaurant', lng: lng }),
             alertText: i18n_1.default.t('alertText', { ns: 'restaurant', lng: lng }),
