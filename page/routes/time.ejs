@@ -100,13 +100,7 @@
           </tr>
           </thead>
         </table>
-        <button style="display: none;" id="confirm" class="tw-p-3 tw-mt-4 tw-mx-auto tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
-          <div id="notloader" class="tw-flex tw-items-center tw-justify-center">
-            <span class="tw-mr-2"><%= buttonText %></span> 
-            <i class="fa-solid fa-arrow-right"></i>
-          </div>
-          <div style="display: none;" id="loader" class="spinner-border text-light" role="status"></div>
-        </button>
+       
     </div>
   </div>
 
@@ -146,6 +140,18 @@
           <i class="fa-regular fa-circle-xmark"></i>
         </div>
       </button>
+      <button  id="confirm" class="tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
+        <div id="notloader" class="tw-flex tw-items-center tw-justify-center">
+          <span class="tw-mr-2"><%= buttonText %></span> 
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+        <div style="display: none;" id="loader" class="spinner-border text-light" role="status"></div>
+      </button>
     </div>
   </div>
+
+  <script>
+    noSelectedGuestsError  = '<%= noSelectedGuestsError %>'
+    noSelectedTimeError  = '<%= noSelectedTimeError %>'
+  </script>
   

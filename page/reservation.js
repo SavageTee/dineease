@@ -194,7 +194,7 @@ reservation.get('/time', (req, res, next) => __awaiter(void 0, void 0, void 0, f
     var _a, _b, _c;
     try {
         let lng = (0, herlpers_1.getLanguage)(req);
-        const rows_arrival_departure = yield (0, mysqlProvider_1.executeQuery)('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
+        const rows_arrival_departure = yield (0, mysqlProvider_1.executeQuery)('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.restaurantID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
         let dates = rows_arrival_departure[0][0];
         const start_date = new Date(dates['start_date']);
         const end_date = new Date(dates['end_date']);
@@ -215,6 +215,8 @@ reservation.get('/time', (req, res, next) => __awaiter(void 0, void 0, void 0, f
                 roomNumber: req.session.data.roomNumber,
                 selectYourDate: i18n_1.default.t('selectYourDate', { ns: 'time', lng: lng }),
                 total: i18n_1.default.t('total', { ns: 'time', lng: lng }),
+                noSelectedGuestsError: i18n_1.default.t('noSelectedGuestsError', { ns: 'time', lng: lng }),
+                noSelectedTimeError: i18n_1.default.t('noSelectedTimeError', { ns: 'time', lng: lng }),
             }, (error, html) => { if (error)
                 throw error.toString(); res.send(html); });
         }

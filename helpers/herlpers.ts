@@ -91,6 +91,19 @@ export const errorPage = (req:Request, res:Response, title:string, errorHeader:s
     }catch(error){ ReportErrorAndRespondJsonGet("error occured in catch block of helpers functions export const errorPage()", {script: "helpers.ts", scope: "errorPage()", request: req, error:`${error}`}, req, res ); }
 }
 
+
+export const ReportErrorForPostRequests = async (message: string, metadata: any, req: Request, res: Response) => {
+    let generatedUUID = await newLog({
+        level: 'error',
+        message: message,
+        metadata: metadata
+    });
+    return res.status(500).jsonp({
+        status: "error",
+        errorText: i18next.t('errorText', { ns: "server", lng: req.language, UUID: generatedUUID })
+    })
+}
+
 export const ReportErrorAndRespondJsonGet = async (message: string, metadata: any, req: Request, res: Response) => {
     let generatedUUID = await newLog({
         level: 'error',

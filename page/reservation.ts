@@ -127,7 +127,7 @@ reservation.get('/restaurant', async (req:Request, res:Response, next:NextFuncti
 reservation.get('/time', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
   try{
       let lng:string = getLanguage(req);
-      const rows_arrival_departure = await executeQuery('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.hotelID,req.session.data?.companyID]); 
+      const rows_arrival_departure = await executeQuery('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.restaurantID,req.session.data?.companyID]); 
       let dates:{start_date:string, end_date:string, tz:string} = (rows_arrival_departure as any)[0][0];
       const start_date = new Date(dates['start_date']);
       const end_date = new Date(dates['end_date']);
@@ -147,6 +147,8 @@ reservation.get('/time', async (req:Request, res:Response, next:NextFunction):Pr
           roomNumber: req.session.data!.roomNumber,
           selectYourDate: i18next.t('selectYourDate',{ns: 'time', lng: lng }),
           total: i18next.t('total',{ns: 'time', lng: lng }),
+          noSelectedGuestsError: i18next.t('noSelectedGuestsError',{ns: 'time', lng: lng }),
+          noSelectedTimeError: i18next.t('noSelectedTimeError',{ns: 'time', lng: lng }),
         },(error, html)=>{if(error)throw error.toString();res.send(html)});
       }
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}

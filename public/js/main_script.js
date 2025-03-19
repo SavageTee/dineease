@@ -629,7 +629,7 @@ function activateDynamicTimeFunctions(){
                       <div class="tw-flex tw-items-center tw-ps-3"> 
                         <i class="fa-solid fa-1.5x fa-user"></i> 
                         <label for="${name}" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900">${name}</label>                    
-                        <input onchange="UpdateTotal()" hidden checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 focus:tw-ring-2"> 
+                        <input value="${name}" onchange="UpdateTotal()" hidden checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 focus:tw-ring-2"> 
                       </div>
                     </div>
                   `).join('')}
@@ -650,7 +650,7 @@ function activateDynamicTimeFunctions(){
                       <div class="tw-flex tw-items-center tw-ps-3"> 
                         <i class="fa-solid fa-1.5x fa-user"></i> 
                         <label for="${name}" class="tw-w-full tw-py-3 tw-ms-2 tw-text-sm tw-font-sans tw-font-bold tw-text-gray-900">${name}</label>                    
-                        <input onchange="UpdateTotal()" checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 focus:tw-ring-2"> 
+                        <input value="${name}" onchange="UpdateTotal()" checked id="${name}" type="checkbox" value="" class="tw-w-6 tw-h-6 tw-text-blue-600 tw-bg-gray-100 tw-border-gray-300 tw-rounded focus:tw-ring-blue-500 focus:tw-ring-2"> 
                       </div>
                     </div>
                   `).join('')}
@@ -746,8 +746,6 @@ function searchDate(){
             return response.json();
         }).then(async (result)=>{
             $('#total_table').hide();
-            noSelectedGuestsError = result['noSelectedGuestsError'];
-            noSelectedTimeError = result['noSelectedTimeError'];
             result['data'].map(item=> { item['names'] = result['names']; item['roomNumber'] = result['roomNumber']; item['RoomBasedReservation'] = result['RoomBasedReservation']; item['paxBasedReservation'] = result['paxBasedReservation']; item['free'] = result['free']; item['meal_type_array'] = result['table']['meal_type'];  item['per_person_ident'] = result['table']['per_person'];});
             if(result['data'].length > 0){
                 $('#datepricetable').bootstrapTable('destroy').bootstrapTable().bootstrapTable('load',result['data'])
@@ -779,31 +777,36 @@ function searchDate(){
 }
 
 function confirmTime(){
+
+    const selectedRow = $('#datepricetable').bootstrapTable('getSelections');
+    if( !selectedRow[0] || selectedRow[0]['restaurant_pricing_times_id'] === null || selectedRow[0]['restaurant_pricing_times_id'] === undefined || selectedRow[0]['restaurant_pricing_times_id'].length === 0){
+        showError({ errorText: noSelectedTimeError })
+        timeConfirm = false;
+        releaseLoading();
+        $('#loader').hide()
+        $('#notloader').show()
+        return;
+    }
+
+    const checkedCheckboxes  = document.querySelectorAll('#names_list input[type="checkbox"]:checked');
+    console.log(checkedCheckboxes)
+    const selectedNames = Array.from(checkedCheckboxes).map(checkbox => checkbox.value);
+    console.log(selectedNames)
+    if( selectedNames === null || selectedNames === undefined || selectedNames.length === 0){
+        showError({ errorText: noSelectedGuestsError })
+        timeConfirm = false;
+        releaseLoading();
+        $('#loader').hide()
+        $('#notloader').show()
+        return;
+    }
+
     if(!timeConfirm){
         timeConfirm = true;
         hideError();
         beginLoading();
         $('#loader').show()
         $('#notloader').hide()
-        const selectedRow = $('#datepricetable').bootstrapTable('getSelections');
-        if( selectedRow === null || selectedRow === undefined || selectedRow.length === 0){
-            showError({ errorText: noSelectedTimeError })
-            timeConfirm = false;
-            releaseLoading();
-            $('#loader').hide()
-            $('#notloader').show()
-            return;
-        }
-        const checkboxes = document.querySelectorAll('#names_list input[type="checkbox"]:checked');
-        const selectedNames = Array.from(checkboxes).map(checkbox => {const label = checkbox.closest('li').querySelector('label');return label ? label.textContent.trim() : null;}).filter(name => name !== null);
-        if( selectedNames === null || selectedNames === undefined || selectedNames.length === 0){
-            showError({ errorText: noSelectedGuestsError })
-            timeConfirm = false;
-            releaseLoading();
-            $('#loader').hide()
-            $('#notloader').show()
-            return;
-        }
         fetch(`/api/v1/validate`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json','Cache-Control': 'no-cache', 'Accept-Language': getLanguage()},

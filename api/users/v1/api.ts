@@ -3,7 +3,7 @@ import {Response, Request, NextFunction} from "express"
 
 import i18next from "../../../providers/i18n/i18n"
 import {executeQuery} from "../../../providers/mysqlProvider/mysqlProvider"
-import { logErrorAndRespond, notFound, errorPage, validateContentType, validateRequestBodyKeys, reportErrorAndRespond, ReportErrorAndRespondJsonGet, getLanguage, convertFileToBase64 } from "../../../helpers/herlpers"
+import { logErrorAndRespond, ReportErrorForPostRequests, validateContentType, validateRequestBodyKeys, reportErrorAndRespond, ReportErrorAndRespondJsonGet, getLanguage, convertFileToBase64 } from "../../../helpers/herlpers"
 
 const api = express.Router()
 api.use(express.json({limit: '1mb'}))
@@ -15,7 +15,7 @@ api.post('/report', async (req:Request, res:Response, next:NextFunction):Promise
     if (!validateRequestBodyKeys(req, res, ["error"])) return;
     reportErrorAndRespond("USER ERROR REPORT INSIDE api.post('/report', (req,res)=>{})", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${req.body.error}`},req,res);
   }catch(error){
-    logErrorAndRespond("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${error}`},req,res);
+    ReportErrorForPostRequests("USER ERROR REPORT INSIDE CATCH api.post('/report', (req,res)=>{})", {script: "api.ts", scope: "api.post('/report', (req,res)=>{})", request: req, error:`${error}`},req,res);
   }
 })
 
@@ -57,7 +57,7 @@ api.post('/savehotel', async (req:Request, res:Response, next:NextFunction):Prom
     if (!validateRequestBodyKeys(req, res, ["hotelID"])) return;
     req.session.data!.hotelID = req.body.hotelID;
     return res.status(200).jsonp({status: 'success'})
-  }catch(error){logErrorAndRespond("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+  }catch(error){ReportErrorForPostRequests("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 api.post('/menuselection', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
@@ -65,10 +65,10 @@ api.post('/menuselection', async (req:Request, res:Response, next:NextFunction):
     let lng:string = getLanguage(req);
     if (!validateContentType(req, res, 'application/json')) return;
     if (!validateRequestBodyKeys(req, res, ["restaurantID"])) return;
-    const rows_dates = await executeQuery('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id,req.session.data?.hotelID,req.session.data?.companyID]); 
+    const rows_dates = await executeQuery('CALL get_pick_dates(?, ?, ?)',[req.session.data!.guest_reservation_id, req.session.data?.restaurantID, req.session.data?.companyID]); 
     const rows = await executeQuery('CALL get_menus_urls_or_viewer(?, ?, ?, ?, ?)',[(rows_dates as any)[0][0]['start_date'], (rows_dates as any)[0][0]['end_date'], req.body.restaurantID, req.session.data?.companyID, lng]); 
     return res.status(200).jsonp({status: 'success', data: (rows as any)[0], viewMenuTranslation: i18next.t('viewMenu',{ns: 'restaurant', lng:lng,returnObjects: true }),})
-  }catch(error){logErrorAndRespond("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+  }catch(error){ReportErrorForPostRequests("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 api.post('/menu', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
@@ -82,7 +82,7 @@ api.post('/menu', async (req:Request, res:Response, next:NextFunction):Promise<a
       menu: await convertFileToBase64((rows as any)[0][0]['menu_url'].toString())
     })  
   }catch(error){
-    logErrorAndRespond("error occured in catch block of api.post('/menu', (req,res)=>{})", {script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error:`${error}`}, req, res );
+    ReportErrorForPostRequests("error occured in catch block of api.post('/menu', (req,res)=>{})", {script: "api.ts", scope: "api.post('/menu', (req,res)=>{})", request: req, error:`${error}`}, req, res );
   }
 })
 
@@ -142,7 +142,7 @@ api.post('/menuviewer', async (req:Request, res:Response, next:NextFunction):Pro
       groupedData: result,
       viewOnly: true
     },(error, html)=>{if(error)throw error.toString();res.send(html)});
-  }catch(error){logErrorAndRespond("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+  }catch(error){ReportErrorForPostRequests("error occured in catch block of api.post('/savehotel', (req,res)=>{})", {script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 export const checkRoom = async (req:Request, res:Response, lng:string):Promise<any> => {
@@ -168,7 +168,7 @@ api.post('/checkroom', async (req:Request, res:Response, next:NextFunction):Prom
         verificationDD: i18next.t('verificationDD',{ns: 'room', lng: lng }),
       },
     })
-  }catch(error){logErrorAndRespond("error occured in catch block of api.post('/checkroom', (req,res)=>{})", {script: "api.ts", scope: "api.post('/checkroom', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+  }catch(error){ReportErrorForPostRequests("error occured in catch block of api.post('/checkroom', (req,res)=>{})", {script: "api.ts", scope: "api.post('/checkroom', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 
@@ -188,7 +188,7 @@ api.post('/verifyroom', async (req:Request, res:Response, next:NextFunction):Pro
     req.session.data!.guest_reservation_id = result['guest_reservations_id'];
     req.session.data!.verification = req.body.date;
     res.status(200).jsonp({status: 'success'})
-  }catch(error){logErrorAndRespond("error occured in catch block of api.post('/verifyroom', (req,res)=>{})", {script: "api.ts", scope: "api.post('/verifyroom', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+  }catch(error){ReportErrorForPostRequests("error occured in catch block of api.post('/verifyroom', (req,res)=>{})", {script: "api.ts", scope: "api.post('/verifyroom', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 function handleCancel(req:Request, res:Response){
@@ -255,7 +255,7 @@ api.post('/saverestaurant', async (req:Request, res:Response, next:NextFunction)
       default:
         break;      
     }
-  }catch(error){logErrorAndRespond("error occured in catch block of api.post('/saverestaurant', (req,res)=>{})", {script: "api.ts", scope: "api.post('/saverestaurant', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+  }catch(error){ReportErrorForPostRequests("error occured in catch block of api.post('/saverestaurant', (req,res)=>{})", {script: "api.ts", scope: "api.post('/saverestaurant', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunction):Promise<any>=>{
@@ -266,14 +266,12 @@ api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunctio
       const rows_names =  await executeQuery('CALL get_names(?)',[req.session.data!.guest_reservation_id]); 
       if((rows_names as any)[0][0] != undefined){
           let names:string[] = (rows_names as any)[0][0]['names'].split(' |-| ');
-          const rows = await executeQuery('CALL get_available_date(?, ?, ?, ?)',[req.session.data?.restaurantID, req.session.data?.hotelID, req.body.desiredDate, req.session.data?.companyID]);
+          const rows = await executeQuery('CALL get_available_date(?, ?, ?)',[req.session.data?.restaurantID, req.body.desiredDate, req.session.data?.companyID]);
           return res.status(200).jsonp({
             status: 'success',
             data: (rows as any)[0],
             free: i18next.t('freeText',{ns: 'time', lng: lng }),
             errorRestaurantNotAvailable: i18next.t('errorRestaurantNotAvailable',{ns: 'time', lng: lng }),
-            noSelectedGuestsError: i18next.t('noSelectedGuestsError',{ns: 'time', lng: lng }),
-            noSelectedTimeError: i18next.t('noSelectedTimeError',{ns: 'time', lng: lng }),
             RoomBasedReservation: i18next.t('RoomBasedReservation',{ns: 'time', lng: lng }),
             paxBasedReservation: i18next.t('paxBasedReservation',{ns: 'time', lng: lng }),
             roomNumber: req.session.data?.roomNumber,
@@ -290,7 +288,7 @@ api.post('/getavailabledate', async (req:Request, res:Response, next:NextFunctio
           })
     }else{throw Error("if stetemnt did not find any names in api if((rows_names as any)[0][0] != undefined){}")}  
   }catch(error){
-    logErrorAndRespond("error occured in catch block of api.post('/getavailabledate', (req,res)=>{})", {script: "api.ts", scope: "api.post('/getavailabledate', (req,res)=>{})", request: req, error:`${error}`}, req, res );
+    ReportErrorForPostRequests("error occured in catch block of api.post('/getavailabledate', (req,res)=>{})", {script: "api.ts", scope: "api.post('/getavailabledate', (req,res)=>{})", request: req, error:`${error}`}, req, res );
   }
 })
 
@@ -353,7 +351,7 @@ api.post('/validate', async (req:Request, res:Response, next:NextFunction):Promi
     if((insert as any)[0][0]['result'] === "alreadyReserved") return res.status(200).jsonp({ status: "alreadyReserved", errorText:  i18next.t('alreadyReserved',{ns: 'time', lng: lng })})
     req.session.data!.qrCode = (insert as any)[0][0]['result'];
     return res.status(200).jsonp({ status: "success" })
-  }catch(error){logErrorAndRespond("error occured in catch block of api.post('/validate', (req,res)=>{})", {script: "api.ts", scope: "api.post('/validate', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
+  }catch(error){ReportErrorForPostRequests("error occured in catch block of api.post('/validate', (req,res)=>{})", {script: "api.ts", scope: "api.post('/validate', (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
 
 export default api;
