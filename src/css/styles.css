@@ -18,7 +18,7 @@ body::after {
   background-blend-mode: darken;
   background: url('/images/texture.png') repeat;
   background-size:auto;
-  opacity: 0.3;
+  opacity: 0.2;
   top: 0;
   left: 0;
   bottom: 0;
@@ -35,7 +35,7 @@ html.tw-dark body::after {
   background-blend-mode: darken;
   background: url('/images/texture.png') repeat;
   background-size:auto;
-  opacity: 0.2;
+  opacity: 0.06;
   top: 0;
   left: 0;
   bottom: 0;

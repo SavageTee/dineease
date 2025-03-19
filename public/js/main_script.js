@@ -14,7 +14,6 @@ let confirmRestaurantClick = false;
 let timePageSearch = false;
 let timeConfirm = false;
 
-
 const getLanguage = ()=> {return localStorage.getItem('lng') || 'en';}
 
 (async function(){
@@ -33,7 +32,6 @@ const getLanguage = ()=> {return localStorage.getItem('lng') || 'en';}
         console.error('Error fetching HTML:', error);
     });
 })();
-
 
 const darkModeFunctions = ()=>{
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -177,6 +175,7 @@ const fetchRoom = async ()=>{
 
 function activateDynamicRoomFunctions(){
     darkModeFunctions();
+
     function Confirm(){
             beginLoading();
             hideError();
@@ -203,6 +202,7 @@ function activateDynamicRoomFunctions(){
                 releaseLoading();
             });
     }    
+    
     $('#date_input').on('input', (e) => {
         if(!isDigit(e.target.value.charAt(e.target.value.length -1 ))){ $('#date_input').val(e.target.value.substring(0,  e.target.value.length - 1));}
         if(e.target.value.length == 4 || e.target.value.length == 7){$('#date_input').val( $('#date_input').val() + "-" )}
@@ -217,7 +217,7 @@ function activateDynamicRoomFunctions(){
                     if (isValidDate) {
                         $('#date_input').blur();
                         $('#loader_text_modal').hide()
-                        $('#loader_modal').show()
+                        $('#loader_spinner_modal').show()
                         $('#pointerAbsorber').show()
                         confirmDate(e.target.value)
                     }else{ $('#date_input').val('') }
@@ -237,41 +237,15 @@ function activateDynamicRoomFunctions(){
         }).then(result => {
             if(result['status'] === 'success'){
                 hideError();
-                $("#alert-text").empty();
-                var newContent;
-                if(Number(result['result']) !== 0){
-                    newContent = `
-                        <div class="tw-flex tw-items-center tw-mb-2">
-                            <span class="tw-text-gray-600" > ${result['transelations']['freeReservation']}</span>
-                        </div>                   
-                        <div class="tw-flex tw-items-center tw-mb-2">
-                            <span> ${result['transelations']['remainingReservations']}  ${result['result']}</span>
-                        </div>                 
-                        <div class="tw-flex tw-items-center tw-mb-2">
-                            <span> ${result['transelations']['pressContinue']}</span>
-                        </div>
-                    `;
-                }else{
-                    newContent = `
-                        <div class="tw-flex tw-items-center tw-mb-2">
-                            <span class="tw-text-red-700" >${result['transelations']['paidReservation']}</span>
-                        </div>
-                        <div class="tw-flex tw-items-center tw-mb-2">
-                            <span>${result['transelations']['remainingReservations']}  ${result['result']}</span>
-                        </div>
-                        <div class="tw-flex tw-items-center tw-mb-2">
-                            <span>${result['transelations']['pressContinue']}</span>
-                        </div>
-                    `;
-                }
-                $("#alert-text").append(newContent);
+                beginLoading();
+                fetchRestaurant();
             }else{
                 showError(result);
+                $('#loader_text_modal').show();
+                $('#loader_spinner_modal').hide();
                 $('#verification_modal').modal('hide');
                 $('#date_input').val('')
                 $('#code').val('')
-                $('#loader_text_modal').show()
-                $('#loader_modal').hide()
                 return;
             }
             $('#verification_modal').modal('hide')
@@ -282,8 +256,13 @@ function activateDynamicRoomFunctions(){
             hideError();
         })
         .catch(error => {
-            showError(error.details)
-            clicked = false;
+            showError(error);
+            $('#loader_text_modal').show();
+            $('#loader_spinner_modal').hide();
+            $('#verification_modal').modal('hide');
+            $('#date_input').val('')
+            $('#code').val('')
+            releaseLoading();
         });
     
     }
@@ -368,11 +347,12 @@ function activateDynamicRestaurantFunctions(){
     }
     document.getElementById('nextPage').addEventListener('click', nextPage);
     document.getElementById('prevPage').addEventListener('click', prevPage);
-    $('#confirm').on('click',()=> ConfirmRestaurant())
+    $('#confirm_restaurant').on('click',()=> ConfirmRestaurant())
     document.getElementById('zoomIn').addEventListener('click', () => setZoom(zoomScale + 0.5));
     document.getElementById('zoomOut').addEventListener('click', () => setZoom(zoomScale - 0.5));
     releaseLoading();
 }
+
 
 function menuSelection(restaurantID){
     if(!viewMenuModalClick){
@@ -507,6 +487,13 @@ function SelectRestaurant(card,restaurantID) {
     selectedRestaurant = restaurantID;
 }
 
+
+$(document).on('click', '#confirmation_modal_button', () => {
+    $('#restaurant_confirmation_modal').modal('hide')
+    beginLoading();
+    fetchTime();
+});
+
 function ConfirmRestaurant(){
     if(!confirmRestaurantClick && selectedRestaurant){
       confirmRestaurantClick = true;
@@ -521,7 +508,78 @@ function ConfirmRestaurant(){
         if (!response.ok) {throw (await response.json());}
         return response.json(); 
     }).then(result => {
-        fetchTime();
+        $('#confirmation_modal_body').empty();
+        $('#confirmation_modal_button').show();
+        if(result['status'] === 'success'){
+            if(result.hasOwnProperty('remaining')){
+                $('#confirmation_modal_body').append(
+                    `
+                    <div class="tw-flex tw-items-center tw-mb-2 tw-text-md">
+                        <span class="tw-font-extrabold" > ${result['freeReservation']}</span>
+                    </div>                   
+                    <div class="tw-flex tw-mb-2">
+                        <div class="tw-text-sm">  ${result['remainingReservations']}   <span style="color:white;" class="tw-font-bold tw-text-lg tw-border-b px-1 tw-border-b-white"> ${result['remaining']} </span> </div>          
+                    </div>                 
+                    <div class="tw-flex tw-justify-center tw-align-middle tw-items-center tw-mb-2">
+                        <span> ${result['pressContinue']}</span>
+                    </div>
+                    `
+                )            
+            }
+            if(result.hasOwnProperty('paidReservation')){
+                $('#confirmation_modal_body').append(
+                    `
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span class="tw-text-red-500 tw-text-md tw-text-justify tw-font-extrabold tw-justify-stretch" >${result['paidReservation']}</span>
+                    </div>
+                    <div class="tw-flex tw-justify-center tw-align-middle tw-items-center tw-mb-2">
+                        <span>${result['pressContinue']}</span>
+                    </div>
+                    `
+                )
+            }
+            if(result.hasOwnProperty('notice')){
+                $('#confirmation_modal_body').append(
+                    `
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span class="tw-text-red-500 tw-text-md tw-text-justify tw-font-extrabold tw-justify-stretch" >${result['notice']}</span>
+                    </div>
+                    <div class="tw-flex tw-justify-center tw-align-middle tw-items-center tw-mb-2">
+                        <span>${result['pressContinue']}</span>
+                    </div>
+                    `
+                )
+            }
+            if(result.hasOwnProperty('alwaysFreeNotice')){
+                $('#confirmation_modal_body').append(
+                    `
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span class="tw-text-green-500 tw-text-md tw-text-justify tw-font-extrabold tw-justify-stretch" >${result['alwaysFreeNotice']}</span>
+                    </div>
+                    <div class="tw-flex tw-justify-center tw-align-middle tw-items-center tw-mb-2">
+                        <span>${result['pressContinue']}</span>
+                    </div>
+                    `
+                )
+            }
+        }else{
+            console.log(result)
+            if(result.hasOwnProperty('notice')){
+                $('#confirmation_modal_body').append(
+                    `
+                    <div class="tw-flex tw-items-center tw-mb-2">
+                        <span class="tw-text-red-500 tw-text-md tw-text-justify tw-font-extrabold tw-justify-stretch" >${result['notice']}</span>
+                    </div>
+                    `
+                )
+                $('#confirmation_modal_button').hide();
+            }
+        }
+        $('#restaurant_confirmation_modal').modal('show')
+        confirmRestaurantClick = false;
+        $('#loader').hide();
+        $('#notloader').show();
+        releaseLoading()
     })
     .catch(error => {
         showError(error)
@@ -554,7 +612,6 @@ function activateDynamicTimeFunctions(){
     })
     $('#search').on('click', ()=> searchDate());
     $('#confirm').on('click',()=> confirmTime())
-    releaseLoading();
     $('#datepricetable').on('check.bs.table', function (e, row) {
         $('#step_two').empty();
         if(row['reservation_by_room'] === 1){
@@ -602,7 +659,9 @@ function activateDynamicTimeFunctions(){
         }
         UpdateTotal();
         $('#step_two').show()
+        $('#total_table').show();
     });  
+    releaseLoading();
 }
 
 function UpdateTotal(){
@@ -686,6 +745,7 @@ function searchDate(){
             if (!response.ok) {throw (await response.json());}
             return response.json();
         }).then(async (result)=>{
+            $('#total_table').hide();
             noSelectedGuestsError = result['noSelectedGuestsError'];
             noSelectedTimeError = result['noSelectedTimeError'];
             result['data'].map(item=> { item['names'] = result['names']; item['roomNumber'] = result['roomNumber']; item['RoomBasedReservation'] = result['RoomBasedReservation']; item['paxBasedReservation'] = result['paxBasedReservation']; item['free'] = result['free']; item['meal_type_array'] = result['table']['meal_type'];  item['per_person_ident'] = result['table']['per_person'];});

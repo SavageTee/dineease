@@ -12,5 +12,25 @@
     "dateTableTitle": "Date",
     "timeTableTitle": "Time",
     "timeZoneTableTitle": "Time Zone",
-    "mealTypeTableTitle": "Meal Type"
+    "mealTypeTableTitle": "Meal Type",
+    "warningCrossHotel": "Additional charges apply as this restaurant is located in another hotel. ",
+    "alwaysPaid": "Always paid reservation",
+    "alwaysFree": "Always Free of charge",
+
+    "confirmModalContinueButton": "Continue",
+    "confirmModalCancelButton": "Cancel",
+    "confirmModalTitle": "Reservation Notice",
+
+    "alwaysPaidNotice": "You’ve selected a paid reservation restaurant. Prices will be displayed when you choose your time.",
+    "alwaysFreeNotice": "This restaurant is always free of charges, so you can reserve your table without any additional fees. Enjoy your dining experience!",
+
+    "crossHotelNotice": "You’ve selected a restaurant outside your hotel. Reservations here require payment, and prices will be shown when you choose your time.",
+    "restrictrdNotice": "Something went wrong please cancel your reservation and start over again..",
+    
+    "freeReservation": "This reservation is completely free of charge.",
+    "paidReservation": "It looks like you've used up your free reservations. Please note that this reservation may incur a fee. The exact price will be provided when you select your preferred restaurant. Thank you for your understanding!",
+    "remainingReservations": "Remaining free reservations including this one: ",
+
+    "pressContinue": "Press Contine to proceed"
+
 }

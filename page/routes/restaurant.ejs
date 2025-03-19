@@ -31,19 +31,57 @@
       <% } else { %>
       <div id="<%= restaurant.restaurantID %>" onclick="SelectRestaurant(this,'<%= restaurant.restaurantID %>')" class="rounded tw-max-w-sm tw-mt-auto dark:tw-bg-black tw-bg-gray-400 tw-rounded-lg tw-border dark:tw-border-gray-300 tw-border-black tw-shadow">
       <% } %>  
-        <div className="tw-flex tw-flex-column tw-justify-center tw-items-center">
+      <div class="tw-relative">
+        <% if( (restaurant.restricted_restaurants === 2) && (selectedHotel != restaurant.hotel_id) && (restaurant.always_paid_free === null) ) { %>
+          <div class="tw-absolute tw-top-0 tw-left-0 tw-w-full tw-z-10">
+            <div class="tw-border-t tw-p-1 tw-flex-1 tw-items-center tw-justify-evenly">
+              <div class="tw-flex tw-items-center tw-p-3 tw-text-sm tw-text-yellow-800 tw-rounded-md tw-bg-yellow-50 tw-border-2 tw-border-yellow-900 " role="alert">       
+                <i class="fa-solid me-3 tw-scale-150 tw-text-yellow-800 fa-circle-exclamation"></i>
+                <div>
+                  <span class="tw-font-extrabold tw-font-sans"><%= warningCrossHotel %></span> 
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+        <% if(restaurant.always_paid_free === 1) { %>
+          <div class="tw-absolute tw-top-0 tw-left-0 tw-w-full tw-z-10">
+            <div class="tw-border-t tw-p-1 tw-flex-1 tw-items-center tw-justify-evenly">
+              <div class="tw-flex tw-items-center tw-p-3 tw-text-sm tw-text-yellow-800 tw-rounded-md tw-bg-yellow-50 tw-border-2 tw-border-yellow-900 " role="alert">       
+                <i class="fa-solid me-3 tw-scale-150 tw-text-yellow-800 fa-circle-exclamation"></i>
+                <div>
+                  <span class="tw-font-extrabold tw-font-sans"><%= alwaysPaid %></span> 
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+        <% if(restaurant.always_paid_free === 0) { %>
+          <div class="tw-absolute tw-top-0 tw-left-0 tw-w-full tw-z-10">
+            <div class="tw-border-t tw-p-1 tw-flex-1 tw-items-center tw-justify-evenly">
+              <div class="tw-flex tw-items-center tw-p-3 tw-text-sm tw-text-green-800 tw-rounded-md tw-bg-green-50 tw-border-2 tw-border-green-900 " role="alert">       
+                <i class="fa-solid me-3 tw-scale-150 tw-text-green-800 fa-circle-exclamation"></i>
+                <div>
+                  <span class="tw-font-extrabold tw-font-sans"><%= alwaysFree %></span> 
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+        <div class="tw-flex tw-flex-column tw-justify-center tw-items-center">
           <% if (!restaurant.photo) { %>
-              <img 
+            <img 
               class="tw-rounded-t-lg md:tw-h-40 tw-w-96 tw-h-56 object-cover tw-border tw-border-gray-300"               
               src="/images/noimage.jpg" 
               alt="restaurant image">
-            <% } else { %>  
-              <img 
+          <% } else { %>  
+            <img 
               class="tw-rounded-t-lg tw-w-96 tw-h-56 object-cover tw-border tw-border-gray-300" 
               src="<%= restaurant.photo %>" 
               alt="restaurant image">
           <% } %> 
         </div>
+      </div>
         <div class="tw-p-2 tw-rounded-b-md tw-bg-gray-800 dark:tw-bg-slate-950 tw-text-center">
             <p class="tw-mb-1 tw-font-bold tw-text-xl tw-text-white tw-dark:text-gray-400"><%= restaurant.name %></p>
         </div>
@@ -62,7 +100,7 @@
             <i class="fa-solid tw-scale-125 tw-text-green-600 tw-px-2 fa-location-dot"></i>
             <span class="tw-font-bold tw-text-green-500 tw-text-sm"><%= restaurant.hotel_name %></span>     
           </div>
-        </div>
+        </div>      
         <div class="tw-p-2 tw-border-t tw-border-gray-300 tw-text-white tw-flex tw-flex-nowrap tw-rounded-b-md tw-bg-gray-800 dark:tw-bg-slate-950 tw-justify-center tw-text-center tw-items-center">
           <button onclick="menuSelection('<%= restaurant.restaurantID %>')" class=" tw-w-full tw-justify-center tw-bg-red-300 hover:tw-bg-red-400 tw-text-gray-800 tw-font-bold tw-py-2 tw-px-2 tw-rounded tw-inline-flex tw-items-center">
             <div id="view_menu_<%= restaurant.restaurantID %>">
@@ -73,7 +111,6 @@
           </button>               
         </div>
       </div>
-      
     <% }); %>
     </div>
     <br/>
@@ -96,7 +133,7 @@
           <i class="fa-regular fa-circle-xmark"></i>
         </div>
       </button>
-      <button id="confirm" class=" tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
+      <button id="confirm_restaurant" class=" tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center">
         <div id="notloader" class="tw-flex tw-items-center tw-justify-center">
           <span class="tw-mr-2"><%= buttonText %></span> 
           <i class="fa-solid fa-arrow-right"></i>
@@ -165,19 +202,31 @@
 </div>
 
 
-<div id="menuModalViewer" class="modal modal-menu-close" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-fullscreen" role="document">
-    <div class="modal-content dark:tw-bg-darkmodeModalBg dark:tw-text-white tw-px-0 tw-mx-0 tw-py-1 tw-my-1">
-      <div class="modal-header tw-border-b-2 tw-border-b-gray-500">
-        <h5 class="modal-title tw-text-lg tw-font-semibold"><%= menuModalTitle %></h5>
+
+<div style="background-color: #0000006b;" id="restaurant_confirmation_modal" class="modal tw-h-full " tabindex="-1" role="dialog">
+  <div class="modal-dialog tw-flex tw-items-center tw-justify-center tw-min-h-[70%]" role="document">
+    <div class="modal-content dark:tw-bg-darkmodeModalBg">
+      <div class="modal-header border-0">
+        <h5 class="modal-title dark:tw-text-white tw-font-extrabold"> <i class="fa-solid tw-scale-125 px-1 dark:tw-text-white fa-triangle-exclamation"></i> <%= confirmModalTitle %></h5>
       </div>
-      <div id="menuModalViewerBody" class="modal-body tw-p-0 tw-m-0 container-fluid">
-          
+      <div id="confirmation_modal_body" class="modal-body dark:tw-text-white">
+        <p></p>
       </div>
-      <div class="modal-footer">
-        <button data-bs-dismiss="modal" class="tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center"><%= close %></button>
+      <div class="modal-footer border-0">
+        <button id="confirmation_modal_button" class="tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center"><%= confirmModalContinueButton %></button>
+        <button data-bs-dismiss="modal" class="tw-p-3 tw-bg-gray-600 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center"><%= confirmModalCancelButton %></button>
       </div>
     </div>
+  </div>
+</div>
+
+
+
+
+
+<div id="menuModalViewer" class="modal modal-menu-close" tabindex="-1" role="dialog">
+  <div id="menuModalViewerBody" class="modal-dialog modal-fullscreen" role="document">
+   
   </div>
 </div>
 

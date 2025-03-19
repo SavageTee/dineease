@@ -39,6 +39,9 @@ export const convertFileToBase64 = (imagePath: string): Promise<string | false> 
                 mimeType = 'application/pdf';
                 break;
                 default:
+                case '.webp':
+                mimeType = 'image/webp';
+                break;
                 // If the file type is unsupported, resolve with `false`
                 resolve(false);
                 return;

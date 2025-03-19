@@ -1,42 +1,193 @@
-<div class="container-fluid">
-  <div class="accordion rounded-none" id="menuAccordion">
-    <% Object.keys(groupedData).forEach((category, categoryIndex) => { %>
-      <div class="accordion-item rounded-none">
-        <h2 class="accordion-header rounded-none" id="headingCategory<%= categoryIndex %>">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCategory<%= categoryIndex %>" aria-expanded="true" aria-controls="collapseCategory<%= categoryIndex %>">
-            <%= category %>
-            <img 
-            class="tw-rounded-t-lg tw-w-96 tw-h-56 object-cover tw-border tw-border-gray-300" 
-            src="<%= groupedData[category][Object.keys(groupedData[category])[0]][0].menu_categories_background_url %>" 
-            alt="restaurant image">
-          </button>
-        </h2>
-        <div id="collapseCategory<%= categoryIndex %>" class="accordion-collapse collapse" aria-labelledby="headingCategory<%= categoryIndex %>" data-bs-parent="#menuAccordion">
-          <div class="accordion-body tw-bg-slate-950">
-            <% Object.keys(groupedData[category]).forEach((subcategory, subcategoryIndex) => { %>
-              <div class="accordion" id="subcategoryAccordion<%= categoryIndex %>-<%= subcategoryIndex %>">
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>" aria-expanded="true" aria-controls="collapseSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>">
-                      <%= subcategory %>
-                    </button>
-                  </h2>
-                  <div id="collapseSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>" class="accordion-collapse collapse" aria-labelledby="headingSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>" data-bs-parent="#subcategoryAccordion<%= categoryIndex %>-<%= subcategoryIndex %>">
-                    <div class="accordion-body">
-                      <% groupedData[category][subcategory].forEach((item) => { %>
-                        <div class="mb-3">
-                          <strong><%= item.item_name %> - <%= item.price %> <%= item.currency_code %></strong><br>
-                          <em><%= item.item_description %></em>
-                        </div>
-                      <% }); %>
+<div class="modal-content dark:tw-bg-darkmodeModalBg dark:tw-text-white tw-px-0 tw-mx-0 tw-py-1 tw-my-1">
+  <div class="modal-header tw-flex tw-justify-between tw-border-b-2 tw-border-b-gray-500">
+    <h5 class="modal-title tw-text-lg tw-font-semibold"><%= menuModalTitle %></h5>
+    <% if (!viewOnly) { %>
+     <div>
+      <div class="tw-relative">
+        <i class="fa-solid fa-cart-shopping tw-scale-150 tw-text-white"></i>
+        <span class="tw-absolute tw-p-1 -tw-top-2 -tw-right-2 tw-inline-flex tw-items-center tw-justify-center tw-w-4 tw-h-4 tw-text-xs tw-font-semibold tw-text-white tw-bg-red-600 tw-rounded-full">
+          0
+        </span>
+      </div> 
+    </div>
+    <% } %>
+  </div>
+  <div  class="modal-body tw-p-0 tw-m-0">
+
+    <div style="padding: 0; margin: 0;" class="container-fluid">
+      <div class="accordion rounded-none" id="menuAccordion">
+        <% Object.keys(groupedData).forEach((category, categoryIndex) => { %>
+          <div style="border-radius: 0;" class="accordion-item rounded-none">
+            <h2 class="accordion-header rounded-none" id="headingCategory<%= categoryIndex %>">
+              <button 
+                style="background-position: center; background-size: cover; background-repeat: no-repeat; background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('<%= groupedData[category][Object.keys(groupedData[category])[0]][0].menu_categories_background_url %>'); padding-top: 1.5rem; padding-bottom: 1.5rem; border-radius: 0;"
+                class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCategory<%= categoryIndex %>" aria-expanded="true" aria-controls="collapseCategory<%= categoryIndex %>">
+                <div style="padding: .75rem;" class="tw-bg-red-600 tw-text-white tw-font-extrabold tw-text-xl"><%= category %></div>   
+              </button>
+            </h2>
+            <div style="border-radius: 0;" id="collapseCategory<%= categoryIndex %>" class="accordion-collapse collapse" aria-labelledby="headingCategory<%= categoryIndex %>" data-bs-parent="#menuAccordion">
+              <div style="border-radius: 0; padding: 0rem;" class="accordion-body tw-bg-slate-800">
+                <% if (Object.keys(groupedData[category]).length === 0 || Object.keys(groupedData[category])[0] === 'null') { %>
+                  <!-- If no subcategories, render items directly under the category -->
+                  <% const items = groupedData[category]['null']; %>
+                  <% items.forEach((item, index) => { %>
+                    <% if (index != 0) { %>
+                      <hr class="hr" />
+                    <% } %>
+                    <div style="padding: 0.5rem !important; margin-top: 0; padding-top: 0;" class="accordion-body tw-bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <!-- Item Name, Description, and Price -->
+                      <div class="tw-p-1">
+                        <strong><%= item.item_name %></strong> - <strong><%= item.price %> <%= item.currency_code %></strong> <br>
+                        <em calss="tw-text-sm"><%= item.item_description %></em>
+                      </div>
+                      <!-- Quantity Controls -->
+                      <% if (!viewOnly) { %>
+                        <div class="tw-block tw-justify-center tw-items-center tw-align-middle">
+                          <div>
+                            <div class="btn-group" role="group" aria-label="Basic example">
+                              <button type="button" class="btn btn-sm btn-outline-secondary"  onclick="updateQuantity('<%= item.menus_items_id %>', -1)"><i class="fa-solid fa-minus"></i></button>
+                              <input
+                              type="number"                          
+                              id="quantity-<%= item.menus_items_id %>"     
+                              style="max-width: 40px;"                  
+                              class="increment-btn btn-outline-secondary tw-text-center tw-text-sm tw-font-semibold tw-border tw-border-gray-300 tw-rounded focus:tw-outline-none"
+                              value="0"
+                              min="0"
+                              onchange="updateQuantityInput('<%= item.menus_items_id %>')"
+                            />
+                              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateQuantity('<%= item.menus_items_id %>', 1)"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                          </div>
+                          <button onclick="addToCart('<%= item.menus_items_id %>', 'quantity-<%= item.menus_items_id %>')" class="btn btn-sm btn-danger col-12 mt-1"><i class="fa-solid fa-cart-shopping"></i></button>
+                        </div>   
+                      <% } %>                    
+                    </div>            
+                  <% }); %>
                     </div>
-                  </div>
-                </div>
+                <% } else { %>
+                  <!-- If subcategories exist, render them -->
+                  <% Object.keys(groupedData[category]).forEach((subcategory, subcategoryIndex) => { %>
+                    <div style="border-radius: 0; padding-left: 0.5rem; padding-right: 0.5rem; padding-bottom: 0.2rem; padding-top: 0.2rem;" class="accordion" id="subcategoryAccordion<%= categoryIndex %>-<%= subcategoryIndex %>">
+                      <div style="border-radius: 0;" class="accordion-item">
+                        <h2 class="accordion-header rounded-none" id="headingSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>">             
+                          <button 
+                            style="background-position: center; background-size: cover; background-repeat: no-repeat; background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('<%= groupedData[category][subcategory][0].menu_subcategories_background_url %>'); padding-top: 1.5rem; padding-bottom: 1.5rem; border-radius: 0;"
+                            class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>" aria-expanded="true" aria-controls="collapseSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>">
+                            <div style="padding: .75rem;" class="tw-bg-green-600 tw-text-white tw-font-extrabold tw-text-xl"><%= subcategory %></div>   
+                          </button>             
+                        </h2>
+                        <div id="collapseSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>" class="accordion-collapse collapse" aria-labelledby="headingSubcategory<%= categoryIndex %>-<%= subcategoryIndex %>" data-bs-parent="#subcategoryAccordion<%= categoryIndex %>-<%= subcategoryIndex %>">
+                          <div class="accordion-body">
+                            <% groupedData[category][subcategory].forEach((item, index) => { %>   
+                              <% if (index != 0) { %>
+                                <hr class="hr" />
+                              <% } %>                                 
+                              <div class="d-flex justify-content-between align-items-center">
+                                <!-- Item Name, Description, and Price -->
+                                <div class="me-1">
+                                  <strong><%= item.item_name %></strong> - <strong><%= item.price %> <%= item.currency_code %></strong> <br>
+                                  <em><%= item.item_description %></em>
+                                </div>
+                                <!-- Quantity Controls -->
+                                <% if (!viewOnly) { %>
+                                  <div class="tw-block tw-justify-center tw-items-center tw-align-middle">
+                                    <div>
+                                      <div class="btn-group" role="group" aria-label="Basic example">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"  onclick="updateQuantity('<%= item.menus_items_id %>', -1)"><i class="fa-solid fa-minus"></i></button>
+                                        <input
+                                        type="number"                          
+                                        id="quantity-<%= item.menus_items_id %>"     
+                                        style="max-width: 40px;"                  
+                                        class="increment-btn btn-outline-secondary tw-text-center tw-text-sm tw-font-semibold tw-border tw-border-gray-300 tw-rounded focus:tw-outline-none"
+                                        value="0"
+                                        min="0"
+                                        onchange="updateQuantityInput('<%= item.menus_items_id %>')"
+                                      />
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="updateQuantity('<%= item.menus_items_id %>', 1)"><i class="fa-solid fa-plus"></i></button>
+                                      </div>
+                                    </div>
+                                    <button onclick="addToCart('<%= item.menus_items_id %>', '<%= item.menus_items_id %>')" class="btn btn-sm btn-danger col-12 mt-1"><i class="fa-solid fa-cart-shopping"></i></button>
+                                  </div>   
+                                <% } %>                    
+                              </div>
+                             
+                            <% }); %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% }); %>
+                <% } %>
               </div>
-            <% }); %>
+            </div>
           </div>
-        </div>
+        <% }); %>
       </div>
-    <% }); %>
+    </div>
+      
+  </div>
+  <div class="modal-footer">
+    <button data-bs-dismiss="modal" class="tw-p-3 tw-bg-gray-800 tw-text-white tw-py-2 tw-rounded-lg hover:tw-bg-gray-700 focus:tw:outline-none focus:tw:ring-4 focus:tw:ring-gray-300 tw-flex tw-items-center tw-justify-center"><%= close %></button>
   </div>
 </div>
+
+<script>
+  function updateQuantity(itemId, change) {
+    const quantityInput = document.getElementById(`quantity-${itemId}`);
+    let quantity = parseInt(quantityInput.value) || 0;
+    quantity += change;
+    if (quantity < 0) quantity = 0;
+    quantityInput.value = quantity;
+  }
+  function updateQuantityInput(itemId) {
+    const quantityInput = document.getElementById(`quantity-${itemId}`);
+    let quantity = parseInt(quantityInput.value) || 0;
+    if (quantity < 0) quantity = 0; 
+    quantityInput.value = quantity;
+  }
+ 
+  function addToCart(itemID, countID){
+    console.log(itemID , $(`#countID`).val())
+  }
+</script>
+
+
+
+<style>
+.accordion-button:focus {
+  box-shadow: none; 
+  background-color: transparent; 
+}
+.accordion-button:not(.collapsed) {
+  background-color: transparent; 
+  color: inherit; 
+}
+.accordion-button::after {
+  color: var(--bs-accordion-btn-icon);
+}
+.accordion-button:not(.collapsed)::after {
+  color: var(--bs-accordion-btn-active-icon);
+}
+.accordion {
+  --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+
+      
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Hide spin buttons in Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+    
+
+
+</style>

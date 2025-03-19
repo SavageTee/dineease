@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyRoom = exports.checkRoom = void 0;
+exports.checkPaidInfo = exports.verifyRoom = exports.checkRoom = void 0;
 const express = __importStar(require("express"));
 const i18n_1 = __importDefault(require("../../../providers/i18n/i18n"));
 const mysqlProvider_1 = require("../../../providers/mysqlProvider/mysqlProvider");
@@ -54,6 +54,7 @@ const api = express.Router();
 api.use(express.json({ limit: '1mb' }));
 api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["error"]))
@@ -66,6 +67,7 @@ api.post('/report', (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 }));
 api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         let data = req.session.data;
         return res.status(200).jsonp({ state: 'restaurant' });
         /*const states = [
@@ -98,6 +100,7 @@ api.get('/state', (req, res, next) => __awaiter(void 0, void 0, void 0, function
 }));
 api.post('/savehotel', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["hotelID"]))
@@ -119,7 +122,7 @@ api.post('/menuselection', (req, res, next) => __awaiter(void 0, void 0, void 0,
             return;
         const rows_dates = yield (0, mysqlProvider_1.executeQuery)('CALL get_pick_dates(?, ?, ?)', [req.session.data.guest_reservation_id, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID]);
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menus_urls_or_viewer(?, ?, ?, ?, ?)', [rows_dates[0][0]['start_date'], rows_dates[0][0]['end_date'], req.body.restaurantID, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID, lng]);
-        return res.status(200).jsonp({ status: 'success', data: rows[0], viewMenuTranslation: i18n_1.default.t('viewMenu', { ns: 'restaurant', lng: req.language, returnObjects: true }), });
+        return res.status(200).jsonp({ status: 'success', data: rows[0], viewMenuTranslation: i18n_1.default.t('viewMenu', { ns: 'restaurant', lng: lng, returnObjects: true }), });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/savehotel', (req,res)=>{})", { script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error: `${error}` }, req, res);
@@ -127,6 +130,7 @@ api.post('/menuselection', (req, res, next) => __awaiter(void 0, void 0, void 0,
 }));
 api.post('/menu', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["referenceID"]))
@@ -145,7 +149,7 @@ const groupedData = (rows) => __awaiter(void 0, void 0, void 0, function* () {
     const data = rows[0];
     const acc = {};
     for (const item of data) {
-        const { category_name, subcategory_name, menu_categories_background_url } = item;
+        const { category_name, subcategory_name, menu_categories_background_url, menu_subcategories_background_url } = item;
         if (!acc[category_name]) {
             acc[category_name] = {};
         }
@@ -155,11 +159,37 @@ const groupedData = (rows) => __awaiter(void 0, void 0, void 0, function* () {
         if (menu_categories_background_url) {
             try {
                 const base64Image = yield (0, herlpers_1.convertFileToBase64)(menu_categories_background_url);
-                item.menu_categories_background_url = base64Image; // Replace the URL with Base64
+                item.menu_categories_background_url = base64Image;
             }
             catch (error) {
                 console.error(`Failed to convert ${menu_categories_background_url} to Base64:`, error);
-                // Optionally, you can keep the original URL or handle the error as needed
+            }
+        }
+        else {
+            try {
+                const base64Image = yield (0, herlpers_1.convertFileToBase64)('/media/backgrounds/default.jpg');
+                item.menu_categories_background_url = base64Image;
+            }
+            catch (error) {
+                console.error(`Failed to convert ${menu_categories_background_url} to Base64:`, error);
+            }
+        }
+        if (menu_subcategories_background_url) {
+            try {
+                const base64Image = yield (0, herlpers_1.convertFileToBase64)(menu_subcategories_background_url);
+                item.menu_subcategories_background_url = base64Image;
+            }
+            catch (error) {
+                console.error(`Failed to convert ${menu_subcategories_background_url} to Base64:`, error);
+            }
+        }
+        else {
+            try {
+                const base64Image = yield (0, herlpers_1.convertFileToBase64)('/media/backgrounds/default.jpg');
+                item.menu_subcategories_background_url = base64Image;
+            }
+            catch (error) {
+                console.error(`Failed to convert ${menu_subcategories_background_url} to Base64:`, error);
             }
         }
         acc[category_name][subcategory_name].push(item);
@@ -176,9 +206,11 @@ api.post('/menuviewer', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             return;
         const rows = yield (0, mysqlProvider_1.executeQuery)('CALL get_menu(?, ?, ?)', [lng, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.companyID, req.body.referenceID]);
         let result = yield groupedData(rows);
-        console.log(JSON.stringify(result));
         return res.render('routes/menu', {
-            groupedData: result
+            menuModalTitle: i18n_1.default.t('menuModalTitle', { ns: 'restaurant', lng: lng }),
+            close: i18n_1.default.t('close', { ns: 'restaurant', lng: lng }),
+            groupedData: result,
+            viewOnly: true
         }, (error, html) => { if (error)
             throw error.toString(); res.send(html); });
     }
@@ -186,11 +218,11 @@ api.post('/menuviewer', (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/savehotel', (req,res)=>{})", { script: "api.ts", scope: "api.post('/savehotel', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
-const checkRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const checkRoom = (req, res, lng) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const rows = yield (0, mysqlProvider_1.executeQuery)('CALL check_room(?, ?, ?)', [req.body.roomNumber, (_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.companyID,]);
     if (!rows[0][0]) {
-        res.status(200).jsonp({ status: 'noRoom', errorText: i18n_1.default.t('invalidRoom', { ns: 'room', lng: req.language }) });
+        res.status(200).jsonp({ status: 'noRoom', errorText: i18n_1.default.t('invalidRoom', { ns: 'room', lng: lng }) });
         return false;
     }
     else {
@@ -200,11 +232,12 @@ const checkRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.checkRoom = checkRoom;
 api.post('/checkroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["roomNumber"]))
             return;
-        let checkResult = yield (0, exports.checkRoom)(req, res);
+        let checkResult = yield (0, exports.checkRoom)(req, res, lng);
         if (!checkResult)
             return;
         req.session.data.roomNumber = req.body.roomNumber;
@@ -212,8 +245,8 @@ api.post('/checkroom', (req, res, next) => __awaiter(void 0, void 0, void 0, fun
             status: 'success',
             result: checkResult,
             verification: {
-                verificationBD: i18n_1.default.t('verificationBD', { ns: 'room', lng: req.language }),
-                verificationDD: i18n_1.default.t('verificationDD', { ns: 'room', lng: req.language }),
+                verificationBD: i18n_1.default.t('verificationBD', { ns: 'room', lng: lng }),
+                verificationDD: i18n_1.default.t('verificationDD', { ns: 'room', lng: lng }),
             },
         });
     }
@@ -223,39 +256,25 @@ api.post('/checkroom', (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 }));
 const verifyRoom = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
-    const rows = yield (0, mysqlProvider_1.executeQuery)('CALL verify_room(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.roomNumber, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.date, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID,]);
+    const rows = yield (0, mysqlProvider_1.executeQuery)('CALL verify_room_date(?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.roomNumber, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.hotelID, req.body.date, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.companyID,]);
     return rows[0][0];
 });
 exports.verifyRoom = verifyRoom;
 api.post('/verifyroom', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["date"]))
             return;
         let result = yield (0, exports.verifyRoom)(req, res);
         if (result['result'] && result['result'] === 'noReservation')
-            return res.status(200).jsonp({ status: 'error', errorText: i18n_1.default.t('invalidRoom', { ns: 'room', lng: req.language }) });
+            return res.status(200).jsonp({ status: 'error', errorText: i18n_1.default.t('invalidRoom', { ns: 'room', lng: lng }) });
         if (result['result'] && result['result'] === 'wrongDate')
-            return res.status(200).jsonp({ status: 'error', errorText: i18n_1.default.t('wrongDate', { ns: 'room', lng: req.language }) });
-        if (Number(result['remaining']) <= 0) {
-            req.session.data.paid = true;
-        }
-        else {
-            req.session.data.paid = false;
-        }
+            return res.status(200).jsonp({ status: 'error', errorText: i18n_1.default.t('wrongDate', { ns: 'room', lng: lng }) });
         req.session.data.guest_reservation_id = result['guest_reservations_id'];
         req.session.data.verification = req.body.date;
-        return res.status(200).jsonp({
-            status: 'success',
-            result: result['remaining'],
-            transelations: {
-                freeReservation: i18n_1.default.t('freeReservation', { ns: 'room', lng: req.language }),
-                paidReservation: i18n_1.default.t('paidReservation', { ns: 'room', lng: req.language }),
-                remainingReservations: i18n_1.default.t('remainingReservations', { ns: 'room', lng: req.language }),
-                pressContinue: i18n_1.default.t('pressContinue', { ns: 'room', lng: req.language }),
-            }
-        });
+        res.status(200).jsonp({ status: 'success' });
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/verifyroom', (req,res)=>{})", { script: "api.ts", scope: "api.post('/verifyroom', (req,res)=>{})", request: req, error: `${error}` }, req, res);
@@ -269,20 +288,67 @@ function handleCancel(req, res) {
 }
 api.get('/cancelreservation', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         handleCancel(req, res);
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/cancelreservation', (req,res)=>{})", { script: "api.ts", scope: "api.post('/cancelreservation', (req,res)=>{})", request: req, error: `${error}` }, req, res);
     }
 }));
+const checkPaidInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
+    const rows = yield (0, mysqlProvider_1.executeQuery)('CALL check_paid_info(?, ?, ?, ?, ?)', [(_a = req.session.data) === null || _a === void 0 ? void 0 : _a.hotelID, (_b = req.session.data) === null || _b === void 0 ? void 0 : _b.roomNumber, (_c = req.session.data) === null || _c === void 0 ? void 0 : _c.guest_reservation_id, req.body.restaurantID, (_d = req.session.data) === null || _d === void 0 ? void 0 : _d.companyID]);
+    return rows[0][0];
+});
+exports.checkPaidInfo = checkPaidInfo;
 api.post('/saverestaurant', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["restaurantID"]))
             return;
         req.session.data.restaurantID = req.body.restaurantID;
-        return res.status(200).jsonp({ status: 'success' });
+        let result = yield (0, exports.checkPaidInfo)(req, res);
+        switch (result['result']) {
+            case "alwaysPaid":
+                res.status(200).jsonp({ "status": "success", notice: i18n_1.default.t('alwaysPaidNotice', { ns: 'restaurant', lng: lng }), pressContinue: i18n_1.default.t('pressContinue', { ns: 'restaurant', lng: lng }), });
+                req.session.data.paid = true;
+                break;
+            case "alwaysFree":
+                res.status(200).jsonp({ "status": "success", alwaysFreeNotice: i18n_1.default.t('alwaysFreeNotice', { ns: 'restaurant', lng: lng }), pressContinue: i18n_1.default.t('pressContinue', { ns: 'restaurant', lng: lng }), });
+                req.session.data.paid = false;
+                break;
+            case "restrictrd":
+                res.status(202).jsonp({ "status": "error", notice: i18n_1.default.t('restrictrdNotice', { ns: 'restaurant', lng: lng }), });
+                break;
+            case "crossHotelPaid":
+                res.status(200).jsonp({ "status": "success", notice: i18n_1.default.t('crossHotelNotice', { ns: 'restaurant', lng: lng }), pressContinue: i18n_1.default.t('pressContinue', { ns: 'restaurant', lng: lng }), });
+                req.session.data.paid = true;
+                break;
+            case "success":
+                if (Number(result['remaining']) <= 0) {
+                    req.session.data.paid = true;
+                    res.status(200).jsonp({
+                        status: 'success',
+                        paidReservation: i18n_1.default.t('paidReservation', { ns: 'restaurant', lng: lng }),
+                        pressContinue: i18n_1.default.t('pressContinue', { ns: 'restaurant', lng: lng }),
+                    });
+                }
+                else {
+                    req.session.data.paid = false;
+                    res.status(200).jsonp({
+                        status: 'success',
+                        freeReservation: i18n_1.default.t('freeReservation', { ns: 'restaurant', lng: lng }),
+                        remainingReservations: i18n_1.default.t('remainingReservations', { ns: 'restaurant', lng: lng }),
+                        pressContinue: i18n_1.default.t('pressContinue', { ns: 'restaurant', lng: lng }),
+                        remaining: result['remaining']
+                    });
+                }
+                break;
+            default:
+                break;
+        }
     }
     catch (error) {
         (0, herlpers_1.logErrorAndRespond)("error occured in catch block of api.post('/saverestaurant', (req,res)=>{})", { script: "api.ts", scope: "api.post('/saverestaurant', (req,res)=>{})", request: req, error: `${error}` }, req, res);
@@ -291,6 +357,7 @@ api.post('/saverestaurant', (req, res, next) => __awaiter(void 0, void 0, void 0
 api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d;
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["desiredDate"]))
@@ -302,22 +369,22 @@ api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void
             return res.status(200).jsonp({
                 status: 'success',
                 data: rows[0],
-                free: i18n_1.default.t('freeText', { ns: 'time', lng: req.language }),
-                errorRestaurantNotAvailable: i18n_1.default.t('errorRestaurantNotAvailable', { ns: 'time', lng: req.language }),
-                noSelectedGuestsError: i18n_1.default.t('noSelectedGuestsError', { ns: 'time', lng: req.language }),
-                noSelectedTimeError: i18n_1.default.t('noSelectedTimeError', { ns: 'time', lng: req.language }),
-                RoomBasedReservation: i18n_1.default.t('RoomBasedReservation', { ns: 'time', lng: req.language }),
-                paxBasedReservation: i18n_1.default.t('paxBasedReservation', { ns: 'time', lng: req.language }),
+                free: i18n_1.default.t('freeText', { ns: 'time', lng: lng }),
+                errorRestaurantNotAvailable: i18n_1.default.t('errorRestaurantNotAvailable', { ns: 'time', lng: lng }),
+                noSelectedGuestsError: i18n_1.default.t('noSelectedGuestsError', { ns: 'time', lng: lng }),
+                noSelectedTimeError: i18n_1.default.t('noSelectedTimeError', { ns: 'time', lng: lng }),
+                RoomBasedReservation: i18n_1.default.t('RoomBasedReservation', { ns: 'time', lng: lng }),
+                paxBasedReservation: i18n_1.default.t('paxBasedReservation', { ns: 'time', lng: lng }),
                 roomNumber: (_d = req.session.data) === null || _d === void 0 ? void 0 : _d.roomNumber,
                 names: names,
                 table: {
-                    price: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
-                    time: i18n_1.default.t('timeTable', { ns: 'time', lng: req.language }),
-                    per_person: i18n_1.default.t('tablePerPerson', { ns: 'time', lng: req.language }),
-                    remaining: i18n_1.default.t('tableRemaining', { ns: 'time', lng: req.language }),
-                    free: i18n_1.default.t('priceTable', { ns: 'time', lng: req.language }),
-                    meal_type: JSON.stringify(i18n_1.default.t('mealType', { ns: 'time', lng: req.language, returnObjects: true })),
-                    total: i18n_1.default.t('total', { ns: 'time', lng: req.language }),
+                    price: i18n_1.default.t('priceTable', { ns: 'time', lng: lng }),
+                    time: i18n_1.default.t('timeTable', { ns: 'time', lng: lng }),
+                    per_person: i18n_1.default.t('tablePerPerson', { ns: 'time', lng: lng }),
+                    remaining: i18n_1.default.t('tableRemaining', { ns: 'time', lng: lng }),
+                    free: i18n_1.default.t('priceTable', { ns: 'time', lng: lng }),
+                    meal_type: JSON.stringify(i18n_1.default.t('mealType', { ns: 'time', lng: lng, returnObjects: true })),
+                    total: i18n_1.default.t('total', { ns: 'time', lng: lng }),
                 }
             });
         }
@@ -332,6 +399,7 @@ api.post('/getavailabledate', (req, res, next) => __awaiter(void 0, void 0, void
 api.post('/validate', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
     try {
+        let lng = (0, herlpers_1.getLanguage)(req);
         if (!(0, herlpers_1.validateContentType)(req, res, 'application/json'))
             return;
         if (!(0, herlpers_1.validateRequestBodyKeys)(req, res, ["selectedTime", "selectedNames", "desiredDate"]))
@@ -362,11 +430,11 @@ api.post('/validate', (req, res, next) => __awaiter(void 0, void 0, void 0, func
             return res.status(202).jsonp({ status: "error" });
         if ((_m = req.session.data) === null || _m === void 0 ? void 0 : _m.reservation_by_room) {
             if (userSelect['remaining'] <= 0)
-                return res.status(200).jsonp({ status: "notEnough", errorText: i18n_1.default.t('notEnough', { ns: 'time', lng: req.language }), });
+                return res.status(200).jsonp({ status: "notEnough", errorText: i18n_1.default.t('notEnough', { ns: 'time', lng: lng }), });
         }
         else {
             if (req.body.selectedNames.length > userSelect['remaining'])
-                return res.status(200).jsonp({ status: "notEnough", errorText: i18n_1.default.t('notEnough', { ns: 'time', lng: req.language }), });
+                return res.status(200).jsonp({ status: "notEnough", errorText: i18n_1.default.t('notEnough', { ns: 'time', lng: lng }), });
         }
         let totalAmount = 0;
         if ((_o = req.session.data) === null || _o === void 0 ? void 0 : _o.paid) {
@@ -395,7 +463,7 @@ api.post('/validate', (req, res, next) => __awaiter(void 0, void 0, void 0, func
             (_w = req.session.data) === null || _w === void 0 ? void 0 : _w.paid
         ]);
         if (insert[0][0]['result'] === "alreadyReserved")
-            return res.status(200).jsonp({ status: "alreadyReserved", errorText: i18n_1.default.t('alreadyReserved', { ns: 'time', lng: req.language }) });
+            return res.status(200).jsonp({ status: "alreadyReserved", errorText: i18n_1.default.t('alreadyReserved', { ns: 'time', lng: lng }) });
         req.session.data.qrCode = insert[0][0]['result'];
         return res.status(200).jsonp({ status: "success" });
     }

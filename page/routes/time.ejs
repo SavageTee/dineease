@@ -112,17 +112,18 @@
 
   <div style="display: none;" id="step_two"></div>
 
-  <hr class="py-0 mb-3" /> 
+   
 
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th scope="col tw-uppercase">TOTAL: </th>
-        <th id="totalAmmount" scope="col"></th>
-      </tr>
-    </thead>
-  </table>
-
+  <% if (paid === true) { %>
+    <table style="display: none;border: black solid 2px;" id="total_table" class="table tw-mt-3 table-bordered">
+      <thead>
+        <tr>
+          <th style="background-color: rgba(255, 255, 0, 0.5);" class="tw-uppercase  tw-text-slate-900 tw-text-lg " scope="col"> <%= total %> </th>
+          <th style="background-color: rgba(255, 255, 0, 0.5);" class="tw-font-extrabold tw-text-slate-900 tw-text-lg" id="totalAmmount" scope="col"></th>
+        </tr>
+      </thead>
+    </table>
+  <% } %> 
   </div>
 
   

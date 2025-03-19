@@ -46,13 +46,13 @@ reservation.get('/hotel', async (req:Request, res:Response, next:NextFunction):P
       let lng:string = getLanguage(req);
       const rows = await executeQuery('CALL get_hotels(?, ?)', [req.session.data!.companyID, 1]);
       if((rows as any)[0][0] === undefined || (rows as any)[0][0] === null ) return errorPage(req, res, i18next.t('titleNoHotel',{ns: 'hotel', lng: lng}), i18next.t('errorHeaderNoHotel',{ns: 'hotel', lng: lng}), i18next.t('errorBodyNoHotel',{ns: 'hotel', lng: lng}));
-      const hotels:hotel[] = (rows as any)[0].map(async (row: any) => ({
+      const hotels:hotel[] = await Promise.all((rows as any)[0].map(async (row: any) => ({
         hotelID: row['hotel_id'].toString(),
         name: row['name'],
         logo: await convertFileToBase64(row['logo_url']),
         verificationType: row['verification_type'],
         isSelected: row['hotel_id'].toString() === req.session.data?.hotelID
-      }));
+      })));
       return res.render('routes/hotel',{
           alertText: i18next.t('alertText',{ns: 'hotel', lng: lng }),
           buttonText: i18next.t('buttonText',{ns: 'hotel', lng: lng }),
@@ -86,12 +86,14 @@ reservation.get('/restaurant', async (req:Request, res:Response, next:NextFuncti
         restaurantID: row['restaurants_id']?.toString() ?? '',
         name: row['name']?.toString() ?? '',
         country: row['cuisine']?.toString() ?? '',
-        photo: await convertFileToBase64(row['logo_url']), // Await the Base64 conversion
+        photo: await convertFileToBase64(row['logo_url']),
         about: row['about']?.toString() ?? '',
         capacity: Number(row['capacity'] ?? '1'),
         isSelected: row['restaurants_id'].toString() === req.session.data?.restaurantID,
         hotel_id: row['hotel_id']?.toString() ?? '',
         hotel_name: row['hotel_name']?.toString() ?? '',
+        restricted_restaurants: row['restricted_restaurants'],
+        always_paid_free: row['always_paid_free'],
       }))
     );
     return res.render('routes/restaurant',{
@@ -110,6 +112,13 @@ reservation.get('/restaurant', async (req:Request, res:Response, next:NextFuncti
       timeTableTitle: i18next.t('timeTableTitle',{ns: 'restaurant', lng: lng }),
       timeZoneTableTitle: i18next.t('timeZoneTableTitle',{ns: 'restaurant', lng: lng }),
       mealTypeTableTitle: i18next.t('mealTypeTableTitle',{ns: 'restaurant', lng: lng }),
+      warningCrossHotel: i18next.t('warningCrossHotel',{ns: 'restaurant', lng: lng}),
+      selectedHotel: req.session.data?.hotelID,
+      alwaysPaid: i18next.t('alwaysPaid',{ns: 'restaurant', lng: lng}),    
+      confirmModalContinueButton: i18next.t('confirmModalContinueButton',{ns: 'restaurant', lng: lng}), 
+      confirmModalCancelButton: i18next.t('confirmModalCancelButton',{ns: 'restaurant', lng: lng}), 
+      confirmModalTitle: i18next.t('confirmModalTitle',{ns: 'restaurant', lng: lng}), 
+      alwaysFree: i18next.t('alwaysFree',{ns: 'restaurant', lng: lng}),  
     },(error, html)=>{if(error)throw error.toString();res.send(html)});
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})",{script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request:req , error:`${error}`}, req, res );}
 })
@@ -137,6 +146,7 @@ reservation.get('/time', async (req:Request, res:Response, next:NextFunction):Pr
           tableHeader: `${i18next.t('tableHeader',{ns: 'time', lng: lng })} ${dates['tz']}` ,
           roomNumber: req.session.data!.roomNumber,
           selectYourDate: i18next.t('selectYourDate',{ns: 'time', lng: lng }),
+          total: i18next.t('total',{ns: 'time', lng: lng }),
         },(error, html)=>{if(error)throw error.toString();res.send(html)});
       }
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
@@ -211,7 +221,7 @@ reservation.get('/menu', checkParamForMenu, async (req:Request, res:Response, ne
       const { menus_id, day } = req.query;
       let rows = await executeQuery('CALL get_menu(?, ?, ?)',[lng, req.session.data?.companyID, menus_id]);
       return res.render('routes/menu',{ 
-        data: (rows as any)
+          data: (rows as any)
       },(error, html)=>{if(error)throw error.toString();res.send(html)});
   }catch(error){ReportErrorAndRespondJsonGet("error occured in catch block of reservation.get('/restaurant', checkIdParam, (req,res)=>{})", {script: "reservation.ts", scope: "reservation.get('/restaurant', checkIdParam, (req,res)=>{})", request: req, error:`${error}`}, req, res );}
 })
